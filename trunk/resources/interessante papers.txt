@@ -1,0 +1,31 @@
+D. Ricci
+A Constructive Geometry for Computer Graphics
+Computer Journal, May 1973
+
+James F. Blinn
+A Generalization of Algebraic Surface Drawing
+ACM Transactions on Graphics, July 1982
+
+Jules Bloomenthal
+Polygonization of Implicit Surfaces
+Computer Aided Geometric Design, Issue 5, 1988
+
+T. F. Wiegand
+Interactive rendering of csg models
+Computer Graphics Forum, volume 15, pages 249-261, 1996. 
+
+Jules Bloomenthal
+An Implicit Surface Polygonizer
+http://www.wesman.net/~wesley/ucb/cs184/misc/polygonizer.pdf
+
+http://www.opengl.org/resources/code/samples/advanced/advanced97/notes/node11.html
+
+f \/ g = min(f, g)  : union
+f /\ g = max(f, g)  : intersection
+f -  g = max(f, -g) : difference
+
+Objecten met straal R en centrum op positie (A,B,C)
+Cirkel: (A+x)^2 + (B+y)^2 + (C+z)^2 - R^2 = 0
+Kubus : (A+x)^6 + (B+y)^6 + (C+z)^6 - R^2 = 0
+
+grad(f) = (df/dx, df/dy, df/dz): gradient, normaal vector
