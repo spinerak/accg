@@ -33,10 +33,14 @@ public class MarchingCubesPolygonizer {
         return Math.max(Sphere400(x, y, z), Sphere200(x,y,z));
     }
     
+    public double Difference(double x, double y, double z) {
+        return Math.min(-Sphere400(x, y, z), Sphere200(x,y,z));
+    }
+    
     public ArrayList<Triangle> GetPolygons() {
         ArrayList<Triangle> triangles = new ArrayList<Triangle>();
         
-        int ngrids = 10; // 10 * 10 * 10;
+        int ngrids = 20; // 10 * 10 * 10;
         Vertex start = new Vertex(-600d, -600d, -600d);
         Vertex end = new Vertex(600d, 600d, 600d);
         Vertex step = new Vertex((end.x - start.x)/ngrids, (end.y - start.y)/ngrids, (end.z - start.z)/ngrids);
@@ -59,7 +63,7 @@ public class MarchingCubesPolygonizer {
                     // Set iso values on all vertices
                     
                     for (int i = 0; i < cell.p.length; i++) {
-                        cell.val[i] = Union(cell.p[i].x, cell.p[i].y, cell.p[i].z);
+                        cell.val[i] = Difference(cell.p[i].x, cell.p[i].y, cell.p[i].z);
                     }
                     
                     ArrayList<Triangle> newTriangles = Polygonize(cell, 0);
