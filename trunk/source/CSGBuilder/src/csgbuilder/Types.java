@@ -50,3 +50,27 @@ public class Types {
             }
         }
     }
+    
+    class BoundingBox {
+        public Vertex[] p = new Vertex[8];
+        /* p[0] = (0,0,0)
+         * p[1] = (1,0,0)
+         * p[2] = (1,1,0)
+         * p[3] = (0,1,0)
+         * p[4] = (0,0,1)
+         * p[5] = (1,0,1)
+         * p[6] = (1,1,1)
+         * p[7] = (0,1,1)
+         */
+                
+        public BoundingBox () {
+            for (int i = 0; i < 8; i++) {
+                p[i] = new Vertex();
+            }
+        }
+        
+        public boolean intersects(BoundingBox b) {
+            // TODO
+            return true;
+        }
+    }
