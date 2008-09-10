@@ -7,9 +7,6 @@ package csgbuilder;
 public class Types {
 
 }
-
-    
-
     class Vertex {
         public double x;
         public double y;

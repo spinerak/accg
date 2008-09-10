@@ -33,8 +33,10 @@ public class CSGBuilderView extends FrameView {
         
         gljPanel1 = new javax.media.opengl.GLJPanel(caps);
         gljPanel1.setName("gljPanel1"); // NOI18N
-        gljPanel1.addGLEventListener(new gljPanel1EventListener());
-//        gljPanel1.addMouseMotionListener(new gljPanel1MouseListener());
+        Renderer renderer = new Renderer(gljPanel1);
+        gljPanel1.addGLEventListener(renderer);
+        gljPanel1.addMouseListener(new AOperandMouseListener(renderer));
+        gljPanel1.addMouseMotionListener(new AOperandMouseListener(renderer));
 //        gljPanel1.addKeyListener(new gljPanel1KeyListener());
         gljPanel1.setFocusable(true);
         jSplitPane1.setLeftComponent(gljPanel1);

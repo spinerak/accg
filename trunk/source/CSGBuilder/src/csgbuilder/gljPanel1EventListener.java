@@ -19,7 +19,8 @@ public class gljPanel1EventListener implements GLEventListener {
         gl.glEnable(GL.GL_DEPTH_TEST);              // Enables Depth Testing
         gl.glDepthFunc(GL.GL_LEQUAL);               // The Type Of Depth Testing To Do
         // Really Nice Perspective Calculations
-        gl.glHint(GL.GL_PERSPECTIVE_CORRECTION_HINT, GL.GL_NICEST);  
+        gl.glHint(GL.GL_PERSPECTIVE_CORRECTION_HINT, GL.GL_NICEST); 
+        
     }
 
     public void display(GLAutoDrawable drawable) {
@@ -28,26 +29,13 @@ public class gljPanel1EventListener implements GLEventListener {
         gl.glMatrixMode(GL.GL_MODELVIEW);
         gl.glLoadIdentity();
         
-        MarchingCubesPolygonizer polygonizer = new MarchingCubesPolygonizer();
-        ArrayList<Triangle> triangles = polygonizer.GetPolygons();
-        
-        gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
-        gl.glTranslatef(0, 0, -6.0f);
-        //gl.glScalef(1/winWidth, 1/winHeight, 1/200);
 
-        gl.glBegin( GL.GL_TRIANGLES );
-
-        for (Triangle triangle : triangles) {
-            
-              gl.glColor3d(1, 0, 0); // Sets current primary color to red
-              gl.glVertex3d(triangle.p[0].x/winWidth, triangle.p[0].y/winHeight, triangle.p[0].z/200); // Specify three vertices
-              gl.glVertex3d(triangle.p[1].x/winWidth, triangle.p[1].y/winHeight, triangle.p[1].z/200); // Specify three vertices
-              gl.glVertex3d(triangle.p[2].x/winWidth, triangle.p[2].y/winHeight, triangle.p[2].z/200); // Specify three vertices
-        }
      
         gl.glEnd();   
         gl.glFlush();
     }
+    
+    
 
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) 
     {        
