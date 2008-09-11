@@ -3,7 +3,6 @@
  */
 
 package csgbuilder;
-
 import org.jdesktop.application.Action;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.SingleFrameApplication;
