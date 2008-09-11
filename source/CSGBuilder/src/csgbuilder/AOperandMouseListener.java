@@ -379,6 +379,7 @@ class Renderer implements GLEventListener {
     // TEMP
     private javax.media.opengl.GLJPanel panel;
     private ArrayList<Triangle> MCTriangles = null;
+    private ArrayList<GridCell> MCCells = null;
     
     // User Defined Variables
     private GLUquadric quadratic;   // Used For Our Quadric
@@ -439,9 +440,12 @@ class Renderer implements GLEventListener {
         glu.gluQuadricTexture(quadratic, true); // Create Texture Coords
 
         gl.glEnable(GL.GL_LIGHT0);     // Enable Default Light
-        gl.glEnable(GL.GL_LIGHTING);   // Enable Lighting
+//        gl.glEnable(GL.GL_LIGHTING);   // Enable Lighting
 
         gl.glEnable(GL.GL_COLOR_MATERIAL);  // Enable Color Material
+        
+        gl.glEnable (GL.GL_BLEND);
+        gl.glBlendFunc (GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
     }
 
     void reset() {
@@ -515,14 +519,15 @@ class Renderer implements GLEventListener {
         gl.glEnd();  // Done Torus
     }
 
-    private void ImplicitSurface(GL gl, double width, double height)
+    private void ImplicitSurface(GL gl)
     {
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
 
         if (MCTriangles == null) {
             // Do Marching Cubes only once
             MarchingCubesPolygonizer polygonizer = new MarchingCubesPolygonizer();
-            MCTriangles = polygonizer.GetPolygons();
+            MCTriangles = polygonizer.GetPolygonsAdaptive();
+            MCCells = polygonizer.getMarchingCubes();
         }
         
         gl.glBegin( GL.GL_TRIANGLES );
@@ -530,9 +535,49 @@ class Renderer implements GLEventListener {
         for (Triangle triangle : MCTriangles) {
             
               gl.glColor3d(1, 0, 0); // Sets current primary color to red
-              gl.glVertex3d(triangle.p[0].x/width, triangle.p[0].y/height, triangle.p[0].z/300); // Specify three vertices
-              gl.glVertex3d(triangle.p[1].x/width, triangle.p[1].y/height, triangle.p[1].z/300); // Specify three vertices
-              gl.glVertex3d(triangle.p[2].x/width, triangle.p[2].y/height, triangle.p[2].z/300); // Specify three vertices
+              gl.glVertex3d(triangle.p[0].x, triangle.p[0].y, triangle.p[0].z); // Specify three vertices
+              gl.glVertex3d(triangle.p[1].x, triangle.p[1].y, triangle.p[1].z); // Specify three vertices
+              gl.glVertex3d(triangle.p[2].x, triangle.p[2].y, triangle.p[2].z); // Specify three vertices
+        }
+        
+        gl.glEnd();
+    }
+    
+    private void VisualizeMarchingCubes(GL gl) {
+        gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
+
+        gl.glBegin(GL.GL_QUADS);
+        
+        for (GridCell cell : MCCells) {
+            gl.glColor4d(0, 1, 0, 0.07);
+            
+            // First 4 vertices define the bottom quad, last for the top
+            
+            // Bottom
+            gl.glVertex3d(cell.p[0].x, cell.p[0].y, cell.p[0].z);
+            gl.glVertex3d(cell.p[1].x, cell.p[1].y, cell.p[1].z);
+            gl.glVertex3d(cell.p[2].x, cell.p[2].y, cell.p[2].z);
+            gl.glVertex3d(cell.p[3].x, cell.p[3].y, cell.p[3].z);
+            
+            // Top
+            gl.glVertex3d(cell.p[4].x, cell.p[4].y, cell.p[4].z);
+            gl.glVertex3d(cell.p[5].x, cell.p[5].y, cell.p[5].z);
+            gl.glVertex3d(cell.p[6].x, cell.p[6].y, cell.p[6].z);
+            gl.glVertex3d(cell.p[7].x, cell.p[7].y, cell.p[7].z);
+            
+            // Front
+            gl.glVertex3d(cell.p[0].x, cell.p[0].y, cell.p[0].z);
+            gl.glVertex3d(cell.p[1].x, cell.p[1].y, cell.p[1].z);
+            gl.glVertex3d(cell.p[5].x, cell.p[5].y, cell.p[5].z);
+            gl.glVertex3d(cell.p[4].x, cell.p[4].y, cell.p[4].z);
+
+            // Back
+            gl.glVertex3d(cell.p[2].x, cell.p[2].y, cell.p[2].z);
+            gl.glVertex3d(cell.p[3].x, cell.p[3].y, cell.p[3].z);
+            gl.glVertex3d(cell.p[7].x, cell.p[7].y, cell.p[7].z);
+            gl.glVertex3d(cell.p[6].x, cell.p[6].y, cell.p[6].z);
+
+            
         }
         
         gl.glEnd();
@@ -556,7 +601,9 @@ class Renderer implements GLEventListener {
         gl.glPushMatrix();                  // NEW: Prepare Dynamic Transform
         gl.glMultMatrixf(matrix, 0);        // NEW: Apply Dynamic Transform
         gl.glColor3f(1.0f, 0.75f, 0.75f);
-        ImplicitSurface(gl, 300, 300);
+        ImplicitSurface(gl);
+        
+        VisualizeMarchingCubes(gl);
         gl.glPopMatrix();                   // NEW: Unapply Dynamic Transform
 
         gl.glFlush();                       // Flush The GL Rendering Pipeline

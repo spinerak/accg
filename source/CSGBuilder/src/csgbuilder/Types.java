@@ -33,6 +33,17 @@ public class Types {
             }
         }
     }
+    
+    class Cube {
+        public Vertex p;
+        
+        public Vertex dim;
+        
+        public Cube() {
+            p = new Vertex();
+            dim = new Vertex();
+        }
+    }
 
     class GridCell {
         public Vertex[] p = new Vertex[8];
