@@ -7,10 +7,26 @@ package csgbuilder;
 public class CSGTree {    
     private CSGTreeElement root;
     
-    public void insert(CSGTreeOperations operator, CSGTreeElement object) {
-        root = new CSGTreeNode(operator, root, object);
+    public CSGTree(CSGTreeElement root) {
+        this.root = root;
+    }
+    
+    public void union(CSGTreeElement object) {
+        root = new CSGTreeUnion(root, object);
         normalize();
         prune();
+    }
+    
+    public void intersect(CSGTreeElement object) {
+        root = new CSGTreeIntersection(root, object);
+        normalize();
+        prune();        
+    }
+    
+    public void difference(CSGTreeElement object) {
+        root = new CSGTreeDifference(root, object);
+        normalize();
+        prune();        
     }
     
     /**
@@ -26,7 +42,7 @@ public class CSGTree {
      * (9) (X \/ Y) /\ Z = (X /\ Z) \/ (Y /\ Z)
      * See: T. F. Wiegand, Interactive Rendering of CSG Models.
      */
-    protected void normalize() {
+    private void normalize() {
         // TODO
     }
     
@@ -36,111 +52,7 @@ public class CSGTree {
      * (2) A - B  ->  A if !A.intersects(B)
      * See: T. F. Wiegand, Interactive Rendering of CSG Models.
      */
-    protected void prune() {
+    private void prune() {
         // TODO
-    }
-}
-
-interface CSGTreeElement {
-    public BoundingBox getBoundingBox(CSGTreeElement left, CSGTreeElement right);
-    public double getFunctionValue(double x, double y, double z);
-}
-
-enum CSGTreeOperations {    
-    UNION {
-        public BoundingBox getBoundingBox(CSGTreeElement left, CSGTreeElement right) {
-            // TODO
-            return new BoundingBox();
-        }
-        
-        public double getFunctionValue(CSGTreeElement left, CSGTreeElement right, 
-                                       double x, double y, double z) {
-            return Math.min(left.getFunctionValue(x, y, z), 
-                            right.getFunctionValue(x,y,z));
-        }
-    },
-    
-    DIFFERENCE {
-        public BoundingBox getBoundingBox(CSGTreeElement left, CSGTreeElement right) {
-            // TODO
-            return new BoundingBox();
-        }
-        
-        public double getFunctionValue(CSGTreeElement left, CSGTreeElement right, 
-                                       double x, double y, double z) {
-            return Math.max(left.getFunctionValue(x, y, z),
-                            -right.getFunctionValue(x,y,z));
-        }
-    },
-    
-    INTERSECTION {
-        public BoundingBox getBoundingBox(CSGTreeElement left, CSGTreeElement right) {
-            // TODO
-            return new BoundingBox();
-        }
-        
-        public double getFunctionValue(CSGTreeElement left, CSGTreeElement right, 
-                                       double x, double y, double z) {
-            return Math.max(left.getFunctionValue(x, y, z),
-                            right.getFunctionValue(x,y,z));
-        }
-    };
-    
-    public abstract BoundingBox getBoundingBox(CSGTreeElement left, CSGTreeElement right);
-    public abstract double getFunctionValue(CSGTreeElement left, CSGTreeElement right, 
-                                            double x, double y, double z);
-}
-
-class CSGTreeNode implements CSGTreeElement {
-    private CSGTreeOperations operator;
-    private CSGTreeElement left;
-    private CSGTreeElement right;
-    
-    public CSGTreeNode(CSGTreeOperations operation, CSGTreeElement left, CSGTreeElement right) {
-        this.operator = operation;
-    }
-    
-    public double getFunctionValue(double x, double y, double z) {
-        return operator.getFunctionValue(left, right, x, y, z);
-    }
-    
-    public BoundingBox getBoundingBox(CSGTreeElement left, CSGTreeElement right) {
-        return operator.getBoundingBox(left, right);
-    }
-    
-    public CSGTreeOperations getOperation() {
-        return operator;
-    }
-}
-
-abstract class CSGObject implements CSGTreeElement {
-    protected double[] pos  = new double[3];
-    protected double[] size = new double[3];
-    
-    public CSGObject(double[] pos, double[] size) {
-        this.pos  = pos;
-        this.size = size;
-    }
-    
-    public abstract BoundingBox getBoundingBox();
-    public abstract double getFuntionValue(double x, double y, double z);
-}
-
-abstract class CSGSphere extends CSGObject {
-    public CSGSphere(double[] pos, double r) {
-        super(pos, new double[]{r,r,r});
-    }
-    
-    public BoundingBox getBoundingBox() {
-        BoundingBox box = new BoundingBox();
-        // TODO
-        return box;
-    }
-    
-    public double getFunctionValue(double x, double y, double z) {
-        return Math.pow(pos[0] + x, 2) + 
-               Math.pow(pos[1] + y, 2) +
-               Math.pow(pos[2] + z, 2) - 
-               Math.pow(size[0], 2);
     }
 }
