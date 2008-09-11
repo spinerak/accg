@@ -22,8 +22,42 @@ class CSGTreeUnion extends CSGTreeOperation {
     }
     
     public BoundingBox getBoundingBox() {
-        // TODO
-        return new BoundingBox();
+        // Bound(A) \/ Bound(B) = Bound(A \/ B)
+        BoundingBox box = new BoundingBox();
+        
+        box.p[0].x = Math.min(left.getBoundingBox().p[0].x, right.getBoundingBox().p[0].x);
+        box.p[0].y = Math.min(left.getBoundingBox().p[0].y, right.getBoundingBox().p[0].y);
+        box.p[0].z = Math.min(left.getBoundingBox().p[0].z, right.getBoundingBox().p[0].z);
+
+        box.p[1].x = Math.max(left.getBoundingBox().p[1].x, right.getBoundingBox().p[1].x);
+        box.p[1].y = Math.min(left.getBoundingBox().p[1].y, right.getBoundingBox().p[1].y);
+        box.p[1].z = Math.min(left.getBoundingBox().p[1].z, right.getBoundingBox().p[1].z);   
+
+        box.p[2].x = Math.max(left.getBoundingBox().p[2].x, right.getBoundingBox().p[2].x);
+        box.p[2].y = Math.max(left.getBoundingBox().p[2].y, right.getBoundingBox().p[2].y);
+        box.p[2].z = Math.min(left.getBoundingBox().p[2].z, right.getBoundingBox().p[2].z);  
+
+        box.p[3].x = Math.min(left.getBoundingBox().p[3].x, right.getBoundingBox().p[3].x);
+        box.p[3].y = Math.max(left.getBoundingBox().p[3].y, right.getBoundingBox().p[3].y);
+        box.p[3].z = Math.min(left.getBoundingBox().p[3].z, right.getBoundingBox().p[3].z);  
+        
+        box.p[4].x = Math.min(left.getBoundingBox().p[4].x, right.getBoundingBox().p[4].x);
+        box.p[4].y = Math.min(left.getBoundingBox().p[4].y, right.getBoundingBox().p[4].y);
+        box.p[4].z = Math.max(left.getBoundingBox().p[4].z, right.getBoundingBox().p[4].z);
+
+        box.p[5].x = Math.max(left.getBoundingBox().p[5].x, right.getBoundingBox().p[5].x);
+        box.p[5].y = Math.min(left.getBoundingBox().p[5].y, right.getBoundingBox().p[5].y);
+        box.p[5].z = Math.max(left.getBoundingBox().p[5].z, right.getBoundingBox().p[5].z);   
+
+        box.p[6].x = Math.max(left.getBoundingBox().p[6].x, right.getBoundingBox().p[6].x);
+        box.p[6].y = Math.max(left.getBoundingBox().p[6].y, right.getBoundingBox().p[6].y);
+        box.p[6].z = Math.max(left.getBoundingBox().p[6].z, right.getBoundingBox().p[6].z);  
+
+        box.p[7].x = Math.min(left.getBoundingBox().p[7].x, right.getBoundingBox().p[7].x);
+        box.p[7].y = Math.max(left.getBoundingBox().p[7].y, right.getBoundingBox().p[7].y);
+        box.p[7].z = Math.max(left.getBoundingBox().p[7].z, right.getBoundingBox().p[7].z);  
+        
+        return box;
     }
         
     public double getFunctionValue(double x, double y, double z) {
@@ -43,8 +77,42 @@ class CSGTreeIntersection extends CSGTreeOperation {
     }
     
     public BoundingBox getBoundingBox() {
-        // TODO
-        return new BoundingBox();
+        // Bound(A) /\ Bound(B) = Bound(A /\ B)
+        BoundingBox box = new BoundingBox();
+        
+        box.p[0].x = Math.max(left.getBoundingBox().p[0].x, right.getBoundingBox().p[0].x);
+        box.p[0].y = Math.max(left.getBoundingBox().p[0].y, right.getBoundingBox().p[0].y);
+        box.p[0].z = Math.min(left.getBoundingBox().p[0].z, right.getBoundingBox().p[0].z);
+
+        box.p[1].x = Math.min(left.getBoundingBox().p[1].x, right.getBoundingBox().p[1].x);
+        box.p[1].y = Math.max(left.getBoundingBox().p[1].y, right.getBoundingBox().p[1].y);
+        box.p[1].z = Math.min(left.getBoundingBox().p[1].z, right.getBoundingBox().p[1].z);   
+
+        box.p[2].x = Math.min(left.getBoundingBox().p[2].x, right.getBoundingBox().p[2].x);
+        box.p[2].y = Math.min(left.getBoundingBox().p[2].y, right.getBoundingBox().p[2].y);
+        box.p[2].z = Math.min(left.getBoundingBox().p[2].z, right.getBoundingBox().p[2].z);  
+
+        box.p[3].x = Math.max(left.getBoundingBox().p[3].x, right.getBoundingBox().p[3].x);
+        box.p[3].y = Math.min(left.getBoundingBox().p[3].y, right.getBoundingBox().p[3].y);
+        box.p[3].z = Math.min(left.getBoundingBox().p[3].z, right.getBoundingBox().p[3].z);  
+        
+        box.p[4].x = Math.max(left.getBoundingBox().p[4].x, right.getBoundingBox().p[4].x);
+        box.p[4].y = Math.max(left.getBoundingBox().p[4].y, right.getBoundingBox().p[4].y);
+        box.p[4].z = Math.max(left.getBoundingBox().p[4].z, right.getBoundingBox().p[4].z);
+
+        box.p[5].x = Math.min(left.getBoundingBox().p[5].x, right.getBoundingBox().p[5].x);
+        box.p[5].y = Math.max(left.getBoundingBox().p[5].y, right.getBoundingBox().p[5].y);
+        box.p[5].z = Math.max(left.getBoundingBox().p[5].z, right.getBoundingBox().p[5].z);   
+
+        box.p[6].x = Math.min(left.getBoundingBox().p[6].x, right.getBoundingBox().p[6].x);
+        box.p[6].y = Math.min(left.getBoundingBox().p[6].y, right.getBoundingBox().p[6].y);
+        box.p[6].z = Math.max(left.getBoundingBox().p[6].z, right.getBoundingBox().p[6].z);  
+
+        box.p[7].x = Math.max(left.getBoundingBox().p[7].x, right.getBoundingBox().p[7].x);
+        box.p[7].y = Math.min(left.getBoundingBox().p[7].y, right.getBoundingBox().p[7].y);
+        box.p[7].z = Math.max(left.getBoundingBox().p[7].z, right.getBoundingBox().p[7].z);  
+        
+        return box;
     }
         
     public double getFunctionValue(double x, double y, double z) {
@@ -64,8 +132,7 @@ class CSGTreeDifference extends CSGTreeOperation {
     }
     
     public BoundingBox getBoundingBox() {
-        // TODO
-        return new BoundingBox();
+        return left.getBoundingBox();
     }
         
     public double getFunctionValue(double x, double y, double z) {
@@ -91,12 +158,12 @@ abstract class CSGObject implements CSGTreeElement {
         BoundingBox box = new BoundingBox();
         box.p[0] = new Vertex(pos[0] - size[0], pos[1] - size[1], pos[2] - size[2]);
         box.p[1] = new Vertex(pos[0] + size[0], pos[1] - size[1], pos[2] - size[2]);
-        box.p[1] = new Vertex(pos[0] + size[0], pos[1] + size[1], pos[2] - size[2]);
-        box.p[1] = new Vertex(pos[0] - size[0], pos[1] + size[1], pos[2] - size[2]);
-        box.p[0] = new Vertex(pos[0] - size[0], pos[1] - size[1], pos[2] + size[2]);
-        box.p[1] = new Vertex(pos[0] + size[0], pos[1] - size[1], pos[2] + size[2]);
-        box.p[1] = new Vertex(pos[0] + size[0], pos[1] + size[1], pos[2] + size[2]);
-        box.p[1] = new Vertex(pos[0] - size[0], pos[1] + size[1], pos[2] + size[2]);
+        box.p[2] = new Vertex(pos[0] + size[0], pos[1] + size[1], pos[2] - size[2]);
+        box.p[3] = new Vertex(pos[0] - size[0], pos[1] + size[1], pos[2] - size[2]);
+        box.p[4] = new Vertex(pos[0] - size[0], pos[1] - size[1], pos[2] + size[2]);
+        box.p[5] = new Vertex(pos[0] + size[0], pos[1] - size[1], pos[2] + size[2]);
+        box.p[6] = new Vertex(pos[0] + size[0], pos[1] + size[1], pos[2] + size[2]);
+        box.p[7] = new Vertex(pos[0] - size[0], pos[1] + size[1], pos[2] + size[2]);
         return box;
     }
     
@@ -138,7 +205,7 @@ class CSGCubeoid extends CSGObject {
     }
     
     public String toString() {
-        return "CSGCubeoid(" + 
+        return "CSGCUBEOID(" + 
                 pos[0] + "," +
                 pos[1] + "," +
                 pos[2] + "," + 
