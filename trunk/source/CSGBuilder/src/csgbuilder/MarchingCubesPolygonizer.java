@@ -6,94 +6,10 @@ import java.util.ArrayList;
  * http://local.wasp.uwa.edu.au/~pbourke/geometry/polygonise/index.html
  */
 public class MarchingCubesPolygonizer {
+    // To visualize the marching cubes algorithm
+    private ArrayList<GridCell> marchingCubes;
     
-    public double ImplicitSurface(double x, double y, double z) {
-        double r = 400;
-        
-        return Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2) - Math.pow(r, 2);
-    }
-    
-    public double Sphere400(double x, double y, double z) {
-        double r = 400;
-        
-        return Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2) - Math.pow(r, 2);
-    }
-    
-    public double Sphere200(double x, double y, double z) {
-        double r = 400;
-        
-        return Math.pow(x + 200, 2) + Math.pow(y + 200, 2) + Math.pow(z + 200, 2) - Math.pow(r, 2);
-    } 
-    
-    public double Union(double x, double y, double z) {
-        return Math.min(Sphere400(x, y, z), Sphere200(x,y,z));
-    }
-    
-    public double Intersection(double x, double y, double z) {
-        return Math.max(Sphere400(x, y, z), Sphere200(x,y,z));
-    }
-    
-    public double Difference(double x, double y, double z) {
-        return Math.min(-Sphere400(x, y, z), Sphere200(x,y,z));
-    }
-    
-    public ArrayList<Triangle> GetPolygons() {
-        ArrayList<Triangle> triangles = new ArrayList<Triangle>();
-        
-        int ngrids = 20; // 10 * 10 * 10;
-        Vertex start = new Vertex(-600d, -600d, -600d);
-        Vertex end = new Vertex(600d, 600d, 600d);
-        Vertex step = new Vertex((end.x - start.x)/ngrids, (end.y - start.y)/ngrids, (end.z - start.z)/ngrids);
-        
-        for (double x = start.x; x < end.x; x += step.x) {
-             for (double y = start.y; y < end.y; y += step.y) {
-                 for (double z = start.z; z < end.z; z += step.z) {
-                    GridCell cell = new GridCell();
-                    
-                    // Set vertices
-                    cell.p[0].x = x; cell.p[0].y = y; cell.p[0].z = z;
-                    cell.p[1].x = x + step.x; cell.p[1].y = y; cell.p[1].z = z;
-                    cell.p[2].x = x + step.x; cell.p[2].y = y; cell.p[2].z = z + step.z;
-                    cell.p[3].x = x; cell.p[3].y = y; cell.p[3].z = z + step.z;
-                    cell.p[4].x = x; cell.p[4].y = y + step.y; cell.p[4].z = z;
-                    cell.p[5].x = x + step.x; cell.p[5].y = y + step.y; cell.p[5].z = z;
-                    cell.p[6].x = x + step.x; cell.p[6].y = y + step.y; cell.p[6].z = z + step.z;
-                    cell.p[7].x = x; cell.p[7].y = y + step.y; cell.p[7].z = z + step.z;
-                    
-                    // Set iso values on all vertices
-                    
-                    for (int i = 0; i < cell.p.length; i++) {
-                        cell.val[i] = Difference(cell.p[i].x, cell.p[i].y, cell.p[i].z);
-                    }
-                    
-                    ArrayList<Triangle> newTriangles = Polygonize(cell, 0);
-                    if (newTriangles != null) {
-                        triangles.addAll(newTriangles);
-                    }
-                 }
-             }
-        }
-        
-        return triangles;
-    }
-
-
-    /*
-       Given a grid cell and an isolevel, calculate the triangular
-       facets required to represent the isosurface through the cell.
-       Return the number of triangular facets, the array "triangles"
-       will be loaded up with the vertices at most 5 triangular facets.
-            0 will be returned if the grid cell is either totally above
-       of totally below the isolevel.
-    */
-    public ArrayList<Triangle> Polygonize(GridCell grid, double isolevel)
-    {
-       int i,ntriang;
-       int cubeindex;
-       Vertex[] vertlist = new Vertex[12];
-       ArrayList<Triangle> triangles = new ArrayList<Triangle>();
-
-       int[] edgeTable = {
+    private int[] edgeTable = {
     0x0  , 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c,
     0x80c, 0x905, 0xa0f, 0xb06, 0xc0a, 0xd03, 0xe09, 0xf00,
     0x190, 0x99 , 0x393, 0x29a, 0x596, 0x49f, 0x795, 0x69c,
@@ -126,6 +42,172 @@ public class MarchingCubesPolygonizer {
     0x69c, 0x795, 0x49f, 0x596, 0x29a, 0x393, 0x99 , 0x190,
     0xf00, 0xe09, 0xd03, 0xc0a, 0xb06, 0xa0f, 0x905, 0x80c,
     0x70c, 0x605, 0x50f, 0x406, 0x30a, 0x203, 0x109, 0x0   };
+    
+    public MarchingCubesPolygonizer () {
+        marchingCubes = new ArrayList<GridCell>();
+    }
+    
+    public ArrayList<GridCell> getMarchingCubes() {
+        return this.marchingCubes;
+    }
+    
+    public double ImplicitSurface(double x, double y, double z) {
+        double r = 0.5;
+        
+        return Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2) - Math.pow(r, 2);
+    }
+    
+    public double Sphere400(double x, double y, double z) {
+        double r = 1;
+        
+        return Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2) - Math.pow(r, 2);
+    }
+    
+    public double Sphere200(double x, double y, double z) {
+        double r = 0.8;
+        
+        return Math.pow(x + 0.5, 2) + Math.pow(y + 0.5, 2) + Math.pow(z + 0.5, 2) - Math.pow(r, 2);
+    } 
+    
+    public double Union(double x, double y, double z) {
+        return Math.min(Sphere400(x, y, z), Sphere200(x,y,z));
+    }
+    
+    public double Intersection(double x, double y, double z) {
+        return Math.max(Sphere400(x, y, z), Sphere200(x,y,z));
+    }
+    
+    public double Difference(double x, double y, double z) {
+        return Math.min(-Sphere400(x, y, z), Sphere200(x,y,z));
+    }
+    
+    public ArrayList<Triangle> GetPolygonsAdaptive() {
+        Vertex start = new Vertex(-1d, -1d, -1d);
+        Vertex end = new Vertex(1d, 1d, 1d);
+
+        return PolygonsAdaptiveRecursive(0, start, end);
+    }
+    
+    private ArrayList<Triangle> PolygonsAdaptiveRecursive(double isoLevel, Vertex s, Vertex e) {
+        ArrayList<Triangle> triangles = new ArrayList<Triangle>();
+        
+        // Divide into 8 cubes and only recurse into the cubes that contain geometry
+        ArrayList<GridCell> cells = new ArrayList<GridCell>();
+        
+        // Divide sides in half
+        Vertex dim = new Vertex((e.x - s.x) / 2, (e.y - s.y) / 2, (e.z - s.z) / 2);
+        
+        // Bottom 4 cubes
+        cells.add(BuildCell(s.x, s.y, s.z, dim));
+        cells.add(BuildCell(s.x + dim.x, s.y, s.z, dim));
+        cells.add(BuildCell(s.x + dim.x, s.y, s.z + dim.z, dim));
+        cells.add(BuildCell(s.x, s.y, s.z + dim.z, dim));
+        
+        // Top 4 cubes
+        cells.add(BuildCell(s.x, s.y + dim.y, s.z, dim));
+        cells.add(BuildCell(s.x + dim.x, s.y + dim.y, s.z, dim));
+        cells.add(BuildCell(s.x + dim.x, s.y + dim.y, s.z + dim.z, dim));
+        cells.add(BuildCell(s.x, s.y + dim.y, s.z + dim.z, dim));
+        
+        this.marchingCubes.addAll(cells);
+        
+        for (GridCell cell : cells) {
+            if (dim.x < 0.1) {
+                // Do marching cubes
+                ArrayList<Triangle> newTriangles = Polygonize(cell, isoLevel);
+                if (newTriangles != null) {
+                    triangles.addAll(newTriangles);
+                }
+                continue;
+            }
+            
+            
+           int cubeindex = 0;
+           if (cell.val[0] < isoLevel) cubeindex |= 1;
+           if (cell.val[1] < isoLevel) cubeindex |= 2;
+           if (cell.val[2] < isoLevel) cubeindex |= 4;
+           if (cell.val[3] < isoLevel) cubeindex |= 8;
+           if (cell.val[4] < isoLevel) cubeindex |= 16;
+           if (cell.val[5] < isoLevel) cubeindex |= 32;
+           if (cell.val[6] < isoLevel) cubeindex |= 64;
+           if (cell.val[7] < isoLevel) cubeindex |= 128;
+
+           /* Cube is entirely in/out of the surface */
+           if (edgeTable[cubeindex] > 0)
+           {
+                triangles.addAll(PolygonsAdaptiveRecursive(isoLevel, cell.p[0], cell.p[6]));
+           }
+        }
+        
+        return triangles;
+    }
+    
+    private GridCell BuildCell(Vertex p, Vertex dim) {
+        return BuildCell(p.x, p.y, p.z, dim);
+    }
+    
+    private GridCell BuildCell(double x, double y, double z, Vertex dim) {
+        GridCell cell = new GridCell();
+        
+                    // Set vertices
+        cell.p[0].x = x; cell.p[0].y = y; cell.p[0].z = z;
+        cell.p[1].x = x + dim.x; cell.p[1].y = y; cell.p[1].z = z;
+        cell.p[2].x = x + dim.x; cell.p[2].y = y; cell.p[2].z = z + dim.z;
+        cell.p[3].x = x; cell.p[3].y = y; cell.p[3].z = z + dim.z;
+        cell.p[4].x = x; cell.p[4].y = y + dim.y; cell.p[4].z = z;
+        cell.p[5].x = x + dim.x; cell.p[5].y = y + dim.y; cell.p[5].z = z;
+        cell.p[6].x = x + dim.x; cell.p[6].y = y + dim.y; cell.p[6].z = z + dim.z;
+        cell.p[7].x = x; cell.p[7].y = y + dim.y; cell.p[7].z = z + dim.z;
+        
+        // Set iso values on all vertices
+                    
+        for (int i = 0; i < cell.p.length; i++) {
+            cell.val[i] = Difference(cell.p[i].x, cell.p[i].y, cell.p[i].z);
+        }
+        
+        return cell;
+    }
+    
+    public ArrayList<Triangle> GetPolygons() {
+        ArrayList<Triangle> triangles = new ArrayList<Triangle>();
+        
+        int ngrids = 10; // 10 * 10 * 10;
+        Vertex start = new Vertex(-1d, -1d, -1d);
+        Vertex end = new Vertex(1d, 1d, 1d);
+        Vertex step = new Vertex((end.x - start.x)/ngrids, (end.y - start.y)/ngrids, (end.z - start.z)/ngrids);
+        
+        for (double x = start.x; x < end.x; x += step.x) {
+             for (double y = start.y; y < end.y; y += step.y) {
+                 for (double z = start.z; z < end.z; z += step.z) {
+                    GridCell cell = BuildCell(x, y, z, step);                    
+                    this.marchingCubes.add(cell);
+                    
+                    ArrayList<Triangle> newTriangles = Polygonize(cell, 0);
+                    if (newTriangles != null) {
+                        triangles.addAll(newTriangles);
+                    }
+                 }
+             }
+        }
+        
+        return triangles;
+    }
+
+
+    /*
+       Given a grid cell and an isolevel, calculate the triangular
+       facets required to represent the isosurface through the cell.
+       Return the number of triangular facets, the array "triangles"
+       will be loaded up with the vertices at most 5 triangular facets.
+            0 will be returned if the grid cell is either totally above
+       of totally below the isolevel.
+    */
+    public ArrayList<Triangle> Polygonize(GridCell grid, double isolevel)
+    {
+       int i,ntriang;
+       int cubeindex;
+       Vertex[] vertlist = new Vertex[12];
+       ArrayList<Triangle> triangles = new ArrayList<Triangle>();
 
     int[][] triTable =
     {{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
