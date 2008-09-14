@@ -30,7 +30,7 @@ public class CSGBuilderView extends FrameView {
         GLCapabilities caps = new GLCapabilities();
         caps.setDoubleBuffered(true);
         
-        gljPanel1 = new javax.media.opengl.GLJPanel(caps);
+        gljPanel1 = new javax.media.opengl.GLCanvas(caps);
         gljPanel1.setName("gljPanel1"); // NOI18N
         Renderer renderer = new Renderer(gljPanel1);
         gljPanel1.addGLEventListener(renderer);
@@ -40,7 +40,7 @@ public class CSGBuilderView extends FrameView {
         gljPanel1.setFocusable(true);
         jSplitPane1.setLeftComponent(gljPanel1);
         
-        gljPanel2 = new javax.media.opengl.GLJPanel(caps);
+        gljPanel2 = new javax.media.opengl.GLCanvas(caps);
         gljPanel2.setName("gljPanel2"); // NOI18N
         gljPanel2.addGLEventListener(new gljPanel2EventListener());
 //        gljPanel2.addMouseMotionListener(new gljPanel2MouseListener());
@@ -215,8 +215,8 @@ public class CSGBuilderView extends FrameView {
     private javax.swing.JPanel statusPanel;
     // End of variables declaration//GEN-END:variables
 
-    private javax.media.opengl.GLJPanel gljPanel1;
-    private javax.media.opengl.GLJPanel gljPanel2;
+    private javax.media.opengl.GLCanvas gljPanel1;
+    private javax.media.opengl.GLCanvas gljPanel2;
     
     private final Timer messageTimer;
     private final Timer busyIconTimer;

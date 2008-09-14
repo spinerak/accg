@@ -81,14 +81,16 @@ public class MarchingCubesPolygonizer {
         return Math.min(-Sphere400(x, y, z), Sphere200(x,y,z));
     }
     
-    public ArrayList<Triangle> GetPolygonsAdaptive() {
-        Vertex start = new Vertex(-1d, -1d, -1d);
-        Vertex end = new Vertex(1d, 1d, 1d);
+    public ArrayList<Triangle> GetPolygonsAdaptive(CSGTree tree) {
+        //Vertex start = new Vertex(-1d, -1d, -1d);
+        //Vertex end = new Vertex(1d, 1d, 1d);
+        Vertex start = tree.getBoundingBox().p[0];
+        Vertex end = tree.getBoundingBox().p[6];
 
-        return PolygonsAdaptiveRecursive(0, start, end);
+        return PolygonsAdaptiveRecursive(0, start, end, tree);
     }
     
-    private ArrayList<Triangle> PolygonsAdaptiveRecursive(double isoLevel, Vertex s, Vertex e) {
+    private ArrayList<Triangle> PolygonsAdaptiveRecursive(double isoLevel, Vertex s, Vertex e, CSGTree tree) {
         ArrayList<Triangle> triangles = new ArrayList<Triangle>();
         
         // Divide into 8 cubes and only recurse into the cubes that contain geometry
@@ -98,16 +100,16 @@ public class MarchingCubesPolygonizer {
         Vertex dim = new Vertex((e.x - s.x) / 2, (e.y - s.y) / 2, (e.z - s.z) / 2);
         
         // Bottom 4 cubes
-        cells.add(BuildCell(s.x, s.y, s.z, dim));
-        cells.add(BuildCell(s.x + dim.x, s.y, s.z, dim));
-        cells.add(BuildCell(s.x + dim.x, s.y, s.z + dim.z, dim));
-        cells.add(BuildCell(s.x, s.y, s.z + dim.z, dim));
+        cells.add(BuildCell(s.x, s.y, s.z, dim, tree));
+        cells.add(BuildCell(s.x + dim.x, s.y, s.z, dim, tree));
+        cells.add(BuildCell(s.x + dim.x, s.y, s.z + dim.z, dim, tree));
+        cells.add(BuildCell(s.x, s.y, s.z + dim.z, dim, tree));
         
         // Top 4 cubes
-        cells.add(BuildCell(s.x, s.y + dim.y, s.z, dim));
-        cells.add(BuildCell(s.x + dim.x, s.y + dim.y, s.z, dim));
-        cells.add(BuildCell(s.x + dim.x, s.y + dim.y, s.z + dim.z, dim));
-        cells.add(BuildCell(s.x, s.y + dim.y, s.z + dim.z, dim));
+        cells.add(BuildCell(s.x, s.y + dim.y, s.z, dim, tree));
+        cells.add(BuildCell(s.x + dim.x, s.y + dim.y, s.z, dim, tree));
+        cells.add(BuildCell(s.x + dim.x, s.y + dim.y, s.z + dim.z, dim, tree));
+        cells.add(BuildCell(s.x, s.y + dim.y, s.z + dim.z, dim, tree));
         
         this.marchingCubes.addAll(cells);
         
@@ -135,18 +137,18 @@ public class MarchingCubesPolygonizer {
            /* Cube is entirely in/out of the surface */
            if (edgeTable[cubeindex] > 0)
            {
-                triangles.addAll(PolygonsAdaptiveRecursive(isoLevel, cell.p[0], cell.p[6]));
+                triangles.addAll(PolygonsAdaptiveRecursive(isoLevel, cell.p[0], cell.p[6], tree));
            }
         }
         
         return triangles;
     }
     
-    private GridCell BuildCell(Vertex p, Vertex dim) {
-        return BuildCell(p.x, p.y, p.z, dim);
+    private GridCell BuildCell(Vertex p, Vertex dim, CSGTree tree) {
+        return BuildCell(p.x, p.y, p.z, dim, tree);
     }
     
-    private GridCell BuildCell(double x, double y, double z, Vertex dim) {
+    private GridCell BuildCell(double x, double y, double z, Vertex dim, CSGTree tree) {
         GridCell cell = new GridCell();
         
                     // Set vertices
@@ -162,13 +164,14 @@ public class MarchingCubesPolygonizer {
         // Set iso values on all vertices
                     
         for (int i = 0; i < cell.p.length; i++) {
-            cell.val[i] = Difference(cell.p[i].x, cell.p[i].y, cell.p[i].z);
+            //cell.val[i] = Difference(cell.p[i].x, cell.p[i].y, cell.p[i].z);
+            cell.val[i] = tree.getFunctionValue(cell.p[i].x, cell.p[i].y, cell.p[i].z);
         }
         
         return cell;
     }
     
-    public ArrayList<Triangle> GetPolygons() {
+    public ArrayList<Triangle> GetPolygons(CSGTree tree) {
         ArrayList<Triangle> triangles = new ArrayList<Triangle>();
         
         int ngrids = 10; // 10 * 10 * 10;
@@ -179,7 +182,7 @@ public class MarchingCubesPolygonizer {
         for (double x = start.x; x < end.x; x += step.x) {
              for (double y = start.y; y < end.y; y += step.y) {
                  for (double z = start.z; z < end.z; z += step.z) {
-                    GridCell cell = BuildCell(x, y, z, step);                    
+                    GridCell cell = BuildCell(x, y, z, step, tree);                    
                     this.marchingCubes.add(cell);
                     
                     ArrayList<Triangle> newTriangles = Polygonize(cell, 0);

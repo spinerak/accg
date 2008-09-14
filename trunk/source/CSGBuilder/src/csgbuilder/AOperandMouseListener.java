@@ -26,7 +26,7 @@ import java.util.ArrayList;
  */
 class AOperandMouseListener extends MouseInputAdapter {
     private Renderer renderer;
-
+    
     public AOperandMouseListener(Renderer renderer/*, GLAutoDrawable drawable*/) {
         this.renderer = renderer;
 //        GL glDisplay = drawable.getGL();
@@ -377,7 +377,7 @@ class Vector3f {
 
 class Renderer implements GLEventListener {
     // TEMP
-    private javax.media.opengl.GLJPanel panel;
+    private javax.media.opengl.GLCanvas panel;
     private ArrayList<Triangle> MCTriangles = null;
     private ArrayList<GridCell> MCCells = null;
     
@@ -391,8 +391,10 @@ class Renderer implements GLEventListener {
     private float[] matrix = new float[16];
 
     private ArcBall arcBall = new ArcBall(640.0f, 480.0f);  // NEW: ArcBall Instance
+
+    private CSGTree tree;
     
-    public Renderer(javax.media.opengl.GLJPanel pvPanel) {
+    public Renderer(javax.media.opengl.GLCanvas pvPanel) {
         panel = pvPanel;
     }
 
@@ -522,13 +524,24 @@ class Renderer implements GLEventListener {
     private void ImplicitSurface(GL gl)
     {
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
-
+        drawGrid(gl);
+        
         if (MCTriangles == null) {
             // Do Marching Cubes only once
+            tree = new CSGTree(new CSGEllipsoid(new double[]{0.0,-1.5,0.0}, new double[]{0.5,0.5,0.5}));
+            //tree.union(new CSGCuboid(new double[]{0.0,1.5,1.0}, new double[]{0.5,0.5,0.5}));
+            tree.union(new CSGCuboid(new double[]{0.0,0.3,0.0}, new double[]{0.5,0.8,0.5}));
+            tree.union(new CSGCuboid(new double[]{-1.5,0.6,0.2}, new double[]{0.3,0.6,0.2}));
+            tree.union(new CSGCuboid(new double[]{1.5,0.6,0.2}, new double[]{0.3,0.6,0.2}));
+            tree.union(new CSGCuboid(new double[]{-1.0,2.5,0.2}, new double[]{0.2,0.6,0.2}));
+            tree.union(new CSGCuboid(new double[]{1.0,2.5,0.2}, new double[]{0.2,0.6,0.2}));
             MarchingCubesPolygonizer polygonizer = new MarchingCubesPolygonizer();
-            MCTriangles = polygonizer.GetPolygonsAdaptive();
+            MCTriangles = polygonizer.GetPolygonsAdaptive(tree);
             MCCells = polygonizer.getMarchingCubes();
+            System.out.println(tree);
         }
+        
+        drawBoundingBox(gl, tree);
         
         gl.glBegin( GL.GL_TRIANGLES );
 
@@ -539,6 +552,64 @@ class Renderer implements GLEventListener {
               gl.glVertex3d(triangle.p[1].x, triangle.p[1].y, triangle.p[1].z); // Specify three vertices
               gl.glVertex3d(triangle.p[2].x, triangle.p[2].y, triangle.p[2].z); // Specify three vertices
         }
+        
+        gl.glEnd();
+    }
+    
+    private void drawBoundingBox(GL gl, CSGTree tree) {
+        BoundingBox box = tree.getBoundingBox();
+        
+        gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
+        gl.glColor3d(1.0, 1.0, 1.0);
+        
+        gl.glBegin(GL.GL_QUADS);
+        
+        // Top
+        gl.glVertex3d(box.p[2].x, box.p[2].y, box.p[2].z);
+        gl.glVertex3d(box.p[3].x, box.p[3].y, box.p[3].z);
+        gl.glVertex3d(box.p[7].x, box.p[7].y, box.p[7].z);
+        gl.glVertex3d(box.p[6].x, box.p[6].y, box.p[6].z);
+        
+        // Bottom
+        gl.glVertex3d(box.p[0].x, box.p[0].y, box.p[0].z);
+        gl.glVertex3d(box.p[1].x, box.p[1].y, box.p[1].z);
+        gl.glVertex3d(box.p[4].x, box.p[4].y, box.p[4].z);
+        gl.glVertex3d(box.p[5].x, box.p[5].y, box.p[5].z);
+        
+        // Front
+        gl.glVertex3d(box.p[7].x, box.p[7].y, box.p[7].z);
+        gl.glVertex3d(box.p[6].x, box.p[6].y, box.p[6].z);
+        gl.glVertex3d(box.p[4].x, box.p[4].y, box.p[4].z);
+        gl.glVertex3d(box.p[5].x, box.p[5].y, box.p[5].z);
+        
+        // Back
+        gl.glVertex3d(box.p[0].x, box.p[0].y, box.p[0].z);
+        gl.glVertex3d(box.p[1].x, box.p[1].y, box.p[1].z);
+        gl.glVertex3d(box.p[2].x, box.p[2].y, box.p[2].z);
+        gl.glVertex3d(box.p[3].x, box.p[3].y, box.p[3].z);
+        
+        gl.glEnd();
+    }
+    
+    private void drawGrid(GL gl) {
+        gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
+        
+        gl.glBegin(GL.GL_TRIANGLES);
+        
+        gl.glColor3d(1.0, 1.0, 0.0);        
+        gl.glVertex3d(-100, 0, 0);
+        gl.glVertex3d(100, 0, 0);
+        gl.glVertex3d(0, 0, 0);
+        
+        gl.glColor3d(1.0, 0.5, 0.0);        
+        gl.glVertex3d(0, -100, 0);
+        gl.glVertex3d(0, 100, 0);
+        gl.glVertex3d(0, 0, 0);
+        
+        gl.glColor3d(0.5, 0.5, 0.0);
+        gl.glVertex3d(0, 0, -100);
+        gl.glVertex3d(0, 0, 100);
+        gl.glVertex3d(0, 0, 0);
         
         gl.glEnd();
     }
