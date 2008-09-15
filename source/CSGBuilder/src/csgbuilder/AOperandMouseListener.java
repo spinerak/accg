@@ -404,6 +404,8 @@ class Renderer implements GLEventListener {
 	
 	private FloatBuffer cells;	// Marching Cube debug cells data
 	private int cellCount;
+	
+	private BoundingBox mBoundingBox = null;
     
     public Renderer(javax.media.opengl.GLCanvas pvPanel) {
         panel = pvPanel;
@@ -568,20 +570,26 @@ class Renderer implements GLEventListener {
     {
 		// Do Marching Cubes only once
         tree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{1,1,1}));
-            //tree.union(new CSGCuboid(new double[]{0.0,1.5,1.0}, new double[]{0.5,0.5,0.5}));
-            //tree.union(new CSGCuboid(new double[]{0.0,0.3,0.0}, new double[]{0.5,0.8,0.5}));
-            //tree.union(new CSGCuboid(new double[]{-1.5,0.6,0.2}, new double[]{0.3,0.6,0.2}));
-            //tree.union(new CSGCuboid(new double[]{1.5,0.6,0.2}, new double[]{0.3,0.6,0.2}));
-            //tree.union(new CSGCuboid(new double[]{-1.0,2.5,0.2}, new double[]{0.2,0.6,0.2}));
-            //tree.union(new CSGCuboid(new double[]{1.0,2.5,0.2}, new double[]{0.2,0.6,0.2}));
+            //tree.union(new CSGEllipsoid(new double[]{0.0,1.5,0.0}, new double[]{1.5,1.5,1.5}));
+            tree.difference(new CSGEllipsoid(new double[]{0.0,0.5,1.0}, new double[]{0.8,0.8,0.8}));
+            tree.union(new CSGCuboid(new double[]{-1.5,0.6,0.2}, new double[]{0.3,0.6,0.2}));
+            tree.union(new CSGCuboid(new double[]{1.5,0.6,0.2}, new double[]{0.3,0.6,0.2}));
+            tree.union(new CSGCuboid(new double[]{-1.0,2.5,0.2}, new double[]{0.2,0.6,0.2}));
+            tree.union(new CSGCuboid(new double[]{1.0,2.5,0.2}, new double[]{0.2,0.6,0.2}));
 			
-            MarchingCubesPolygonizer polygonizer = new MarchingCubesPolygonizer();
+			
+			mBoundingBox = tree.getBoundingBox();
+
+			MarchingCubesPolygonizer polygonizer = new MarchingCubesPolygonizer();
             ArrayList<Vertex> vertexArray = polygonizer.GetPolygonsAdaptive(tree);
             ArrayList<GridCell> cellArray = polygonizer.getMarchingCubes();
             System.out.println(tree);
 			
 			vertexCount = vertexArray.size();
 			cellCount = cellArray.size();
+			
+			System.out.println("Vertex count: " + Integer.toString(vertexCount));
+			System.out.println("MC Vertex count: " + Integer.toString(cellCount * 4 * 4));
 			vertices = BufferUtil.newFloatBuffer(vertexCount * 3);
 			
 			for (Vertex v : vertexArray) {
@@ -626,8 +634,8 @@ class Renderer implements GLEventListener {
 			}
     }
     
-    private void drawBoundingBox(GL gl, CSGTree tree) {
-        BoundingBox box = tree.getBoundingBox();
+    private void drawBoundingBox(GL gl) {
+		BoundingBox box = mBoundingBox;
         
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
         gl.glColor3d(1.0, 1.0, 1.0);
@@ -752,7 +760,7 @@ class Renderer implements GLEventListener {
 
         gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
         drawGrid(gl);
-        drawBoundingBox(gl, tree);
+        drawBoundingBox(gl);
         
 		renderMesh(gl);
         
