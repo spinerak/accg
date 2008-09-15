@@ -377,7 +377,7 @@ class Vector3f {
 
 class Renderer implements GLEventListener {
     // TEMP
-    private javax.media.opengl.GLCanvas panel;
+    private GLCanvas panel;
     private ArrayList<Triangle> MCTriangles = null;
     private ArrayList<GridCell> MCCells = null;
     

@@ -30,6 +30,7 @@ public class CSGBuilderView extends FrameView {
         GLCapabilities caps = new GLCapabilities();
         caps.setDoubleBuffered(true);
         
+
         gljPanel1 = new javax.media.opengl.GLCanvas(caps);
         gljPanel1.setName("gljPanel1"); // NOI18N
         Renderer renderer = new Renderer(gljPanel1);
@@ -214,6 +215,7 @@ public class CSGBuilderView extends FrameView {
     private javax.swing.JLabel statusMessageLabel;
     private javax.swing.JPanel statusPanel;
     // End of variables declaration//GEN-END:variables
+
 
     private javax.media.opengl.GLCanvas gljPanel1;
     private javax.media.opengl.GLCanvas gljPanel2;
