@@ -1,5 +1,7 @@
 package csgbuilder;
 
+import com.sun.opengl.util.BufferUtil;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
 /**
@@ -98,12 +100,15 @@ public class MarchingCubesPolygonizer {
         return 0.5 * Math.sqrt(Math.pow(x, 2) + n) - x / 2;
     } 
      
-    public ArrayList<Triangle> GetPolygonsAdaptive(CSGTree tree) {
+    public ArrayList<Vertex> GetPolygonsAdaptive(CSGTree tree) {
         //Vertex start = new Vertex(-1d, -1d, -1d);
         //Vertex end = new Vertex(1d, 1d, 1d);
-        Vertex start = tree.getBoundingBox().p[0];
+		ArrayList<Vertex> vertices = new ArrayList<Vertex>();
+       Vertex start = tree.getBoundingBox().p[0];
         Vertex end = tree.getBoundingBox().p[6];
-        return PolygonsAdaptiveRecursive(0, start, end, tree);
+        PolygonsAdaptiveRecursive(vertices, 0, 0, 3, start, end, tree);
+		
+		return vertices;
     }
     
     public double welp(double x, double y, double z) {
@@ -117,14 +122,13 @@ public class MarchingCubesPolygonizer {
     }
     
 
-    private ArrayList<Triangle> PolygonsAdaptiveRecursive(double isoLevel, Vertex s, Vertex e, CSGTree tree) {
-        ArrayList<Triangle> triangles = new ArrayList<Triangle>();
-        
+    private void PolygonsAdaptiveRecursive(ArrayList<Vertex> vertices, float isoLevel, int depth, int maxDepth, Vertex s, Vertex e, CSGTree tree) {
         // Divide into 8 cubes and only recurse into the cubes that contain geometry
         ArrayList<GridCell> cells = new ArrayList<GridCell>();
         
         // Divide sides in half
-        Vertex dim = new Vertex((e.x - s.x) / 2, (e.y - s.y) / 2, (e.z - s.z) / 2);
+        Vertex dim = new Vertex();
+		dim.x = (e.x - s.x) / 2; dim.y = (e.y - s.y) / 2; dim.z = (e.z - s.z) / 2;
         
         // Bottom 4 cubes
         cells.add(BuildCell(s.x, s.y, s.z, dim, tree));
@@ -141,14 +145,11 @@ public class MarchingCubesPolygonizer {
         this.marchingCubes.addAll(cells);
         
         for (GridCell cell : cells) {
-            if (dim.x < 0.1) {
+            if (depth >= maxDepth) {
                 //this.marchingCubes.add(cell);
                 // Do marching cubes
-                ArrayList<Triangle> newTriangles = Polygonize(cell, isoLevel);
-                //ArrayList<Triangle> newTriangles = PolygoniseCubeTri(cell, isoLevel);
-                if (newTriangles != null) {
-                    triangles.addAll(newTriangles);
-                }
+                Polygonize(vertices, cell, isoLevel);
+
                 continue;
             }
             
@@ -174,19 +175,16 @@ public class MarchingCubesPolygonizer {
            /* Cube is entirely in/out of the surface */
            if (recurse)
            {
-
-                triangles.addAll(PolygonsAdaptiveRecursive(isoLevel, cell.p[0], cell.p[6], tree));
+                PolygonsAdaptiveRecursive(vertices, isoLevel, depth + 1, maxDepth, cell.p[0], cell.p[6], tree);
            }
         }
-        
-        return triangles;
     }
     
     private GridCell BuildCell(Vertex p, Vertex dim, CSGTree tree) {
         return BuildCell(p.x, p.y, p.z, dim, tree);
     }
     
-    private GridCell BuildCell(double x, double y, double z, Vertex dim, CSGTree tree) {
+    private GridCell BuildCell(float x, float y, float z, Vertex dim, CSGTree tree) {
         GridCell cell = new GridCell();
         
                     // Set vertices
@@ -204,36 +202,36 @@ public class MarchingCubesPolygonizer {
         for (int i = 0; i < cell.p.length; i++) {
 
             //cell.val[i] = Difference(cell.p[i].x, cell.p[i].y, cell.p[i].z);
-            cell.val[i] = tree.getFunctionValue(cell.p[i].x, cell.p[i].y, cell.p[i].z);
+            cell.val[i] = (float) tree.getFunctionValue(cell.p[i].x, cell.p[i].y, cell.p[i].z);
         }
         
         return cell;
     }
     
-    public ArrayList<Triangle> GetPolygons(CSGTree tree) {
-        ArrayList<Triangle> triangles = new ArrayList<Triangle>();
+    public ArrayList<Vertex> GetPolygons(CSGTree tree) {
+		ArrayList<Vertex> vertices = new ArrayList<Vertex>();
         
         int ngrids = 20; // 10 * 10 * 10;
-        Vertex start = new Vertex(-1d, -1d, -1d);
-        Vertex end = new Vertex(1d, 1d, 1d);
-        Vertex step = new Vertex((end.x - start.x)/ngrids, (end.y - start.y)/ngrids, (end.z - start.z)/ngrids);
-        
-        for (double x = start.x; x < end.x; x += step.x) {
-             for (double y = start.y; y < end.y; y += step.y) {
-                 for (double z = start.z; z < end.z; z += step.z) {
+        Vertex start = new Vertex(); start.x = -1f; start.y = -1f; start.z = -1f;
+        Vertex end = new Vertex(); end.x = 1f; end.y = 1f; end.z = 1f;
+        Vertex step = new Vertex();
+		step.x = (end.x - start.x)/ngrids;
+		step.y = (end.y - start.y)/ngrids;
+		step.z = (end.z - start.z)/ngrids;
+
+        for (float x = start.x; x < end.x; x += step.x) {
+             for (float y = start.y; y < end.y; y += step.y) {
+                 for (float z = start.z; z < end.z; z += step.z) {
                     GridCell cell = BuildCell(x, y, z, step, tree);                    
                     this.marchingCubes.add(cell);
                     
-                    ArrayList<Triangle> newTriangles = Polygonize(cell, 0);
+                   Polygonize(vertices, cell, 0);
                     //ArrayList<Triangle> newTriangles = PolygoniseCubeTri(cell, 0);
-                    if (newTriangles != null) {
-                        triangles.addAll(newTriangles);
-                    }
                  }
              }
         }
         
-        return triangles;
+        return vertices;
     }
 
 
@@ -245,12 +243,11 @@ public class MarchingCubesPolygonizer {
             0 will be returned if the grid cell is either totally above
        of totally below the isolevel.
     */
-    public ArrayList<Triangle> Polygonize(GridCell grid, double isolevel)
+    private void Polygonize(ArrayList<Vertex> vertices, GridCell grid, float isolevel)
     {
        int i,ntriang;
        int cubeindex;
        Vertex[] vertlist = new Vertex[12];
-       ArrayList<Triangle> triangles = new ArrayList<Triangle>();
 
     int[][] triTable =
     {{-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1},
@@ -526,7 +523,7 @@ public class MarchingCubesPolygonizer {
 
        /* Cube is entirely in/out of the surface */
        if (edgeTable[cubeindex] == 0)
-          return null;
+          return;
 
        /* Find the vertices where the surface intersects the cube */
        if ((edgeTable[cubeindex] & 1) == 1)
@@ -567,27 +564,22 @@ public class MarchingCubesPolygonizer {
              VertexInterp(isolevel,grid.p[3],grid.p[7],grid.val[3],grid.val[7]);
 
        /* Create the triangle */
-       for (i=0;triTable[cubeindex][i]!=-1;i+=3) {
-            Triangle triangle = new Triangle();
-            triangle.p[0] = vertlist[triTable[cubeindex][i  ]];
-            triangle.p[1] = vertlist[triTable[cubeindex][i+1]];
-            triangle.p[2] = vertlist[triTable[cubeindex][i+2]];
-          
-           triangles.add(triangle);
-       }
+	   int vertexCount = 12;
+       for (i=0;triTable[cubeindex][i]!=-1;i++) {
+		   vertices.add(vertlist[triTable[cubeindex][i]]);
 
-       return triangles;
+	   }
     }
 
     /*
        Linearly interpolate the position where an isosurface cuts
        an edge between two vertices, each with their own scalar value
     */
-    Vertex VertexInterp(double isolevel, Vertex p1, Vertex p2, double valp1, double valp2)
+    Vertex VertexInterp(float isolevel, Vertex p1, Vertex p2, float valp1, float valp2)
     {
        double mu;
-       Vertex p = new Vertex();
-
+       Vertex v = new Vertex();
+	   
        if (Math.abs(isolevel-valp1) < 0.00001)
           return(p1);
        if (Math.abs(isolevel-valp2) < 0.00001)
@@ -596,11 +588,11 @@ public class MarchingCubesPolygonizer {
           return(p1);
        mu = (isolevel - valp1) / (valp2 - valp1);
 
-       p.x = p1.x + mu * (p2.x - p1.x);
-       p.y = p1.y + mu * (p2.y - p1.y);
-       p.z = p1.z + mu * (p2.z - p1.z);
+       v.x = (float) (p1.x + mu * (p2.x - p1.x));
+       v.y = (float) (p1.y + mu * (p2.y - p1.y));
+       v.z = (float) (p1.z + mu * (p2.z - p1.z));
 
-       return(p);
+       return(v);
     }
     
     
@@ -623,89 +615,89 @@ public class MarchingCubesPolygonizer {
        int triindex;
        ArrayList<Triangle> triangles = new ArrayList<Triangle>();
 
-       /*
-          Determine which of the 16 cases we have given which vertices
-          are above or below the isosurface
-       */
-       triindex = 0;
-       if (g.val[v0] < iso) triindex |= 1;
-       if (g.val[v1] < iso) triindex |= 2;
-       if (g.val[v2] < iso) triindex |= 4;
-       if (g.val[v3] < iso) triindex |= 8;
-
-       /* Form the vertices of the triangles for each case */
-           Triangle tri = new Triangle();
-           Triangle tri2 = new Triangle();
-
-       switch (triindex) {
-       case 0x00:
-       case 0x0F:
-          break;
-       case 0x0E:
-       case 0x01:
-           tri.p[0] = VertexInterp(iso,g.p[v0],g.p[v1],g.val[v0],g.val[v1]);
-           tri.p[1] = VertexInterp(iso,g.p[v0],g.p[v2],g.val[v0],g.val[v2]);
-           tri.p[2] = VertexInterp(iso,g.p[v0],g.p[v3],g.val[v0],g.val[v3]);
-           triangles.add(tri);
-          break;
-       case 0x0D:
-       case 0x02:
-          tri.p[0] = VertexInterp(iso,g.p[v1],g.p[v0],g.val[v1],g.val[v0]);
-          tri.p[1] = VertexInterp(iso,g.p[v1],g.p[v3],g.val[v1],g.val[v3]);
-          tri.p[2] = VertexInterp(iso,g.p[v1],g.p[v2],g.val[v1],g.val[v2]);
-           triangles.add(tri);
-          break;
-       case 0x0C:
-       case 0x03:
-          tri.p[0] = VertexInterp(iso,g.p[v0],g.p[v3],g.val[v0],g.val[v3]);
-          tri.p[1] = VertexInterp(iso,g.p[v0],g.p[v2],g.val[v0],g.val[v2]);
-          tri.p[2] = VertexInterp(iso,g.p[v1],g.p[v3],g.val[v1],g.val[v3]);
-           triangles.add(tri);
-
-          tri2.p[0] = tri.p[2];
-          tri2.p[1] = VertexInterp(iso,g.p[v1],g.p[v2],g.val[v1],g.val[v2]);
-          tri2.p[2] = tri.p[1];
-           triangles.add(tri2);
-          break;
-       case 0x0B:
-       case 0x04:
-          tri.p[0] = VertexInterp(iso,g.p[v2],g.p[v0],g.val[v2],g.val[v0]);
-          tri.p[1] = VertexInterp(iso,g.p[v2],g.p[v1],g.val[v2],g.val[v1]);
-          tri.p[2] = VertexInterp(iso,g.p[v2],g.p[v3],g.val[v2],g.val[v3]);
-           triangles.add(tri);
-          break;
-       case 0x0A:
-       case 0x05:
-          tri.p[0] = VertexInterp(iso,g.p[v0],g.p[v1],g.val[v0],g.val[v1]);
-          tri.p[1] = VertexInterp(iso,g.p[v2],g.p[v3],g.val[v2],g.val[v3]);
-          tri.p[2] = VertexInterp(iso,g.p[v0],g.p[v3],g.val[v0],g.val[v3]);
-           triangles.add(tri);
-
-          tri2.p[0] = tri.p[0];
-          tri2.p[1] = VertexInterp(iso,g.p[v1],g.p[v2],g.val[v1],g.val[v2]);
-          tri2.p[2] = tri.p[1];
-           triangles.add(tri2);
-          break;
-       case 0x09:
-       case 0x06:
-          tri.p[0] = VertexInterp(iso,g.p[v0],g.p[v1],g.val[v0],g.val[v1]);
-          tri.p[1] = VertexInterp(iso,g.p[v1],g.p[v3],g.val[v1],g.val[v3]);
-          tri.p[2] = VertexInterp(iso,g.p[v2],g.p[v3],g.val[v2],g.val[v3]);
-           triangles.add(tri);
-
-           tri2.p[0] = tri.p[0];
-          tri2.p[1] = VertexInterp(iso,g.p[v0],g.p[v2],g.val[v0],g.val[v2]);
-          tri2.p[2] = tri.p[2];
-           triangles.add(tri);
-          break;
-       case 0x07:
-       case 0x08:
-          tri.p[0] = VertexInterp(iso,g.p[v3],g.p[v0],g.val[v3],g.val[v0]);
-          tri.p[1] = VertexInterp(iso,g.p[v3],g.p[v2],g.val[v3],g.val[v2]);
-          tri.p[2] = VertexInterp(iso,g.p[v3],g.p[v1],g.val[v3],g.val[v1]);
-           triangles.add(tri);
-          break;
-       }
+//       /*
+//          Determine which of the 16 cases we have given which vertices
+//          are above or below the isosurface
+//       */
+//       triindex = 0;
+//       if (g.val[v0] < iso) triindex |= 1;
+//       if (g.val[v1] < iso) triindex |= 2;
+//       if (g.val[v2] < iso) triindex |= 4;
+//       if (g.val[v3] < iso) triindex |= 8;
+//
+//       /* Form the vertices of the triangles for each case */
+//           Triangle tri = new Triangle();
+//           Triangle tri2 = new Triangle();
+//
+//       switch (triindex) {
+//       case 0x00:
+//       case 0x0F:
+//          break;
+//       case 0x0E:
+//       case 0x01:
+//           tri.p[0] = VertexInterp(iso,g.p[v0],g.p[v1],g.val[v0],g.val[v1]);
+//           tri.p[1] = VertexInterp(iso,g.p[v0],g.p[v2],g.val[v0],g.val[v2]);
+//           tri.p[2] = VertexInterp(iso,g.p[v0],g.p[v3],g.val[v0],g.val[v3]);
+//           triangles.add(tri);
+//          break;
+//       case 0x0D:
+//       case 0x02:
+//          tri.p[0] = VertexInterp(iso,g.p[v1],g.p[v0],g.val[v1],g.val[v0]);
+//          tri.p[1] = VertexInterp(iso,g.p[v1],g.p[v3],g.val[v1],g.val[v3]);
+//          tri.p[2] = VertexInterp(iso,g.p[v1],g.p[v2],g.val[v1],g.val[v2]);
+//           triangles.add(tri);
+//          break;
+//       case 0x0C:
+//       case 0x03:
+//          tri.p[0] = VertexInterp(iso,g.p[v0],g.p[v3],g.val[v0],g.val[v3]);
+//          tri.p[1] = VertexInterp(iso,g.p[v0],g.p[v2],g.val[v0],g.val[v2]);
+//          tri.p[2] = VertexInterp(iso,g.p[v1],g.p[v3],g.val[v1],g.val[v3]);
+//           triangles.add(tri);
+//
+//          tri2.p[0] = tri.p[2];
+//          tri2.p[1] = VertexInterp(iso,g.p[v1],g.p[v2],g.val[v1],g.val[v2]);
+//          tri2.p[2] = tri.p[1];
+//           triangles.add(tri2);
+//          break;
+//       case 0x0B:
+//       case 0x04:
+//          tri.p[0] = VertexInterp(iso,g.p[v2],g.p[v0],g.val[v2],g.val[v0]);
+//          tri.p[1] = VertexInterp(iso,g.p[v2],g.p[v1],g.val[v2],g.val[v1]);
+//          tri.p[2] = VertexInterp(iso,g.p[v2],g.p[v3],g.val[v2],g.val[v3]);
+//           triangles.add(tri);
+//          break;
+//       case 0x0A:
+//       case 0x05:
+//          tri.p[0] = VertexInterp(iso,g.p[v0],g.p[v1],g.val[v0],g.val[v1]);
+//          tri.p[1] = VertexInterp(iso,g.p[v2],g.p[v3],g.val[v2],g.val[v3]);
+//          tri.p[2] = VertexInterp(iso,g.p[v0],g.p[v3],g.val[v0],g.val[v3]);
+//           triangles.add(tri);
+//
+//          tri2.p[0] = tri.p[0];
+//          tri2.p[1] = VertexInterp(iso,g.p[v1],g.p[v2],g.val[v1],g.val[v2]);
+//          tri2.p[2] = tri.p[1];
+//           triangles.add(tri2);
+//          break;
+//       case 0x09:
+//       case 0x06:
+//          tri.p[0] = VertexInterp(iso,g.p[v0],g.p[v1],g.val[v0],g.val[v1]);
+//          tri.p[1] = VertexInterp(iso,g.p[v1],g.p[v3],g.val[v1],g.val[v3]);
+//          tri.p[2] = VertexInterp(iso,g.p[v2],g.p[v3],g.val[v2],g.val[v3]);
+//           triangles.add(tri);
+//
+//           tri2.p[0] = tri.p[0];
+//          tri2.p[1] = VertexInterp(iso,g.p[v0],g.p[v2],g.val[v0],g.val[v2]);
+//          tri2.p[2] = tri.p[2];
+//           triangles.add(tri);
+//          break;
+//       case 0x07:
+//       case 0x08:
+//          tri.p[0] = VertexInterp(iso,g.p[v3],g.p[v0],g.val[v3],g.val[v0]);
+//          tri.p[1] = VertexInterp(iso,g.p[v3],g.p[v2],g.val[v3],g.val[v2]);
+//          tri.p[2] = VertexInterp(iso,g.p[v3],g.p[v1],g.val[v3],g.val[v1]);
+//           triangles.add(tri);
+//          break;
+//       }
 
        return triangles;
     }

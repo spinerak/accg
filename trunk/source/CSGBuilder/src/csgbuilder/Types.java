@@ -8,19 +8,25 @@ public class Types {
 
 }
     class Vertex {
-        public double x;
-        public double y;
-        public double z;
+        public float x;
+        public float y;
+        public float z;
         
         public Vertex() {
             x = y = z = 0;
         }
         
-        public Vertex(double px, double py, double pz) {
+        public Vertex(float px, float py, float pz) {
             x = px;
             y = py;
             z = pz;
         }
+
+		Vertex(double px, double py, double pz) {
+            x = (float)px;
+            y = (float)py;
+            z = (float)pz;
+		}
 
     }
     class Triangle {
@@ -47,16 +53,13 @@ public class Types {
 
     class GridCell {
         public Vertex[] p = new Vertex[8];
-        public double[] val;
+        public float[] val = new float[8];
 
         public GridCell () {
-            p = new Vertex[8];
-            val = new double[8];
-            
-            for (int i = 0; i < 8; i++) {
-                p[i] = new Vertex();
-            }
-        }
+			for (int i = 0; i < 8; i++) {
+				p[i] = new Vertex();
+			}
+		}
     }
     
     class BoundingBox {
@@ -72,9 +75,9 @@ public class Types {
          */
                 
         public BoundingBox () {
-            for (int i = 0; i < 8; i++) {
-                p[i] = new Vertex();
-            }
+			for (int i = 0; i < 8; i++) {
+				p[i] = new Vertex();
+			}
         }
         
         public boolean intersects(BoundingBox b) {

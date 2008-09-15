@@ -5,6 +5,7 @@
 
 package csgbuilder;
 
+import com.sun.opengl.util.BufferUtil;
 import javax.media.opengl.*;
 import javax.media.opengl.glu.GLUquadric;
 import javax.media.opengl.glu.GLU;
@@ -16,6 +17,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionAdapter;
 import java.awt.event.MouseMotionListener;
+import java.nio.FloatBuffer;
 import java.util.ArrayList;
 
 
@@ -348,6 +350,9 @@ class Quat4f {
 }
 
 
+
+
+
 /**
  * Created by IntelliJ IDEA.
  * User: pepijn
@@ -372,14 +377,9 @@ class Vector3f {
         return (float)Math.sqrt(x * x + y * y + z * z);
     }
 }
-
-
-
 class Renderer implements GLEventListener {
     // TEMP
     private GLCanvas panel;
-    private ArrayList<Triangle> MCTriangles = null;
-    private ArrayList<GridCell> MCCells = null;
     
     // User Defined Variables
     private GLUquadric quadratic;   // Used For Our Quadric
@@ -393,6 +393,17 @@ class Renderer implements GLEventListener {
     private ArcBall arcBall = new ArcBall(640.0f, 480.0f);  // NEW: ArcBall Instance
 
     private CSGTree tree;
+	
+	private boolean VBOSupported = false; // Whether or not VBO's are supported
+	private boolean VBOUsed = false; // Wether or not VBO's are actually used
+	
+	private int[] VBOVertices = new int[1];  // Vertex VBO Name
+	private int[] VBOCells = new int[1];
+	private FloatBuffer vertices;    // Vertex Data
+	private int vertexCount;
+	
+	private FloatBuffer cells;	// Marching Cube debug cells data
+	private int cellCount;
     
     public Renderer(javax.media.opengl.GLCanvas pvPanel) {
         panel = pvPanel;
@@ -422,7 +433,13 @@ class Renderer implements GLEventListener {
 
     public void init(GLAutoDrawable drawable) {
         GL gl = drawable.getGL();
-
+		
+		// Check For VBO support
+        VBOSupported = gl.isFunctionAvailable("glGenBuffersARB") &&
+                gl.isFunctionAvailable("glBindBufferARB") &&
+                gl.isFunctionAvailable("glBufferDataARB") &&
+                gl.isFunctionAvailable("glDeleteBuffersARB");
+		
         // Start Of User Initialization
         LastRot.setIdentity();                                // Reset Rotation
         ThisRot.setIdentity();                                // Reset Rotation
@@ -448,7 +465,33 @@ class Renderer implements GLEventListener {
         
         gl.glEnable (GL.GL_BLEND);
         gl.glBlendFunc (GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
+		
+		loadMesh(gl);
     }
+	
+
+	
+	 private void buildVBOs(GL gl) {
+            // Generate And Bind The Vertex Buffer
+            gl.glGenBuffersARB(1, VBOVertices, 0);  // Get A Valid Name
+            gl.glBindBufferARB(GL.GL_ARRAY_BUFFER_ARB, VBOVertices[0]);  // Bind The Buffer
+ 
+            gl.glGenBuffersARB(1, VBOCells, 0);  // Get A Valid Name
+            gl.glBindBufferARB(GL.GL_ARRAY_BUFFER_ARB, VBOCells[0]);  // Bind The Buffer
+			
+			// Load The Data
+            gl.glBufferDataARB(GL.GL_ARRAY_BUFFER_ARB, vertexCount * 3 * 
+                    BufferUtil.SIZEOF_FLOAT, vertices, GL.GL_STATIC_DRAW_ARB);
+
+             gl.glBufferDataARB(GL.GL_ARRAY_BUFFER_ARB, cellCount * 4 * 3 * 
+                    BufferUtil.SIZEOF_FLOAT, cells, GL.GL_STATIC_DRAW_ARB);
+
+			
+			// Our Copy Of The Data Is No Longer Necessary, It Is Safe In The Graphics Card
+            vertices = null;
+			cells = null;
+			VBOUsed = true;
+        }
 
     void reset() {
         synchronized(matrixLock) {
@@ -521,39 +564,66 @@ class Renderer implements GLEventListener {
         gl.glEnd();  // Done Torus
     }
 
-    private void ImplicitSurface(GL gl)
+    public void loadMesh(GL gl)
     {
-        gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
-        drawGrid(gl);
-        
-        if (MCTriangles == null) {
-            // Do Marching Cubes only once
-            tree = new CSGTree(new CSGEllipsoid(new double[]{0.0,-1.5,0.0}, new double[]{0.5,0.5,0.5}));
+		// Do Marching Cubes only once
+        tree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{1,1,1}));
             //tree.union(new CSGCuboid(new double[]{0.0,1.5,1.0}, new double[]{0.5,0.5,0.5}));
-            tree.union(new CSGCuboid(new double[]{0.0,0.3,0.0}, new double[]{0.5,0.8,0.5}));
-            tree.union(new CSGCuboid(new double[]{-1.5,0.6,0.2}, new double[]{0.3,0.6,0.2}));
-            tree.union(new CSGCuboid(new double[]{1.5,0.6,0.2}, new double[]{0.3,0.6,0.2}));
-            tree.union(new CSGCuboid(new double[]{-1.0,2.5,0.2}, new double[]{0.2,0.6,0.2}));
-            tree.union(new CSGCuboid(new double[]{1.0,2.5,0.2}, new double[]{0.2,0.6,0.2}));
+            //tree.union(new CSGCuboid(new double[]{0.0,0.3,0.0}, new double[]{0.5,0.8,0.5}));
+            //tree.union(new CSGCuboid(new double[]{-1.5,0.6,0.2}, new double[]{0.3,0.6,0.2}));
+            //tree.union(new CSGCuboid(new double[]{1.5,0.6,0.2}, new double[]{0.3,0.6,0.2}));
+            //tree.union(new CSGCuboid(new double[]{-1.0,2.5,0.2}, new double[]{0.2,0.6,0.2}));
+            //tree.union(new CSGCuboid(new double[]{1.0,2.5,0.2}, new double[]{0.2,0.6,0.2}));
+			
             MarchingCubesPolygonizer polygonizer = new MarchingCubesPolygonizer();
-            MCTriangles = polygonizer.GetPolygonsAdaptive(tree);
-            MCCells = polygonizer.getMarchingCubes();
+            ArrayList<Vertex> vertexArray = polygonizer.GetPolygonsAdaptive(tree);
+            ArrayList<GridCell> cellArray = polygonizer.getMarchingCubes();
             System.out.println(tree);
-        }
-        
-        drawBoundingBox(gl, tree);
-        
-        gl.glBegin( GL.GL_TRIANGLES );
+			
+			vertexCount = vertexArray.size();
+			cellCount = cellArray.size();
+			vertices = BufferUtil.newFloatBuffer(vertexCount * 3);
+			
+			for (Vertex v : vertexArray) {
+				vertices.put(v.x);
+				vertices.put(v.y);
+				vertices.put(v.z);
+			}
+			
+			cells = BufferUtil.newFloatBuffer(cellCount * 4 * 4 * 3);
+			for (GridCell cell : cellArray) {
+				// Bottom
+				cells.put(new float[]{cell.p[0].x, cell.p[0].y, cell.p[0].z});
+				cells.put(new float[]{cell.p[1].x, cell.p[1].y, cell.p[1].z});
+				cells.put(new float[]{cell.p[2].x, cell.p[2].y, cell.p[2].z});
+				cells.put(new float[]{cell.p[3].x, cell.p[3].y, cell.p[3].z});
 
-        for (Triangle triangle : MCTriangles) {
-            
-              gl.glColor3d(1, 0, 0); // Sets current primary color to red
-              gl.glVertex3d(triangle.p[0].x, triangle.p[0].y, triangle.p[0].z); // Specify three vertices
-              gl.glVertex3d(triangle.p[1].x, triangle.p[1].y, triangle.p[1].z); // Specify three vertices
-              gl.glVertex3d(triangle.p[2].x, triangle.p[2].y, triangle.p[2].z); // Specify three vertices
-        }
-        
-        gl.glEnd();
+				// Top
+				cells.put(new float[]{cell.p[4].x, cell.p[4].y, cell.p[4].z});
+				cells.put(new float[]{cell.p[5].x, cell.p[5].y, cell.p[5].z});
+				cells.put(new float[]{cell.p[6].x, cell.p[6].y, cell.p[6].z});
+				cells.put(new float[]{cell.p[7].x, cell.p[7].y, cell.p[7].z});
+
+				// Front
+				cells.put(new float[]{cell.p[0].x, cell.p[0].y, cell.p[0].z});
+				cells.put(new float[]{cell.p[1].x, cell.p[1].y, cell.p[1].z});
+				cells.put(new float[]{cell.p[5].x, cell.p[5].y, cell.p[5].z});
+				cells.put(new float[]{cell.p[4].x, cell.p[4].y, cell.p[4].z});
+
+				// Back
+				cells.put(new float[]{cell.p[2].x, cell.p[2].y, cell.p[2].z});
+				cells.put(new float[]{cell.p[3].x, cell.p[3].y, cell.p[3].z});
+				cells.put(new float[]{cell.p[7].x, cell.p[7].y, cell.p[7].z});
+				cells.put(new float[]{cell.p[6].x, cell.p[6].y, cell.p[6].z});
+			}
+			
+			
+			vertices.flip();
+			cells.flip();
+			
+			if (VBOSupported) {
+				buildVBOs(gl);
+			}
     }
     
     private void drawBoundingBox(GL gl, CSGTree tree) {
@@ -614,45 +684,52 @@ class Renderer implements GLEventListener {
         gl.glEnd();
     }
     
-    private void VisualizeMarchingCubes(GL gl) {
-        gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
+    private void visualizeMarchingCubes(GL gl) {
+            gl.glEnableClientState(GL.GL_VERTEX_ARRAY);  // Enable Vertex Arrays
+			//gl.glEnableClientState(GL.GL_COLOR_ARRAY);
 
-        gl.glBegin(GL.GL_QUADS);
-        
-        for (GridCell cell : MCCells) {
-            gl.glColor4d(0, 1, 0, 0.07);
-            
-            // First 4 vertices define the bottom quad, last for the top
-            
-            // Bottom
-            gl.glVertex3d(cell.p[0].x, cell.p[0].y, cell.p[0].z);
-            gl.glVertex3d(cell.p[1].x, cell.p[1].y, cell.p[1].z);
-            gl.glVertex3d(cell.p[2].x, cell.p[2].y, cell.p[2].z);
-            gl.glVertex3d(cell.p[3].x, cell.p[3].y, cell.p[3].z);
-            
-            // Top
-            gl.glVertex3d(cell.p[4].x, cell.p[4].y, cell.p[4].z);
-            gl.glVertex3d(cell.p[5].x, cell.p[5].y, cell.p[5].z);
-            gl.glVertex3d(cell.p[6].x, cell.p[6].y, cell.p[6].z);
-            gl.glVertex3d(cell.p[7].x, cell.p[7].y, cell.p[7].z);
-            
-            // Front
-            gl.glVertex3d(cell.p[0].x, cell.p[0].y, cell.p[0].z);
-            gl.glVertex3d(cell.p[1].x, cell.p[1].y, cell.p[1].z);
-            gl.glVertex3d(cell.p[5].x, cell.p[5].y, cell.p[5].z);
-            gl.glVertex3d(cell.p[4].x, cell.p[4].y, cell.p[4].z);
+			gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
 
-            // Back
-            gl.glVertex3d(cell.p[2].x, cell.p[2].y, cell.p[2].z);
-            gl.glVertex3d(cell.p[3].x, cell.p[3].y, cell.p[3].z);
-            gl.glVertex3d(cell.p[7].x, cell.p[7].y, cell.p[7].z);
-            gl.glVertex3d(cell.p[6].x, cell.p[6].y, cell.p[6].z);
-
-            
-        }
-        
-        gl.glEnd();
+			// Render
+            // Draw All Of The Triangles At Once
+			gl.glVertexPointer(3, GL.GL_FLOAT, 0, cells); 
+			gl.glColor4f(0.0f, 1.0f, 0.0f, 0.07f);
+            gl.glDrawArrays(GL.GL_QUADS, 0, cellCount * 4 * 4);
+            gl.glDisableClientState(GL.GL_VERTEX_ARRAY);
     }
+	
+	private void renderMesh(GL gl) {
+// Enable Pointers
+            gl.glEnableClientState(GL.GL_VERTEX_ARRAY);  // Enable Vertex Arrays
+			//gl.glEnableClientState(GL.GL_COLOR_ARRAY);
+
+			gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
+
+			if (VBOUsed)
+			{
+                gl.glBindBufferARB(GL.GL_ARRAY_BUFFER_ARB, VBOCells[0]);
+                // Set The Vertex Pointer To The Vertex Buffer
+                gl.glVertexPointer(3, GL.GL_FLOAT, 0, 0);    
+				
+				
+                gl.glBindBufferARB(GL.GL_ARRAY_BUFFER_ARB, VBOVertices[0]);
+                // Set The Vertex Pointer To The Vertex Buffer
+                gl.glVertexPointer(3, GL.GL_FLOAT, 0, 0);    
+			}
+			else
+			{
+				gl.glVertexPointer(3, GL.GL_FLOAT, 0, vertices); 
+			}
+
+			
+            gl.glColor3f(1.0f, 0.0f, 0.0f);
+			gl.glDrawArrays(GL.GL_TRIANGLES, 0, vertexCount);  
+
+            // Disable Pointers
+            // Disable Vertex Arrays
+			//gl.glDisableClientState(GL.GL_COLOR_ARRAY);
+            gl.glDisableClientState(GL.GL_VERTEX_ARRAY);
+	}
     
     public void display(GLAutoDrawable drawable) {
         synchronized(matrixLock) {
@@ -672,9 +749,14 @@ class Renderer implements GLEventListener {
         gl.glPushMatrix();                  // NEW: Prepare Dynamic Transform
         gl.glMultMatrixf(matrix, 0);        // NEW: Apply Dynamic Transform
         gl.glColor3f(1.0f, 0.75f, 0.75f);
-        ImplicitSurface(gl);
+
+        gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
+        drawGrid(gl);
+        drawBoundingBox(gl, tree);
         
-        VisualizeMarchingCubes(gl);
+		renderMesh(gl);
+        
+        visualizeMarchingCubes(gl);
         gl.glPopMatrix();                   // NEW: Unapply Dynamic Transform
 
         gl.glFlush();                       // Flush The GL Rendering Pipeline
