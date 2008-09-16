@@ -4,7 +4,7 @@ package csgbuilder;
  *
  * @author s040379
  */
-public class CSGTree implements CSGTreeElement {
+public class CSGTree extends CSGTreeElement {
     private CSGTreeElement root;
     
     public CSGTree(CSGTreeElement root) {

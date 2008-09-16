@@ -1,12 +1,25 @@
 package csgbuilder;
 
-public interface CSGTreeElement {
-    public BoundingBox getBoundingBox();
-    public double getFunctionValue(double x, double y, double z);
-    @Override public String toString();
+public abstract class CSGTreeElement {
+    public abstract BoundingBox getBoundingBox();
+    public abstract double getFunctionValue(double x, double y, double z);
+    @Override public abstract String toString();
+    
+    public double approachFunctionValue(double x, double y, double z) {
+        BoundingBox box = getBoundingBox();
+        
+        if ((box.p[7].x <= x) && (x <= box.p[6].x) && 
+            (box.p[5].y <= y) && (y <= box.p[7].y) &&
+            (box.p[3].z <= z) && (z <= box.p[7].z)) {
+            return getFunctionValue(x, y, z);
+        }
+        else {
+            return -1; 
+        }
+    }
 }
 
-abstract class CSGTreeOperation implements CSGTreeElement {
+abstract class CSGTreeOperation extends CSGTreeElement {
     protected CSGTreeElement left;
     protected CSGTreeElement right;
     
@@ -145,7 +158,7 @@ class CSGTreeDifference extends CSGTreeOperation {
     }
 }
 
-abstract class CSGObject implements CSGTreeElement {
+abstract class CSGObject extends CSGTreeElement {
     protected double[] pos  = new double[3];
     protected double[] size = new double[3];
     
