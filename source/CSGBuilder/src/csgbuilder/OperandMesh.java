@@ -164,17 +164,17 @@ public class OperandMesh {
         
         gl.glBegin(GL.GL_TRIANGLES);
         
-        gl.glColor3d(1.0, 1.0, 0.0);        
+        gl.glColor4d(1.0, 1.0, 0.0, 0.2);        
         gl.glVertex3d(-100, 0, 0);
         gl.glVertex3d(100, 0, 0);
         gl.glVertex3d(0, 0, 0);
         
-        gl.glColor3d(1.0, 0.5, 0.0);        
+        gl.glColor4d(1.0, 0.5, 0.0, 0.2);        
         gl.glVertex3d(0, -100, 0);
         gl.glVertex3d(0, 100, 0);
         gl.glVertex3d(0, 0, 0);
         
-        gl.glColor3d(0.5, 0.5, 0.0);
+        gl.glColor4d(0.5, 0.5, 0.0, 0.2);
         gl.glVertex3d(0, 0, -100);
         gl.glVertex3d(0, 0, 100);
         gl.glVertex3d(0, 0, 0);

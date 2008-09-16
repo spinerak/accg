@@ -36,7 +36,7 @@ public class CSGBuilderView extends FrameView {
 		
 		// Create a CSG Tree
         CSGTree lvTree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{1.0,1.0,1.0}));
-        lvTree.difference(new CSGEllipsoid(new double[]{0.6,0.6,0.0}, new double[]{1.0,1.0,1.0}));
+        lvTree.union(new CSGEllipsoid(new double[]{0.6,0.6,0.0}, new double[]{1.0,1.0,1.0}));
 			
 		// Get the mesh for this tree
 		CSGTreePolygoniser lvPolygoniser = new CSGTreePolygoniser();
@@ -48,9 +48,19 @@ public class CSGBuilderView extends FrameView {
         // Start
 		lvAOperandViewer.start();
 		
-        //jSplitPane1.setRightComponent(gljPanel2);
+		
+		OperandViewer lvBOperandViewer = new OperandViewer();
+        jSplitPane1.setRightComponent(lvBOperandViewer.getCanvas());
         
-        // status bar initialization - message timeout, idle icon and busy animation, etc
+        CSGTree lvBOpTree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{0.5,0.5,0.5}));
+		OperandMesh lvBOpMesh = lvPolygoniser.getMesh(lvBOpTree);
+		
+		lvBOperandViewer.setMesh(lvBOpMesh);
+		
+		lvBOperandViewer.start();
+
+		
+		// status bar initialization - message timeout, idle icon and busy animation, etc
         ResourceMap resourceMap = getResourceMap();
         int messageTimeout = resourceMap.getInteger("StatusBar.messageTimeout");
         messageTimer = new Timer(messageTimeout, new ActionListener() {
@@ -138,9 +148,11 @@ public class CSGBuilderView extends FrameView {
         progressBar = new javax.swing.JProgressBar();
 
         mainPanel.setName("mainPanel"); // NOI18N
-        mainPanel.setLayout(new java.awt.GridLayout());
+        mainPanel.setLayout(new java.awt.GridLayout(1, 0));
 
+        jSplitPane1.setMinimumSize(new java.awt.Dimension(150, 150));
         jSplitPane1.setName("jSplitPane1"); // NOI18N
+        jSplitPane1.setPreferredSize(new java.awt.Dimension(150, 150));
         mainPanel.add(jSplitPane1);
 
         menuBar.setName("menuBar"); // NOI18N
@@ -184,7 +196,7 @@ public class CSGBuilderView extends FrameView {
             .addGroup(statusPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(statusMessageLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 230, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 226, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(statusAnimationLabel)
