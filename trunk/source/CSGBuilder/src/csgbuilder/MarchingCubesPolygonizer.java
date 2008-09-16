@@ -202,6 +202,7 @@ public class MarchingCubesPolygonizer {
         for (int i = 0; i < cell.p.length; i++) {
 
             //cell.val[i] = Difference(cell.p[i].x, cell.p[i].y, cell.p[i].z);
+            //cell.val[i] = tree.approachFunctionValue(cell.p[i].x, cell.p[i].y, cell.p[i].z);
             cell.val[i] = (float) tree.getFunctionValue(cell.p[i].x, cell.p[i].y, cell.p[i].z);
         }
         
