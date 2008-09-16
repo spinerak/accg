@@ -3,6 +3,7 @@
  */
 
 package csgbuilder;
+import com.sun.opengl.util.Animator;
 import org.jdesktop.application.Action;
 import org.jdesktop.application.ResourceMap;
 import org.jdesktop.application.SingleFrameApplication;
@@ -30,24 +31,24 @@ public class CSGBuilderView extends FrameView {
         GLCapabilities caps = new GLCapabilities();
         caps.setDoubleBuffered(true);
         
-
-        gljPanel1 = new javax.media.opengl.GLCanvas(caps);
-        gljPanel1.setName("gljPanel1"); // NOI18N
-        Renderer renderer = new Renderer(gljPanel1);
-        gljPanel1.addGLEventListener(renderer);
-        gljPanel1.addMouseListener(new AOperandMouseListener(renderer));
-        gljPanel1.addMouseMotionListener(new AOperandMouseListener(renderer));
-//        gljPanel1.addKeyListener(new gljPanel1KeyListener());
-        gljPanel1.setFocusable(true);
-        jSplitPane1.setLeftComponent(gljPanel1);
-        
-        gljPanel2 = new javax.media.opengl.GLCanvas(caps);
-        gljPanel2.setName("gljPanel2"); // NOI18N
-        gljPanel2.addGLEventListener(new gljPanel2EventListener());
-//        gljPanel2.addMouseMotionListener(new gljPanel2MouseListener());
-//        gljPanel2.addKeyListener(new gljPanel2KeyListener());
-        gljPanel2.setFocusable(true);
-        jSplitPane1.setRightComponent(gljPanel2);
+		OperandViewer lvAOperandViewer = new OperandViewer();
+        jSplitPane1.setLeftComponent(lvAOperandViewer.getCanvas());
+		
+		// Create a CSG Tree
+        CSGTree lvTree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{1.0,1.0,1.0}));
+        lvTree.difference(new CSGEllipsoid(new double[]{0.6,0.6,0.0}, new double[]{1.0,1.0,1.0}));
+			
+		// Get the mesh for this tree
+		CSGTreePolygoniser lvPolygoniser = new CSGTreePolygoniser();
+		OperandMesh lvMesh = lvPolygoniser.getMesh(lvTree);
+		
+		// Tell the viewer to render the mesh
+		lvAOperandViewer.setMesh(lvMesh);
+		
+        // Start
+		lvAOperandViewer.start();
+		
+        //jSplitPane1.setRightComponent(gljPanel2);
         
         // status bar initialization - message timeout, idle icon and busy animation, etc
         ResourceMap resourceMap = getResourceMap();
