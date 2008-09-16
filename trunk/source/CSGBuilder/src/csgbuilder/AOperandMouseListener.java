@@ -585,8 +585,6 @@ class Renderer implements GLEventListener {
             ArrayList<Vertex> vertexArray = polygonizer.GetPolygonsAdaptive(tree);
             ArrayList<GridCell> cellArray = polygonizer.getMarchingCubes();
             //System.out.println(tree);
-            System.out.println("Triangle count: " + MCTriangles.size());
-            System.out.println("Cell count:     " + MCCells.size());
 			
 			vertexCount = vertexArray.size();
 			cellCount = cellArray.size();
