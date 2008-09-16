@@ -441,6 +441,8 @@ class Renderer implements GLEventListener {
                 gl.isFunctionAvailable("glBindBufferARB") &&
                 gl.isFunctionAvailable("glBufferDataARB") &&
                 gl.isFunctionAvailable("glDeleteBuffersARB");
+        VBOSupported = false;
+        
 		
         // Start Of User Initialization
         LastRot.setIdentity();                                // Reset Rotation
@@ -483,16 +485,16 @@ class Renderer implements GLEventListener {
 			
 			// Load The Data
             gl.glBufferDataARB(GL.GL_ARRAY_BUFFER_ARB, vertexCount * 3 * 
-                    BufferUtil.SIZEOF_FLOAT, vertices, GL.GL_STATIC_DRAW_ARB);
+            BufferUtil.SIZEOF_FLOAT, vertices, GL.GL_STATIC_DRAW_ARB);
 
-             gl.glBufferDataARB(GL.GL_ARRAY_BUFFER_ARB, cellCount * 4 * 3 * 
-                    BufferUtil.SIZEOF_FLOAT, cells, GL.GL_STATIC_DRAW_ARB);
+            gl.glBufferDataARB(GL.GL_ARRAY_BUFFER_ARB, cellCount * 4 * 3 * 
+            BufferUtil.SIZEOF_FLOAT, cells, GL.GL_STATIC_DRAW_ARB);
 
 			
-			// Our Copy Of The Data Is No Longer Necessary, It Is Safe In The Graphics Card
+            // Our Copy Of The Data Is No Longer Necessary, It Is Safe In The Graphics Card
             vertices = null;
-			cells = null;
-			VBOUsed = true;
+	    cells = null;
+	    VBOUsed = true;
         }
 
     void reset() {
@@ -569,24 +571,36 @@ class Renderer implements GLEventListener {
     public void loadMesh(GL gl)
     {
 		// Do Marching Cubes only once
-        tree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{1.0,1.0,1.0}));
-            tree.difference(new CSGEllipsoid(new double[]{0.6,0.6,0.0}, new double[]{1.0,1.0,1.0}));
+        tree = new CSGTree(new CSGCuboid(new double[]{0.0,0.0,0.0}, new double[]{1.0,1.0,1.0}, new double[]{0.0, 0.0, 0.0}));
+            //tree.difference(new CSGEllipsoid(new double[]{0.6,0.6,0.0}, new double[]{0.8,0.8,0.8}));			
 			
-            //tree.difference(new CSGEllipsoid(new double[]{0.0,0.5,1.0}, new double[]{0.8,0.8,0.8}));
+            tree.difference(new CSGEllipsoid(new double[]{1.0,1.0,1.0}, new double[]{1.0,1.0,1.0}, new double[]{0.0, 0.0, 0.0}));
+            tree.difference(new CSGEllipsoid(new double[]{1.0,1.0,-1.0}, new double[]{1.0,1.0,1.0}, new double[]{0.0, 0.0, 0.0}));
+            tree.difference(new CSGEllipsoid(new double[]{1.0,-1.0,1.0}, new double[]{1.0,1.0,1.0}, new double[]{0.0, 0.0, 0.0}));
+            tree.difference(new CSGEllipsoid(new double[]{1.0,-1.0,-1.0}, new double[]{1.0,1.0,1.0}, new double[]{0.0, 0.0, 0.0}));
+            tree.difference(new CSGEllipsoid(new double[]{-1.0,1.0,1.0}, new double[]{1.0,1.0,1.0}, new double[]{0.0, 0.0, 0.0}));
+            tree.difference(new CSGEllipsoid(new double[]{-1.0,1.0,-1.0}, new double[]{1.0,1.0,1.0}, new double[]{0.0, 0.0, 0.0}));
+            tree.difference(new CSGEllipsoid(new double[]{-1.0,-1.0,1.0}, new double[]{1.0,1.0,1.0}, new double[]{0.0, 0.0, 0.0}));
+            tree.difference(new CSGEllipsoid(new double[]{-1.0,-1.0,-1.0}, new double[]{1.0,1.0,1.0}, new double[]{0.0, 0.0, 0.0}));
             //tree.union(new CSGCuboid(new double[]{-1.5,0.6,0.2}, new double[]{0.3,0.6,0.2}));
             //tree.union(new CSGCuboid(new double[]{1.5,0.6,0.2}, new double[]{0.3,0.6,0.2}));
             //tree.union(new CSGCuboid(new double[]{-1.0,2.5,0.2}, new double[]{0.2,0.6,0.2}));
             //tree.union(new CSGCuboid(new double[]{1.0,2.5,0.2}, new double[]{0.2,0.6,0.2}));
-			
-			
-			mBoundingBox = tree.getBoundingBox();
 
-			MarchingCubesPolygonizer polygonizer = new MarchingCubesPolygonizer();
+            mBoundingBox = tree.getBoundingBox();
+
+            MarchingCubesPolygonizer polygonizer = new MarchingCubesPolygonizer();
             ArrayList<Vertex> vertexArray = polygonizer.GetPolygonsAdaptive(tree);
             ArrayList<GridCell> cellArray = polygonizer.getMarchingCubes();
             //System.out.println(tree);
 			
 			vertexCount = vertexArray.size();
+                        
+                        if (vertexCount == 0) {
+                            System.out.println("No vertices to draw...");
+                            return;
+                        }
+                        
 			cellCount = cellArray.size();
 			
 			System.out.println("Vertex count: " + Integer.toString(vertexCount));
@@ -710,33 +724,33 @@ class Renderer implements GLEventListener {
 	private void renderMesh(GL gl) {
 // Enable Pointers
             gl.glEnableClientState(GL.GL_VERTEX_ARRAY);  // Enable Vertex Arrays
-			//gl.glEnableClientState(GL.GL_COLOR_ARRAY);
+            //gl.glEnableClientState(GL.GL_COLOR_ARRAY);
 
-			gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
+            gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
 
-			if (VBOUsed)
-			{
-                gl.glBindBufferARB(GL.GL_ARRAY_BUFFER_ARB, VBOCells[0]);
-                // Set The Vertex Pointer To The Vertex Buffer
-                gl.glVertexPointer(3, GL.GL_FLOAT, 0, 0);    
+            if (VBOUsed)
+            {
+//                gl.glBindBufferARB(GL.GL_ARRAY_BUFFER_ARB, VBOCells[0]);
+//                // Set The Vertex Pointer To The Vertex Buffer
+//                gl.glVertexPointer(3, GL.GL_FLOAT, 0, 0);    
 				
 				
                 gl.glBindBufferARB(GL.GL_ARRAY_BUFFER_ARB, VBOVertices[0]);
                 // Set The Vertex Pointer To The Vertex Buffer
                 gl.glVertexPointer(3, GL.GL_FLOAT, 0, 0);    
-			}
-			else
-			{
-				gl.glVertexPointer(3, GL.GL_FLOAT, 0, vertices); 
-			}
+            }
+            else
+            {
+                gl.glVertexPointer(3, GL.GL_FLOAT, 0, vertices); 
+            }
 
 			
             gl.glColor3f(1.0f, 0.0f, 0.0f);
-			gl.glDrawArrays(GL.GL_TRIANGLES, 0, vertexCount);  
+            gl.glDrawArrays(GL.GL_TRIANGLES, 0, vertexCount);  
 
             // Disable Pointers
             // Disable Vertex Arrays
-			//gl.glDisableClientState(GL.GL_COLOR_ARRAY);
+            //gl.glDisableClientState(GL.GL_COLOR_ARRAY);
             gl.glDisableClientState(GL.GL_VERTEX_ARRAY);
 	}
     
@@ -763,7 +777,7 @@ class Renderer implements GLEventListener {
         drawGrid(gl);
         drawBoundingBox(gl);
         
-		renderMesh(gl);
+	renderMesh(gl);
         
         visualizeMarchingCubes(gl);
         gl.glPopMatrix();                   // NEW: Unapply Dynamic Transform

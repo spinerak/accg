@@ -79,7 +79,7 @@ class CSGTreeUnion extends CSGTreeOperation {
     }
     
     @Override public String toString() {
-        return "UNION(" + right.toString() + "," + left.toString() + ")";
+        return "UNION(" + left.toString() + "," + right.toString() + ")";
     }
 }
 
@@ -134,7 +134,7 @@ class CSGTreeIntersection extends CSGTreeOperation {
     }
     
     @Override public String toString() {
-        return "INTERSECTION(" + right.toString() + "," + left.toString() + ")";
+        return "INTERSECTION(" + left.toString() + "," + right.toString() + ")";
     }
 }
 
@@ -149,28 +149,30 @@ class CSGTreeDifference extends CSGTreeOperation {
     }
         
     public double getFunctionValue(double x, double y, double z) {
-        return Math.min(-left.getFunctionValue(x, y, z), 
-                        right.getFunctionValue(x,y,z));
+        return Math.max(left.getFunctionValue(x, y, z), 
+                        -right.getFunctionValue(x, y, z));
     }
     
     @Override public String toString() {
-        return "DIFFERENCE(" + right.toString() + "," + left.toString() + ")";
+        return "DIFFERENCE(" + left.toString() + "," + right.toString() + ")";
     }
 }
 
 abstract class CSGObject extends CSGTreeElement {
     protected double[] pos  = new double[3];
     protected double[] size = new double[3];
+    protected double[] rot = new double[3];
     
-    public CSGObject(double[] pos, double[] size) {
+    public CSGObject(double[] pos, double[] size, double[] rot) {
         this.pos  = pos;
         this.size = size;
+        this.rot  = rot;
     }
     
     public BoundingBox getBoundingBox() {
         BoundingBox box = new BoundingBox();
+        box.p[0] = new Vertex(size[0] * -pos[0] - size[0], size[1] * -pos[1] - size[1], size[2] * -pos[2] - size[2]);        
         box.p[1] = new Vertex(size[0] * -pos[0] + size[0], size[1] * -pos[1] - size[1], size[2] * -pos[2] - size[2]);
-        box.p[0] = new Vertex(size[0] * -pos[0] - size[0], size[1] * -pos[1] - size[1], size[2] * -pos[2] - size[2]);
         box.p[2] = new Vertex(size[0] * -pos[0] + size[0], size[1] * -pos[1] + size[1], size[2] * -pos[2] - size[2]);
         box.p[3] = new Vertex(size[0] * -pos[0] - size[0], size[1] * -pos[1] + size[1], size[2] * -pos[2] - size[2]);
         box.p[4] = new Vertex(size[0] * -pos[0] + size[0], size[1] * -pos[1] - size[1], size[2] * -pos[2] + size[2]);
@@ -185,14 +187,14 @@ abstract class CSGObject extends CSGTreeElement {
 }
 
 class CSGEllipsoid extends CSGObject {
-    public CSGEllipsoid(double[] pos, double[] size) {
-        super(pos, size);
+    public CSGEllipsoid(double[] pos, double[] size, double[] rot) {
+        super(pos, size, rot);
     }
     
     public double getFunctionValue(double x, double y, double z) {
-        return Math.pow(pos[0] + x / size[0], 2) + 
-               Math.pow(pos[1] + y / size[1], 2) +
-               Math.pow(pos[2] + z / size[2], 2) - 1;
+        return Math.pow((pos[0] + x) / size[0], 2) + 
+               Math.pow((pos[1] + y) / size[1], 2) +
+               Math.pow((pos[2] + z) / size[2], 2) - 1;
     }
     
     public String toString() {
@@ -202,19 +204,22 @@ class CSGEllipsoid extends CSGObject {
                 pos[2] + "," + 
                 size[0] + "," + 
                 size[1] + "," + 
-                size[2] + ")";
+                size[2] + "," +
+                rot[0] + "," +
+                rot[1] + "," + 
+                rot[2] + ")";
     }
 }
 
 class CSGCuboid extends CSGObject {
-    public CSGCuboid(double[] pos, double[] size) {
-        super(pos, size);
+    public CSGCuboid(double[] pos, double[] size, double[] rot) {
+        super(pos, size, rot);
     }
     
-    public double getFunctionValue(double x, double y, double z) {
-        return Math.pow(pos[0] + x / size[0], 4) + 
-               Math.pow(pos[1] + y / size[1], 4) +
-               Math.pow(pos[2] + z / size[2], 4) - 1;
+    public double getFunctionValue(double x, double y, double z) {        
+        return Math.pow((pos[0] + x) / size[0], 4) + 
+               Math.pow((pos[1] + y) / size[1], 4) +
+               Math.pow((pos[2] + z) / size[2], 4) - 1;
     }
     
     public String toString() {
@@ -224,6 +229,9 @@ class CSGCuboid extends CSGObject {
                 pos[2] + "," + 
                 size[0] + "," + 
                 size[1] + "," + 
-                size[2] + ")";
+                size[2] + "," +
+                rot[0] + "," +
+                rot[1] + "," + 
+                rot[2] + ")";
     }
 }

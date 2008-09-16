@@ -111,12 +111,11 @@ public class MarchingCubesPolygonizer {
     public ArrayList<Vertex> GetPolygonsAdaptive(CSGTree tree) {
         //Vertex start = new Vertex(-1d, -1d, -1d);
         //Vertex end = new Vertex(1d, 1d, 1d);
-		ArrayList<Vertex> vertices = new ArrayList<Vertex>();
-       Vertex start = tree.getBoundingBox().p[0];
+	ArrayList<Vertex> vertices = new ArrayList<Vertex>();
+        Vertex start = tree.getBoundingBox().p[0];
         Vertex end = tree.getBoundingBox().p[6];
         PolygonsAdaptiveRecursive(vertices, 0, 0, 4, start, end, tree);
-		
-		return vertices;
+	return vertices;
     }
     
     public double welp(double x, double y, double z) {
@@ -136,7 +135,7 @@ public class MarchingCubesPolygonizer {
         
         // Divide sides in half
         Vertex dim = new Vertex();
-		dim.x = (e.x - s.x) / 2; dim.y = (e.y - s.y) / 2; dim.z = (e.z - s.z) / 2;
+	dim.x = (e.x - s.x) / 2; dim.y = (e.y - s.y) / 2; dim.z = (e.z - s.z) / 2;
         
         // Bottom 4 cubes
         cells.add(BuildCell(s.x, s.y, s.z, dim, tree));
@@ -152,13 +151,13 @@ public class MarchingCubesPolygonizer {
         
         this.marchingCubes.addAll(cells);
         boolean recurseAll = false;
-		boolean doRecurseAll = false;
+	boolean doRecurseAll = false;
         for (GridCell cell : cells) {
             if (depth >= maxDepth) {
                 //this.marchingCubes.add(cell);
                 // Do marching cubes
                 Polygonize(vertices, cell, isoLevel);
-				//PolygoniseCubeTri(vertices, cell, isoLevel);
+		//PolygoniseCubeTri(vertices, cell, isoLevel);
 
                 continue;
             }
@@ -183,22 +182,22 @@ public class MarchingCubesPolygonizer {
            }
 		   
            /* Cube is entirely in/out of the surface */
-		   if (recurse && doRecurseAll) {
-			   recurseAll = true;
-			   break;
-		   }
-		   else if (recurse)
+           if (recurse && doRecurseAll) {
+               recurseAll = true;
+               break;
+           }
+           else if (recurse)
            {
                 PolygonsAdaptiveRecursive(vertices, isoLevel, depth + 1, maxDepth, cell.p[0], cell.p[6], tree);
            }
         }
 		
-		if (recurseAll)
-		{
-			for (GridCell cell : cells) {
-				PolygonsAdaptiveRecursive(vertices, isoLevel, depth + 1, maxDepth, cell.p[0], cell.p[6], tree);
-			}
-		}
+        if (recurseAll)
+        {
+            for (GridCell cell : cells) {
+                PolygonsAdaptiveRecursive(vertices, isoLevel, depth + 1, maxDepth, cell.p[0], cell.p[6], tree);
+            }
+        }
     }
     
     private GridCell BuildCell(Vertex p, Vertex dim, CSGTree tree) {
@@ -218,15 +217,15 @@ public class MarchingCubesPolygonizer {
         cell.p[6].x = x + dim.x; cell.p[6].y = y + dim.y; cell.p[6].z = z + dim.z;
         cell.p[7].x = x; cell.p[7].y = y + dim.y; cell.p[7].z = z + dim.z;
 		
-		Vertex[] test = cell.p.clone();
-		cell.p[0] = test[6];
-		cell.p[1] = test[7];
-		cell.p[2] = test[4];
-		cell.p[3] = test[5];
-		cell.p[4] = test[2];
-		cell.p[5] = test[3];
-		cell.p[6] = test[0];
-		cell.p[7] = test[1];
+        Vertex[] test = cell.p.clone();
+        cell.p[0] = test[6];
+        cell.p[1] = test[7];
+        cell.p[2] = test[4];
+        cell.p[3] = test[5];
+        cell.p[4] = test[2];
+        cell.p[5] = test[3];
+        cell.p[6] = test[0];
+        cell.p[7] = test[1];
         
         // Set iso values on all vertices
                     
@@ -257,7 +256,7 @@ public class MarchingCubesPolygonizer {
                     GridCell cell = BuildCell(x, y, z, step, tree);                    
                     this.marchingCubes.add(cell);
                     
-                   Polygonize(vertices, cell, 0);
+                    Polygonize(vertices, cell, 0);
                     //ArrayList<Triangle> newTriangles = PolygoniseCubeTri(cell, 0);
                  }
              }
