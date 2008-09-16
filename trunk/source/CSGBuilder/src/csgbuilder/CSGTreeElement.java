@@ -187,7 +187,11 @@ abstract class CSGObject extends CSGTreeElement {
 }
 
 class CSGEllipsoid extends CSGObject {
-    public CSGEllipsoid(double[] pos, double[] size, double[] rot) {
+    public CSGEllipsoid(double[] pos, double[] size) {
+		super(pos, size, new double[]{0.0, 0.0, 0.0});
+	}
+	
+	public CSGEllipsoid(double[] pos, double[] size, double[] rot) {
         super(pos, size, rot);
     }
     
