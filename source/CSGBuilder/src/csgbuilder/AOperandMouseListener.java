@@ -569,13 +569,14 @@ class Renderer implements GLEventListener {
     public void loadMesh(GL gl)
     {
 		// Do Marching Cubes only once
-        tree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{1,1,1}));
-            //tree.union(new CSGEllipsoid(new double[]{0.0,1.5,0.0}, new double[]{1.5,1.5,1.5}));
-            tree.difference(new CSGEllipsoid(new double[]{0.0,0.5,1.0}, new double[]{0.8,0.8,0.8}));
-            tree.union(new CSGCuboid(new double[]{-1.5,0.6,0.2}, new double[]{0.3,0.6,0.2}));
-            tree.union(new CSGCuboid(new double[]{1.5,0.6,0.2}, new double[]{0.3,0.6,0.2}));
-            tree.union(new CSGCuboid(new double[]{-1.0,2.5,0.2}, new double[]{0.2,0.6,0.2}));
-            tree.union(new CSGCuboid(new double[]{1.0,2.5,0.2}, new double[]{0.2,0.6,0.2}));
+        tree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{1.0,1.0,1.0}));
+            tree.difference(new CSGEllipsoid(new double[]{0.6,0.6,0.0}, new double[]{1.0,1.0,1.0}));
+			
+            //tree.difference(new CSGEllipsoid(new double[]{0.0,0.5,1.0}, new double[]{0.8,0.8,0.8}));
+            //tree.union(new CSGCuboid(new double[]{-1.5,0.6,0.2}, new double[]{0.3,0.6,0.2}));
+            //tree.union(new CSGCuboid(new double[]{1.5,0.6,0.2}, new double[]{0.3,0.6,0.2}));
+            //tree.union(new CSGCuboid(new double[]{-1.0,2.5,0.2}, new double[]{0.2,0.6,0.2}));
+            //tree.union(new CSGCuboid(new double[]{1.0,2.5,0.2}, new double[]{0.2,0.6,0.2}));
 			
 			
 			mBoundingBox = tree.getBoundingBox();
