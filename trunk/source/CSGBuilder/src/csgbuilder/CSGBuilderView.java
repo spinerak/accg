@@ -52,7 +52,8 @@ public class CSGBuilderView extends FrameView {
 		OperandViewer lvBOperandViewer = new OperandViewer();
         jSplitPane1.setRightComponent(lvBOperandViewer.getCanvas());
         
-        CSGTree lvBOpTree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{0.5,0.5,0.5}));
+        // CSGTree lvBOpTree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{0.5,0.5,0.5}));
+        CSGTree lvBOpTree = new CSGTree(new CSGCuboid(new double[]{0.0,0.0,0.5}, new double[]{0.5,0.5,0.5}, new double[]{0,0,Math.PI/4}));
 		OperandMesh lvBOpMesh = lvPolygoniser.getMesh(lvBOpTree);
 		
 		lvBOperandViewer.setMesh(lvBOpMesh);
