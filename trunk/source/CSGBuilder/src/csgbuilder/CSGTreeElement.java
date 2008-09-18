@@ -178,8 +178,8 @@ abstract class CSGObject extends CSGTreeElement {
         float cz = (float)Math.cos(rot[2]); float sz = (float)Math.sin(rot[2]);
         
         Vertex r = new Vertex();
-        r.x = v.x*cy*cz + v.y*cy*sz - v.z*sy;
-        r.y = v.x*(sx*sy*cz - cx*sz) + v.y*(sx*sy*sz + cx*cy) + v.z*sx*cy;
+        r.x = v.x*cy*cz              + v.y*cy*sz              - v.z*sy;
+        r.y = v.x*(sx*sy*cz - cx*sz) + v.y*(sx*sy*sz + cx*cz) + v.z*sx*cy;
         r.z = v.x*(cx*sy*cz + sx*sz) + v.y*(cx*sy*sz - sx*cz) + v.z*cx*cy;
 
 //        r.x = v.x;
