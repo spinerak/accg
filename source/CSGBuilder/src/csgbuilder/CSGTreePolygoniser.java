@@ -9,6 +9,12 @@ import java.util.ArrayList;
  */
 public class CSGTreePolygoniser {
     // To visualize the marching cubes algorithm
+	
+	// Wether or not to do marching cubes
+	static final boolean ADAPTIVE = false;
+	// Polygonise cube using tetrahedrons
+	static final boolean TETRAHEDRONS = true;
+	
     private ArrayList<GridCell> marchingCubes;
     
     private int[] edgeTable = {
@@ -62,9 +68,17 @@ public class CSGTreePolygoniser {
 		return vertices;
     }
 	
-	public OperandMesh getMesh(CSGTree pTree) {
-        ArrayList<Vertex> lvVertexArray = this.getPolygonsAdaptive(pTree);
-			
+	public OperandMesh getMesh(CSGTree pvTree) {
+		ArrayList<Vertex> lvVertexArray;
+		
+		if (ADAPTIVE) {
+	        lvVertexArray = this.getPolygonsAdaptive(pvTree);
+		}
+		else
+		{
+			lvVertexArray = this.getPolygons(pvTree);
+		}
+		
 		OperandMesh lvMesh = new OperandMesh(lvVertexArray.size());
 
 		for (Vertex v : lvVertexArray) {
@@ -74,7 +88,7 @@ public class CSGTreePolygoniser {
 		lvMesh.flipVertices();
 		
 		// SET DEBUG DATA
-		lvMesh.setDebugBB(pTree.getBoundingBox());
+		lvMesh.setDebugBB(pvTree.getBoundingBox());
 		lvMesh.setDebugMCCells(this.getMarchingCubes());
 			
 		return lvMesh;
@@ -109,26 +123,30 @@ public class CSGTreePolygoniser {
                 //this.marchingCubes.add(cell);
                 // Do marching cubes
                 //Polygonize(vertices, cell, isoLevel);
-				PolygoniseCubeTri(vertices, cell, isoLevel);
-
+				if (TETRAHEDRONS) {
+					PolygoniseCubeTri(vertices, cell, 0);
+				}
+				else
+				{
+					Polygonise(vertices, cell, 0);
+				}
+				
                 continue;
             }
             
-            
-           int cubeindex = 0;
-           if (cell.val[0] < isoLevel) cubeindex |= 1;
-           if (cell.val[1] < isoLevel) cubeindex |= 2;
-           if (cell.val[2] < isoLevel) cubeindex |= 4;
-           if (cell.val[3] < isoLevel) cubeindex |= 8;
-           if (cell.val[4] < isoLevel) cubeindex |= 16;
-           if (cell.val[5] < isoLevel) cubeindex |= 32;
-           if (cell.val[6] < isoLevel) cubeindex |= 64;
-           if (cell.val[7] < isoLevel) cubeindex |= 128;
+		   boolean verticeInSurface = false;
+		   // Check if there is at least one of the vertices inside of the surface
+		   for (double iso : cell.val) {
+			   if (iso < isoLevel) {
+				   verticeInSurface = true;
+				   break;
+			   }
+		   }
 
            // Test if we should recurse
            Boolean recurse = false;
            
-           if (edgeTable[cubeindex] > 0) {
+           if (verticeInSurface) {
                // At least one of the vertices is inside the volume
                recurse = true;
            }
@@ -181,7 +199,7 @@ public class CSGTreePolygoniser {
         return cell;
     }
     
-    public ArrayList<Vertex> GetPolygons(CSGTree tree) {
+    public ArrayList<Vertex> getPolygons(CSGTree tree) {
 		ArrayList<Vertex> vertices = new ArrayList<Vertex>();
         
         int ngrids = 25; // 10 * 10 * 10;
@@ -198,7 +216,13 @@ public class CSGTreePolygoniser {
                     GridCell cell = BuildCell(x, y, z, step, tree);                    
                     this.marchingCubes.add(cell);
                     
-                   Polygonize(vertices, cell, 0);
+					if (TETRAHEDRONS) {
+						PolygoniseCubeTri(vertices, cell, 0);
+					}
+					else
+					{
+						Polygonise(vertices, cell, 0);
+					}
                     //ArrayList<Triangle> newTriangles = PolygoniseCubeTri(cell, 0);
                  }
              }
@@ -216,7 +240,7 @@ public class CSGTreePolygoniser {
             0 will be returned if the grid cell is either totally above
        of totally below the isolevel.
     */
-    private void Polygonize(ArrayList<Vertex> vertices, GridCell grid, float isolevel)
+    private void Polygonise(ArrayList<Vertex> vertices, GridCell grid, float isolevel)
     {
        int i,ntriang;
        int cubeindex;

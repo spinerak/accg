@@ -36,7 +36,7 @@ public class CSGBuilderView extends FrameView {
 		
 		// Create a CSG Tree
         CSGTree lvTree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{1.0,1.0,1.0}));
-        lvTree.union(new CSGEllipsoid(new double[]{0.6,0.6,0.0}, new double[]{1.0,1.0,1.0}));
+        lvTree.union(new CSGEllipsoid(new double[]{0.5,0.5,0.5}, new double[]{1.0,1.0,1.0}));
 			
 		// Get the mesh for this tree
 		CSGTreePolygoniser lvPolygoniser = new CSGTreePolygoniser();
@@ -49,18 +49,15 @@ public class CSGBuilderView extends FrameView {
 		lvAOperandViewer.start();
 		
 		
-		OperandViewer lvBOperandViewer = new OperandViewer();
-        jSplitPane2.setLeftComponent(lvBOperandViewer.getCanvas());
-        jSplitPane2.setRightComponent(new ObjectPropertyPanel());
-        
-        // CSGTree lvBOpTree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{0.5,0.5,0.5}));
-        CSGTree lvBOpTree = new CSGTree(new CSGCuboid(new double[]{0.0,0.0,0.5}, new double[]{0.5,0.5,0.5}, new double[]{Math.PI/4,Math.PI/4,Math.PI/4}));
-		OperandMesh lvBOpMesh = lvPolygoniser.getMesh(lvBOpTree);
-		
-		lvBOperandViewer.setMesh(lvBOpMesh);
-		
-		lvBOperandViewer.start();
-
+//		OperandViewer lvBOperandViewer = new OperandViewer();
+//        jSplitPane1.setRightComponent(lvBOperandViewer.getCanvas());
+//        
+//        CSGTree lvBOpTree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{0.5,0.5,0.5}));
+//		OperandMesh lvBOpMesh = lvPolygoniser.getMesh(lvBOpTree);
+//		
+//		lvBOperandViewer.setMesh(lvBOpMesh);
+//		
+//		lvBOperandViewer.start();
 		
 		// status bar initialization - message timeout, idle icon and busy animation, etc
         ResourceMap resourceMap = getResourceMap();
