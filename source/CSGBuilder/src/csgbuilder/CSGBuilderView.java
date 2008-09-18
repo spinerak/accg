@@ -50,10 +50,11 @@ public class CSGBuilderView extends FrameView {
 		
 		
 		OperandViewer lvBOperandViewer = new OperandViewer();
-        jSplitPane1.setRightComponent(lvBOperandViewer.getCanvas());
+        jSplitPane2.setLeftComponent(lvBOperandViewer.getCanvas());
+        jSplitPane2.setRightComponent(new ObjectPropertyPanel());
         
         // CSGTree lvBOpTree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{0.5,0.5,0.5}));
-        CSGTree lvBOpTree = new CSGTree(new CSGCuboid(new double[]{0.0,0.0,0.5}, new double[]{0.5,0.5,0.5}, new double[]{0,0,Math.PI/4}));
+        CSGTree lvBOpTree = new CSGTree(new CSGCuboid(new double[]{0.0,0.0,0.5}, new double[]{0.5,0.5,0.5}, new double[]{Math.PI/4,Math.PI/4,Math.PI/4}));
 		OperandMesh lvBOpMesh = lvPolygoniser.getMesh(lvBOpTree);
 		
 		lvBOperandViewer.setMesh(lvBOpMesh);
@@ -137,6 +138,7 @@ public class CSGBuilderView extends FrameView {
 
         mainPanel = new javax.swing.JPanel();
         jSplitPane1 = new javax.swing.JSplitPane();
+        jSplitPane2 = new javax.swing.JSplitPane();
         menuBar = new javax.swing.JMenuBar();
         javax.swing.JMenu fileMenu = new javax.swing.JMenu();
         javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
@@ -154,6 +156,11 @@ public class CSGBuilderView extends FrameView {
         jSplitPane1.setMinimumSize(new java.awt.Dimension(150, 150));
         jSplitPane1.setName("jSplitPane1"); // NOI18N
         jSplitPane1.setPreferredSize(new java.awt.Dimension(150, 150));
+
+        jSplitPane2.setName("jSplitPane2"); // NOI18N
+        jSplitPane2.setPreferredSize(new java.awt.Dimension(179, 50));
+        jSplitPane1.setRightComponent(jSplitPane2);
+
         mainPanel.add(jSplitPane1);
 
         menuBar.setName("menuBar"); // NOI18N
@@ -193,11 +200,11 @@ public class CSGBuilderView extends FrameView {
         statusPanel.setLayout(statusPanelLayout);
         statusPanelLayout.setHorizontalGroup(
             statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(statusPanelSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 400, Short.MAX_VALUE)
+            .addComponent(statusPanelSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 402, Short.MAX_VALUE)
             .addGroup(statusPanelLayout.createSequentialGroup()
                 .addContainerGap()
                 .addComponent(statusMessageLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 226, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 232, Short.MAX_VALUE)
                 .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(statusAnimationLabel)
@@ -222,6 +229,7 @@ public class CSGBuilderView extends FrameView {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JSplitPane jSplitPane1;
+    private javax.swing.JSplitPane jSplitPane2;
     private javax.swing.JPanel mainPanel;
     private javax.swing.JMenuBar menuBar;
     private javax.swing.JProgressBar progressBar;
