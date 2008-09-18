@@ -35,6 +35,8 @@ public class OperandViewer {
         mCanvas.addGLEventListener(mRenderer);
         mCanvas.addMouseListener(lvListener);
         mCanvas.addMouseMotionListener(lvListener);
+		mCanvas.addMouseWheelListener(lvListener);
+		mCanvas.addKeyListener(lvListener);
 
 		mCanvas.setFocusable(true);
 	}

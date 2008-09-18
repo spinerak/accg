@@ -8,13 +8,19 @@ import java.util.ArrayList;
  * http://local.wasp.uwa.edu.au/~pbourke/geometry/polygonise/index.html
  */
 public class CSGTreePolygoniser {
+	// Whether or not to do marching cubes
+	static final boolean ADAPTIVE = true;
+	
+	// Maximum number of recursions when doing adaptive marching cubes
+	static final int MAX_RECURSIONS = 3;
+	
+	// Number of cubes when not doing adaptive marching cubes
+	static final int NUM_CUBES = 1000;
+	
+	// Whether or not to polygonise cube using tetrahedrons
+	static final boolean TETRAHEDRONS = false;
+	
     // To visualize the marching cubes algorithm
-	
-	// Wether or not to do marching cubes
-	static final boolean ADAPTIVE = false;
-	// Polygonise cube using tetrahedrons
-	static final boolean TETRAHEDRONS = true;
-	
     private ArrayList<GridCell> marchingCubes;
     
     private int[] edgeTable = {
@@ -64,7 +70,7 @@ public class CSGTreePolygoniser {
         Vertex end = tree.getBoundingBox().p[6];
 
 		ArrayList<Vertex> vertices = new ArrayList<Vertex>();
-		polygonsAdaptiveRecursive(vertices, 0, 0, 2, start, end, tree);
+		polygonsAdaptiveRecursive(vertices, 0, 0, start, end, tree);
 		return vertices;
     }
 	
@@ -95,7 +101,7 @@ public class CSGTreePolygoniser {
     }
     
 
-    private void polygonsAdaptiveRecursive(ArrayList<Vertex> vertices, float isoLevel, int depth, int maxDepth, Vertex s, Vertex e, CSGTree tree) {
+    private void polygonsAdaptiveRecursive(ArrayList<Vertex> vertices, float isoLevel, int depth, Vertex s, Vertex e, CSGTree tree) {
         // Divide into 8 cubes and only recurse into the cubes that contain geometry
         ArrayList<GridCell> cells = new ArrayList<GridCell>();
         
@@ -119,7 +125,7 @@ public class CSGTreePolygoniser {
         boolean recurseAll = false;
 		boolean doRecurseAll = true;
         for (GridCell cell : cells) {
-            if (depth >= maxDepth) {
+            if (depth >= MAX_RECURSIONS) {
                 //this.marchingCubes.add(cell);
                 // Do marching cubes
                 //Polygonize(vertices, cell, isoLevel);
@@ -158,14 +164,14 @@ public class CSGTreePolygoniser {
 		   }
 		   else if (recurse)
            {
-                polygonsAdaptiveRecursive(vertices, isoLevel, depth + 1, maxDepth, cell.p[0], cell.p[6], tree);
+                polygonsAdaptiveRecursive(vertices, isoLevel, depth + 1, cell.p[0], cell.p[6], tree);
            }
         }
 		
 		if (recurseAll)
 		{
 			for (GridCell cell : cells) {
-				polygonsAdaptiveRecursive(vertices, isoLevel, depth + 1, maxDepth, cell.p[0], cell.p[6], tree);
+				polygonsAdaptiveRecursive(vertices, isoLevel, depth + 1, cell.p[0], cell.p[6], tree);
 			}
 		}
     }
@@ -202,13 +208,18 @@ public class CSGTreePolygoniser {
     public ArrayList<Vertex> getPolygons(CSGTree tree) {
 		ArrayList<Vertex> vertices = new ArrayList<Vertex>();
         
-        int ngrids = 25; // 10 * 10 * 10;
         Vertex start = new Vertex(); start.x = -1f; start.y = -1f; start.z = -1f;
         Vertex end = new Vertex(); end.x = 1f; end.y = 1f; end.z = 1f;
-        Vertex step = new Vertex();
-		step.x = (end.x - start.x)/ngrids;
-		step.y = (end.y - start.y)/ngrids;
-		step.z = (end.z - start.z)/ngrids;
+
+		int div = (int) Math.pow((double)NUM_CUBES, 1.0/3.0);
+		if (div == 0) {
+			return vertices;
+		}
+		
+		Vertex step = new Vertex();
+		step.x = (end.x - start.x)/div;
+		step.y = (end.y - start.y)/div;
+		step.z = (end.z - start.z)/div;
 
         for (float x = start.x; x < end.x; x += step.x) {
              for (float y = start.y; y < end.y; y += step.y) {
