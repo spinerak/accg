@@ -8,7 +8,9 @@ package csgbuilder;
 import com.sun.opengl.util.Animator;
 import com.sun.opengl.util.BufferUtil;
 import java.awt.Point;
+import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
+import java.nio.IntBuffer;
 import java.util.ArrayList;
 import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
@@ -21,10 +23,18 @@ import javax.media.opengl.glu.GLUquadric;
  * @author s031407
  */
 public class OperandViewerRenderer implements GLEventListener {
-   
+    // Initial zoom value
+	private double mZoom = -6.0;
+	
+	private Point mStartDrag = null;
+	private Point mTranslation = new Point(0, 0);
+	
+	static final float ZOOM_FACTOR = 1f/3f;
+	
     // User Defined Variables
     private GLUquadric quadratic;   // Used For Our Quadric
     private GLU glu = new GLU();
+	private GL gl = null;
 
     private Matrix4f LastRot = new Matrix4f();
     private Matrix4f ThisRot = new Matrix4f();
@@ -79,7 +89,7 @@ public class OperandViewerRenderer implements GLEventListener {
     }
 
     public void init(GLAutoDrawable drawable) {
-        GL gl = drawable.getGL();
+        gl = drawable.getGL();
 		
 		// Check For VBO support
         VBOSupported = gl.isFunctionAvailable("glGenBuffersARB") &&
@@ -114,7 +124,9 @@ public class OperandViewerRenderer implements GLEventListener {
         gl.glBlendFunc (GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA);
     }
 	
-
+	void zoom(float pvAmount) {
+		mZoom += pvAmount*ZOOM_FACTOR;
+	}
 
     void reset() {
         synchronized(matrixLock) {
@@ -122,15 +134,52 @@ public class OperandViewerRenderer implements GLEventListener {
             ThisRot.setIdentity();   // Reset Rotation
         }
     }
+	
+	void startTranslate(Point pvMousePt) {
+		mStartDrag = pvMousePt;
+	}
+	
+	private Vertex getProjectionCoords(Point p, GL gl, double mDepth) {
+			double[] lvProjection = new double[16];
+			double[] lvModelView = new double[16];
+			int[] lvViewPort = new int[4];
+			
+			int realy = 0;// GL y coord pos
+			double wcoord[] = new double[4];// wx, wy, wz;// returned xyz coords
+    
+			  gl.glGetIntegerv(GL.GL_VIEWPORT, lvViewPort, 0);
+			  gl.glGetDoublev(GL.GL_MODELVIEW_MATRIX, lvModelView, 0);
+			  gl.glGetDoublev(GL.GL_PROJECTION_MATRIX, lvProjection, 0);
 
-    void startDrag( Point MousePt ) {
+			  /* note viewport[3] is height of window in pixels */
+			  realy = lvViewPort[3] - (int) p.y - 1;
+
+			  glu.gluUnProject((double) p.x, (double) realy, 0.0, //
+				  lvModelView, 0,
+				  lvProjection, 0, 
+				  lvViewPort, 0, 
+				  wcoord, 0);
+			  
+			  return new Vertex(wcoord[0], wcoord[1], wcoord[2]);
+	}
+	
+	void translate(Point pvMousePt) {
+		if (mStartDrag != null) {
+			mTranslation.x -= mStartDrag.x - pvMousePt.x;
+			mTranslation.y -= mStartDrag.y - pvMousePt.y;
+			
+			mStartDrag = pvMousePt;
+		}
+	}
+
+    void startRotate( Point MousePt ) {
         synchronized(matrixLock) {
             LastRot.set( ThisRot );  // Set Last Static Rotation To Last Dynamic One
         }
         arcBall.click( MousePt );    // Update Start Vector And Prepare For Dragging
     }
 
-    void drag( Point MousePt )       // Perform Motion Updates Here
+    void rotate( Point MousePt )       // Perform Motion Updates Here
     {
         Quat4f ThisQuat = new Quat4f();
 
@@ -213,8 +262,9 @@ public class OperandViewerRenderer implements GLEventListener {
         gl.glLoadIdentity();                  // Reset The Current Modelview Matrix
         
         
-        // Go Into The Screen 7.0
-        gl.glTranslatef(0.0f, 0.0f, -6.0f);  
+        // Convert translation to projection coords
+		Vertex lvTranslation = getProjectionCoords(mTranslation, gl, mZoom);
+        gl.glTranslatef(lvTranslation.x, lvTranslation.y, (float)mZoom);  
 
         gl.glPushMatrix();                  // NEW: Prepare Dynamic Transform
         gl.glMultMatrixf(matrix, 0);        // NEW: Apply Dynamic Transform
