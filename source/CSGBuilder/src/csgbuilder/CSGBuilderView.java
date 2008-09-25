@@ -36,7 +36,7 @@ public class CSGBuilderView extends FrameView {
 		
 	// Create a CSG Tree
         CSGTree lvTree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{1.0,1.0,1.0}));
-        lvTree.union(new CSGEllipsoid(new double[]{0.5,0.5,0.5}, new double[]{1.0,1.0,1.0}));
+        lvTree.difference(new CSGEllipsoid(new double[]{0.8,0.8,0.8}, new double[]{1.0,1.0,1.0}));
 			
 	// Get the mesh for this tree
 	CSGTreePolygoniser lvPolygoniser = new CSGTreePolygoniser();

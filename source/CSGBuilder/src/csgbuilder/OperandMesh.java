@@ -15,8 +15,13 @@ import javax.media.opengl.GL;
  * @author s031407
  */
 public class OperandMesh {
+	private static boolean SHOW_BB = false;
+	private static boolean SHOW_MC = false;
+	private static boolean SHOW_NORMALS = true;
+	
 	// Contains the array of vertices
 	private FloatBuffer mVertices;
+	private FloatBuffer mNormals;
 	
 	private FloatBuffer mDebugMCCells = null;
 	private BoundingBox mDebugBB = null;
@@ -29,32 +34,61 @@ public class OperandMesh {
 	
 	public OperandMesh(int pVertexCount) {
 		mVertices = BufferUtil.newFloatBuffer(pVertexCount * 3);
+		mNormals = BufferUtil.newFloatBuffer(pVertexCount * 3);
 		mVertexCount = pVertexCount;
 	}
 	
 	public void render(GL gl) {
-            gl.glEnableClientState(GL.GL_VERTEX_ARRAY);  // Enable Vertex Arrays
+		if (mVertexCount > 0) {
+//            gl.glEnableClientState(GL.GL_VERTEX_ARRAY);  // Enable Vertex Arrays
+//			gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
+//            gl.glColor3f(0.0f, 1.0f, 0.0f);
+//			gl.glDrawArrays(GL.GL_TRIANGLES, 0, mVertexCount);  
+//            gl.glDisableClientState(GL.GL_VERTEX_ARRAY);
 
-			// Drawmode: wireframe
-			gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
 
-			gl.glVertexPointer(3, GL.GL_FLOAT, 0, mVertices); 
 			
+			
+			
+			
+			
+			gl.glEnableClientState(GL.GL_VERTEX_ARRAY);  // Enable Vertex Arrays
+			gl.glVertexPointer(3, GL.GL_FLOAT, 0, mVertices); 
+
+			gl.glEnableClientState(GL.GL_NORMAL_ARRAY);
+			gl.glNormalPointer(GL.GL_FLOAT, 0, mNormals);
+			
+
+			
+			gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL);
 			// Draw all at once
             gl.glColor3f(1.0f, 0.0f, 0.0f);
 			gl.glDrawArrays(GL.GL_TRIANGLES, 0, mVertexCount);  
+			
 
-            // Disable Vertex Arrays
+			
+			// Disable Vertex Arrays
+			gl.glDisableClientState(GL.GL_NORMAL_ARRAY);
             gl.glDisableClientState(GL.GL_VERTEX_ARRAY);
+		}
+
+		if (SHOW_NORMALS) {
+			// Draw normals
+			drawNormals(gl);
+		}
+		
+		// Debug axis
+		drawAxis(gl);
 			
-			// Debug axis
-			drawAxis(gl);
-			
+		if (SHOW_BB) {
 			// Debug bounding box
 			drawBB(gl);
+		}
 
+		if (SHOW_MC) {
 			// Debug marching cubes
 			drawMC(gl);
+		}
 	}
 
 	public int getVertexCount() {
@@ -67,23 +101,48 @@ public class OperandMesh {
 		mVertices.put(pVertex.z);
 	}
 	
+	public void addNormal(Vertex pvNormal) {
+		mNormals.put(pvNormal.x);
+		mNormals.put(pvNormal.y);
+		mNormals.put(pvNormal.z);
+	}
+	
 	public void flipVertices() {
 		mVertices.flip();
+		mNormals.flip();
 	}
 
 	// START DEBUG FUNCTIONS
 	
 	private void drawMC(GL gl) {
-			if (mDebugMCCells == null) {
-				return;
-			}
+		if (mDebugMCCells == null) {
+			return;
+		}
 			
-				gl.glEnableClientState(GL.GL_VERTEX_ARRAY);  // Enable Vertex Arrays
+		gl.glEnableClientState(GL.GL_VERTEX_ARRAY);  // Enable Vertex Arrays
 
-				gl.glVertexPointer(3, GL.GL_FLOAT, 0, mDebugMCCells); 
-				gl.glColor4f(0.0f, 1.0f, 0.0f, 0.07f);
-				gl.glDrawArrays(GL.GL_QUADS, 0, mDebugMCCells.limit() / 3);
-				gl.glDisableClientState(GL.GL_VERTEX_ARRAY);				
+				
+		gl.glVertexPointer(3, GL.GL_FLOAT, 0, mDebugMCCells); 
+				
+		gl.glColor4f(0.0f, 1.0f, 0.0f, 0.07f);
+		gl.glDrawArrays(GL.GL_QUADS, 0, mDebugMCCells.limit() / 3);
+				
+		gl.glDisableClientState(GL.GL_VERTEX_ARRAY);				
+	}
+	
+	private void drawNormals(GL gl) {
+        gl.glColor3d(0.0, 0.0, 1.0);
+		
+		for (int i = 0; i < mVertices.capacity(); i += 3) {
+			gl.glBegin(GL.GL_LINES);
+			float x = mVertices.get(i);
+			float y = mVertices.get(i + 1);
+			float z = mVertices.get(i + 2);
+			gl.glVertex3f(x, y, z);
+			float ratio = 15f;
+			gl.glVertex3f(x + mNormals.get(i)/ratio, y + mNormals.get(i + 1)/ratio, z + mNormals.get(i + 2)/ratio);
+			gl.glEnd();
+		}
 	}
 	
     private void drawBB(GL gl) {

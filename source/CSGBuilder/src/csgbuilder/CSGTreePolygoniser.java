@@ -15,10 +15,13 @@ public class CSGTreePolygoniser {
 	static final int MAX_RECURSIONS = 3;
 	
 	// Number of cubes when not doing adaptive marching cubes
-	static final int NUM_CUBES = 1000;
+	static final int NUM_CUBES = 10000;
 	
 	// Whether or not to polygonise cube using tetrahedrons
 	static final boolean TETRAHEDRONS = false;
+	
+	// Delta used when calculating vertex normal
+	static final float NORMAL_DELTA = 0.001f;
 	
     // To visualize the marching cubes algorithm
     private ArrayList<GridCell> marchingCubes;
@@ -89,6 +92,15 @@ public class CSGTreePolygoniser {
 
 		for (Vertex v : lvVertexArray) {
 			lvMesh.addVertex(v);
+			
+			Vertex n = new Vertex();
+			float d = NORMAL_DELTA;
+			n.x = (float) ((pvTree.getFunctionValue(v.x + d, v.y, v.z) - pvTree.getFunctionValue(v.x, v.y, v.z)) / d);
+			n.y = (float) ((pvTree.getFunctionValue(v.x, v.y + d, v.z) - pvTree.getFunctionValue(v.x, v.y, v.z)) / d);
+			n.z = (float) ((pvTree.getFunctionValue(v.x, v.y, v.z + d) - pvTree.getFunctionValue(v.x, v.y, v.z)) / d);
+			n.subtract(v);
+			n.normalize();
+			lvMesh.addNormal(n);
 		}
 		
 		lvMesh.flipVertices();
@@ -123,7 +135,7 @@ public class CSGTreePolygoniser {
         
         this.marchingCubes.addAll(cells);
         boolean recurseAll = false;
-		boolean doRecurseAll = true;
+		boolean doRecurseAll = false;
         for (GridCell cell : cells) {
             if (depth >= MAX_RECURSIONS) {
                 //this.marchingCubes.add(cell);

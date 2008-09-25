@@ -116,8 +116,8 @@ public class OperandViewerRenderer implements GLEventListener {
         glu.gluQuadricTexture(quadratic, true); // Create Texture Coords
 
         gl.glEnable(GL.GL_LIGHT0);     // Enable Default Light
-//        gl.glEnable(GL.GL_LIGHTING);   // Enable Lighting
-
+        gl.glEnable(GL.GL_LIGHTING);   // Enable Lighting
+		gl.glShadeModel(GL.GL_SMOOTH);
         gl.glEnable(GL.GL_COLOR_MATERIAL);  // Enable Color Material
         
         gl.glEnable (GL.GL_BLEND);
@@ -264,6 +264,7 @@ public class OperandViewerRenderer implements GLEventListener {
         
         // Convert translation to projection coords
 		Vertex lvTranslation = getProjectionCoords(mTranslation, gl, mZoom);
+		//Vertex lvTranslation = new Vertex(0, 0, 0);
         gl.glTranslatef(lvTranslation.x, lvTranslation.y, (float)mZoom);  
 
         gl.glPushMatrix();                  // NEW: Prepare Dynamic Transform
