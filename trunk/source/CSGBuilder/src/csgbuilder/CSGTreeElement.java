@@ -1,10 +1,24 @@
 package csgbuilder;
 
 import java.util.Arrays;
+import java.io.Serializable;
 
 public abstract class CSGTreeElement {
     public abstract BoundingBox getBoundingBox();
     public abstract double getFunctionValue(double x, double y, double z);
+    
+    public abstract boolean isRotatable();
+    public abstract boolean isMovable();
+    public abstract boolean isResizable();
+    
+    public abstract double[] getRotation();
+    public abstract double[] getPosition();
+    public abstract double[] getDimensions();
+    
+    public abstract void rotate(double[] rot);
+    public abstract void move(double[] pos);
+    public abstract void resize(double[] size);
+    
     @Override public abstract String toString();
     
     public double approachFunctionValue(double x, double y, double z) {
@@ -19,11 +33,42 @@ public abstract class CSGTreeElement {
             return -1; 
         }
     }
+    
 }
 
 abstract class CSGTreeOperation extends CSGTreeElement {
     protected CSGTreeElement left;
     protected CSGTreeElement right;
+    
+    public boolean isMovable() {
+        return false;
+    }
+    
+    public boolean isRotatable() {
+        return false;
+    }
+    
+    public boolean isResizable() {
+        return false;
+    }
+    
+    public double[] getRotation() {
+        return new double[] {0.0,0.0,0.0};
+    }
+    
+    public double[] getPosition() {
+        return new double[] {0.0,0.0,0.0};
+    }
+    
+    public double[] getDimensions() {
+        return new double[] {0.0,0.0,0.0};
+    }
+    
+    public void move(double[] pos) {}
+    
+    public void rotate(double[] rot) {}
+    
+    public void resize(double[] size) {}
     
     public abstract BoundingBox getBoundingBox();
     public abstract double getFunctionValue(double x, double y, double z);
@@ -181,23 +226,50 @@ abstract class CSGObject extends CSGTreeElement {
         r.x = v.x*cy*cz              + v.y*cy*sz              - v.z*sy;
         r.y = v.x*(sx*sy*cz - cx*sz) + v.y*(sx*sy*sz + cx*cz) + v.z*sx*cy;
         r.z = v.x*(cx*sy*cz + sx*sz) + v.y*(cx*sy*sz - sx*cz) + v.z*cx*cy;
-
-//        r.x = v.x;
-//        r.y = v.y*cx + v.z*sx;
-//        r.z = v.y*-sx + v.z*cx;
-        
-//        r.x = v.x*cy + v.z*-sy;
-//        r.y = v.y;
-//        r.z = v.x*sy + v.z*cy;
-
-//        r.x = v.x*cz  + v.y*sz;
-//        r.y = v.x*-sz + v.y*cz;
-//        r.z = v.z;
-        
         return r;
     }
     
-    private void computeBoundingBox() {
+    public boolean isMovable() {
+        return true;
+    }
+    
+    public boolean isResizable() {
+        return true;
+    }
+    
+    public boolean isRotatable() {
+        return true;
+    }
+    
+    public double[] getRotation() {
+        return rot;
+    }
+    
+    public double[] getPosition() {
+        return pos;
+    }
+    
+    public double[] getDimensions() {
+        return size;
+    }
+    
+    public void move(double pos[])
+    {
+        this.pos = pos;
+        computeBoundingBox();
+    }
+    
+    public void resize(double[] size) {
+        this.size = size;
+        computeBoundingBox();
+    }
+    
+    public void rotate(double[] rot) {
+        this.rot = rot;
+        computeBoundingBox();
+    }
+    
+    protected void computeBoundingBox() {
         Vertex p0 = new Vertex(-size[0], -size[1], -size[2]);
         Vertex p1 = new Vertex(size[0],  -size[1], -size[2]);
         Vertex p2 = new Vertex(size[0],  size[1],  -size[2]);
@@ -253,10 +325,10 @@ abstract class CSGObject extends CSGTreeElement {
 
 class CSGEllipsoid extends CSGObject {
     public CSGEllipsoid(double[] pos, double[] size) {
-		super(pos, size, new double[]{0.0, 0.0, 0.0});
-	}
+	super(pos, size, new double[]{0.0, 0.0, 0.0});
+    }
 	
-	public CSGEllipsoid(double[] pos, double[] size, double[] rot) {
+    public CSGEllipsoid(double[] pos, double[] size, double[] rot) {
         super(pos, size, rot);
     }
     

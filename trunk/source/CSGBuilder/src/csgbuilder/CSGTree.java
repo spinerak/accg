@@ -1,11 +1,13 @@
 package csgbuilder;
 
+import java.io.Serializable;
+
 /**
  *
  * @author s040379
  */
 public class CSGTree extends CSGTreeElement {
-    private CSGTreeElement root;
+    protected CSGTreeElement root;
     
     public CSGTree(CSGTreeElement root) {
         this.root = root;
@@ -29,6 +31,42 @@ public class CSGTree extends CSGTreeElement {
         prune();        
     }
     
+    public boolean isResizable() {
+        return root.isResizable();
+    }
+    
+    public boolean isMovable() {
+        return root.isMovable();
+    }
+    
+    public boolean isRotatable() {
+        return root.isRotatable();
+    }
+    
+    public double[] getRotation() {
+        return root.getRotation();
+    }
+    
+    public double[] getPosition() {
+        return root.getPosition();
+    }
+    
+    public double[] getDimensions() {
+        return root.getDimensions();
+    }
+    
+    public void resize(double[] size) {
+        root.resize(size);
+    }
+    
+    public void move(double[] pos) {
+        root.move(pos);
+    }
+    
+    public void rotate(double[] rot) {
+        root.rotate(rot);
+    }
+    
     /**
      * Applies the following transformations on the CSGTree:
      * (1) X -(Y \/ Z)   = (X - Y) - Z
@@ -47,43 +85,75 @@ public class CSGTree extends CSGTreeElement {
         return;
         
         /*/
+        // TODO: implement cases (1)..(9)
         
-        if (element instanceof CSGObject) {
-            return;
-        }
-        
-        CSGTreeOperation currentNode = (CSGTreeOperation)element;
-        boolean transformed;
+        boolean changed;
         
         do {
-            transformed = false;
+            changed = false;
             
-            if (currentNode instanceof CSGTreeDifference) {
-                if (currentNode.left instanceof CSGTreeUnion) {
+            if (element instanceof CSGTreeOperation) {
+                CSGTreeOperation node = (CSGTreeOperation)element;
+                normalize(node.left);
+                normalize(node.right);
+            }                
+
+            if (element instanceof CSGTreeDifference) {
+                // (1) (3) (5) (8)
+                CSGTreeOperation node = (CSGTreeOperation)element;
+
+                if (node.right instanceof CSGTreeUnion) {
                     // (1)
-                    CSGTreeOperation node = (CSGTreeOperation)currentNode.left;
-                    currentNode.left = new CSGTreeDifference(node.left, node.right);
+                    CSGTreeOperation right = (CSGTreeOperation)node.right;
+                    changed = true;
                 }
-                else if (currentNode.left instanceof CSGTreeIntersection) {
+                else if (node.right instanceof CSGTreeIntersection) {
                     // (3)
-                    CSGTreeOperation node = (CSGTreeOperation)currentNode.left;
-                    // TODO
+                    CSGTreeOperation right = (CSGTreeOperation)node.right;
+                    changed = true;
+                }
+                else if (node.right instanceof CSGTreeDifference) {
+                    // (5)
+                    CSGTreeOperation right = (CSGTreeOperation)node.right;
+                    changed = true;
+                }
+                else if (node.left instanceof CSGTreeUnion) {
+                    // (8)
+                    CSGTreeOperation left = (CSGTreeOperation)node.left;
+                    changed = true;
                 }
             }
-            else if (currentNode instanceof CSGTreeIntersection) {
-                
+            else if (element instanceof CSGTreeIntersection) {
+                // (2) (4) (6) (7) (9)
+                CSGTreeOperation node = (CSGTreeOperation)element;
+
+                if (node.right instanceof CSGTreeUnion) {
+                    // (2)
+                    CSGTreeOperation right = (CSGTreeOperation)node.right;
+                    changed = true;             
+                }
+                else if (node.right instanceof CSGTreeIntersection) {
+                    // (4)
+                    CSGTreeOperation right = (CSGTreeOperation)node.right;
+                    changed = true;
+                }
+                else if (node.right instanceof CSGTreeDifference) {
+                    // (6)
+                    CSGTreeOperation right = (CSGTreeOperation)node.right;
+                    changed = true;
+                }
+                else if (node.left instanceof CSGTreeDifference) {
+                    // (7)
+                    CSGTreeOperation left = (CSGTreeOperation)node.left;
+                    changed = true;
+                }
+                else if (node.left instanceof CSGTreeUnion) {
+                    // (9)
+                    CSGTreeOperation left = (CSGTreeOperation)node.left;
+                    changed = true;
+                }
             }
-            
-            if (currentNode.left instanceof CSGTreeOperation) {
-                normalize((CSGTreeOperation)currentNode.left);    
-            }
-            
-            if (currentNode.right instanceof CSGTreeOperation) {
-                normalize((CSGTreeOperation)currentNode.right);    
-            }            
-        }
-        while(!transformed);
-        
+        } while (changed);
         /**/
     }
     

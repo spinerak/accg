@@ -11,12 +11,150 @@ package csgbuilder;
  * @author  s040379
  */
 public class ObjectPropertyPanel extends javax.swing.JPanel {
-
+    private CSGTree tree;
+    private OperandViewer viewer;
+    private CSGTreePolygoniser polygoniser = new CSGTreePolygoniser();
+    
     /** Creates new form ObjectPropertyPanel */
-    public ObjectPropertyPanel() {
+    public ObjectPropertyPanel(CSGTree tree, OperandViewer viewer) {
         initComponents();
+        setCSGObject(tree);
+        setViewer(viewer);
+        resetValues();
     }
+    
+    public void setCSGObject(CSGTree tree) { 
+        this.tree = tree;
+        
+        positionXSpinner.setEnabled(tree.isMovable());
+        positionYSpinner.setEnabled(tree.isMovable());
+        positionZSpinner.setEnabled(tree.isMovable());
+        
+        rotationXSpinner.setEnabled(tree.isRotatable());
+        rotationYSpinner.setEnabled(tree.isRotatable());
+        rotationZSpinner.setEnabled(tree.isRotatable());
+        
+        widthSpinner.setEnabled(tree.isResizable());
+        heightSpinner.setEnabled(tree.isResizable());
+        lengthSpinner.setEnabled(tree.isResizable());
+    }
+    
+    public void setViewer(OperandViewer viewer) {
+        this.viewer = viewer;
+        setMesh();
+    }
+    
+    private void setMesh() {        
+	OperandMesh mesh = polygoniser.getMesh(tree);
+        viewer.setMesh(mesh);
+    }
+    
+    private double[] getPosition() {
+        double x = ((Double)positionXSpinner.getValue()).doubleValue();
+        double y = ((Double)positionYSpinner.getValue()).doubleValue();
+        double z = ((Double)positionZSpinner.getValue()).doubleValue();
+        return new double[]{x, y, z};
+    }
+    
+    private double[] getRotation() {
+        double x = Math.toRadians(((Double)rotationXSpinner.getValue()).doubleValue());
+        double y = Math.toRadians(((Double)rotationYSpinner.getValue()).doubleValue());
+        double z = Math.toRadians(((Double)rotationZSpinner.getValue()).doubleValue());
+        return new double[]{x, y, z};
+    }
+    
+    private double[] getDimensions() {
+        double x = ((Double)widthSpinner.getValue()).doubleValue();
+        double y = ((Double)heightSpinner.getValue()).doubleValue();
+        double z = ((Double)lengthSpinner.getValue()).doubleValue();
+        return new double[]{x, y, z};        
+    }
+    
+    /**
+     * Resets the values of the components on this panel.
+     */
+    public void resetValues() {
+        widthSpinner.setValue(tree.getDimensions()[0]);
+        heightSpinner.setValue(tree.getDimensions()[1]);
+        lengthSpinner.setValue(tree.getDimensions()[2]);
+        
+        rotationXSpinner.setValue(Math.toDegrees(tree.getRotation()[0]));
+        rotationYSpinner.setValue(Math.toDegrees(tree.getRotation()[1]));
+        rotationZSpinner.setValue(Math.toDegrees(tree.getRotation()[2]));
+        
+        positionXSpinner.setValue(tree.getPosition()[0]);
+        positionYSpinner.setValue(tree.getPosition()[1]);
+        positionZSpinner.setValue(tree.getPosition()[2]);
+    }    
 
+    class DoubleSpinnerModel implements javax.swing.SpinnerModel {
+        private java.util.ArrayList<javax.swing.event.ChangeListener> changeListeners;
+        
+        private double min;
+        private double max;
+        private double step;
+        private double value;
+        
+        public DoubleSpinnerModel(double min, double max, double step, double value) {
+            this.min   = min;
+            this.max   = max;
+            this.step  = step;
+            this.value = value;
+            
+            changeListeners = new java.util.ArrayList<javax.swing.event.ChangeListener>();
+        }
+        
+        public void addChangeListener(javax.swing.event.ChangeListener l) {
+            changeListeners.add(l);
+        }
+        
+        public void removeChangeListener(javax.swing.event.ChangeListener l) {
+            changeListeners.remove(l);
+        }
+        
+        public Double getPreviousValue() {
+            if (value - step < min) {
+                return new Double(value);
+            }
+            else {
+                return new Double(value - step);
+            }
+        }
+        
+        public Double getNextValue() {
+            if (value + step > max) {
+                return new Double(value);
+            }
+            else {
+                return new Double(value + step);
+            }
+        }
+        
+        public void setValue(Object value) throws IllegalArgumentException  {
+            if (value instanceof Double) {
+                double v = ((Double)value).doubleValue();
+                
+                if ((v >= min) && (v <= max)) {
+                    this.value = v;
+                    stateChanged();
+                    return;
+                }                
+            }
+            
+            throw new IllegalArgumentException();
+        }
+        
+        public Double getValue() {
+            return new Double(value);
+        }
+        
+        private void stateChanged() {
+            for (javax.swing.event.ChangeListener l : changeListeners) {
+                l.stateChanged(new javax.swing.event.ChangeEvent(this));
+            }
+        }
+    }    
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -26,27 +164,33 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
+        jFileChooser1 = new javax.swing.JFileChooser();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         jLabel3 = new javax.swing.JLabel();
-        jSpinner1 = new javax.swing.JSpinner();
-        jSpinner2 = new javax.swing.JSpinner();
-        jSpinner3 = new javax.swing.JSpinner();
+        positionXSpinner = new javax.swing.JSpinner();
+        positionYSpinner = new javax.swing.JSpinner();
+        positionZSpinner = new javax.swing.JSpinner();
         jPanel2 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
-        jSpinner4 = new javax.swing.JSpinner();
-        jSpinner5 = new javax.swing.JSpinner();
-        jSpinner6 = new javax.swing.JSpinner();
+        widthSpinner = new javax.swing.JSpinner();
+        heightSpinner = new javax.swing.JSpinner();
+        lengthSpinner = new javax.swing.JSpinner();
         jPanel3 = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
         jLabel8 = new javax.swing.JLabel();
         jLabel9 = new javax.swing.JLabel();
-        jSpinner7 = new javax.swing.JSpinner();
-        jSpinner8 = new javax.swing.JSpinner();
-        jSpinner9 = new javax.swing.JSpinner();
+        rotationXSpinner = new javax.swing.JSpinner();
+        rotationYSpinner = new javax.swing.JSpinner();
+        rotationZSpinner = new javax.swing.JSpinner();
+        jPanel4 = new javax.swing.JPanel();
+        objectComboBox = new javax.swing.JComboBox();
+        jButton1 = new javax.swing.JButton();
+
+        jFileChooser1.setName("jFileChooser1"); // NOI18N
 
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(csgbuilder.CSGBuilderApp.class).getContext().getResourceMap(ObjectPropertyPanel.class);
         setBorder(javax.swing.BorderFactory.createTitledBorder(resourceMap.getString("Form.border.title"))); // NOI18N
@@ -64,11 +208,29 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
         jLabel3.setText(resourceMap.getString("jLabel3.text")); // NOI18N
         jLabel3.setName("jLabel3"); // NOI18N
 
-        jSpinner1.setName("jSpinner1"); // NOI18N
+        positionXSpinner.setModel(new DoubleSpinnerModel(-10.0, 10.0, 0.1, 0.0));
+        positionXSpinner.setName("positionXSpinner"); // NOI18N
+        positionXSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                spinnerPropertyChanged(evt);
+            }
+        });
 
-        jSpinner2.setName("jSpinner2"); // NOI18N
+        positionYSpinner.setModel(new DoubleSpinnerModel(-10.0, 10.0, 0.1, 0.0));
+        positionYSpinner.setName("positionYSpinner"); // NOI18N
+        positionYSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                spinnerPropertyChanged(evt);
+            }
+        });
 
-        jSpinner3.setName("jSpinner3"); // NOI18N
+        positionZSpinner.setModel(new DoubleSpinnerModel(-10.0, 10.0, 0.1, 0.0));
+        positionZSpinner.setName("positionZSpinner"); // NOI18N
+        positionZSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                spinnerPropertyChanged(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel1Layout = new javax.swing.GroupLayout(jPanel1);
         jPanel1.setLayout(jPanel1Layout);
@@ -81,9 +243,9 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
                     .addComponent(jLabel3))
                 .addGap(34, 34, 34)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jSpinner1, javax.swing.GroupLayout.DEFAULT_SIZE, 49, Short.MAX_VALUE)
-                    .addComponent(jSpinner2, javax.swing.GroupLayout.DEFAULT_SIZE, 49, Short.MAX_VALUE)
-                    .addComponent(jSpinner3, javax.swing.GroupLayout.DEFAULT_SIZE, 49, Short.MAX_VALUE))
+                    .addComponent(positionZSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
+                    .addComponent(positionYSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE)
+                    .addComponent(positionXSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, 68, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel1Layout.setVerticalGroup(
@@ -91,15 +253,15 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jSpinner1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(positionXSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(jSpinner2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(positionYSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel3)
-                    .addComponent(jSpinner3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(positionZSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(resourceMap.getString("jPanel2.border.title"))); // NOI18N
@@ -114,11 +276,32 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
         jLabel6.setText(resourceMap.getString("jLabel6.text")); // NOI18N
         jLabel6.setName("jLabel6"); // NOI18N
 
-        jSpinner4.setName("jSpinner4"); // NOI18N
+        widthSpinner.setModel(new DoubleSpinnerModel(-10.0, 10.0, 0.1, 0.0));
+        widthSpinner.setName("widthSpinner"); // NOI18N
+        widthSpinner.setValue(0.5);
+        widthSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                spinnerPropertyChanged(evt);
+            }
+        });
 
-        jSpinner5.setName("jSpinner5"); // NOI18N
+        heightSpinner.setModel(new DoubleSpinnerModel(-10.0, 10.0, 0.1, 0.0));
+        heightSpinner.setName("heightSpinner"); // NOI18N
+        heightSpinner.setValue(0.5);
+        heightSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                spinnerPropertyChanged(evt);
+            }
+        });
 
-        jSpinner6.setName("jSpinner6"); // NOI18N
+        lengthSpinner.setModel(new DoubleSpinnerModel(-10.0, 10.0, 0.1, 0.0));
+        lengthSpinner.setName("lengthSpinner"); // NOI18N
+        lengthSpinner.setValue(0.5);
+        lengthSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                spinnerPropertyChanged(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
         jPanel2.setLayout(jPanel2Layout);
@@ -129,15 +312,15 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addComponent(jLabel6)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jSpinner6, javax.swing.GroupLayout.DEFAULT_SIZE, 52, Short.MAX_VALUE))
+                        .addComponent(lengthSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, 71, Short.MAX_VALUE))
                     .addGroup(jPanel2Layout.createSequentialGroup()
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel4)
                             .addComponent(jLabel5))
                         .addGap(7, 7, 7)
                         .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jSpinner5, javax.swing.GroupLayout.DEFAULT_SIZE, 51, Short.MAX_VALUE)
-                            .addComponent(jSpinner4, javax.swing.GroupLayout.DEFAULT_SIZE, 51, Short.MAX_VALUE))))
+                            .addComponent(heightSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, 70, Short.MAX_VALUE)
+                            .addComponent(widthSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, 70, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         jPanel2Layout.setVerticalGroup(
@@ -145,15 +328,15 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(jSpinner4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(widthSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(jSpinner5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(heightSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
-                    .addComponent(jSpinner6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(lengthSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(resourceMap.getString("jPanel3.border.title"))); // NOI18N
@@ -168,11 +351,29 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
         jLabel9.setText(resourceMap.getString("jLabel9.text")); // NOI18N
         jLabel9.setName("jLabel9"); // NOI18N
 
-        jSpinner7.setName("jSpinner7"); // NOI18N
+        rotationXSpinner.setModel(new DoubleSpinnerModel(0.0,360.0, 1.0, 0.0));
+        rotationXSpinner.setName("rotationXSpinner"); // NOI18N
+        rotationXSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                spinnerPropertyChanged(evt);
+            }
+        });
 
-        jSpinner8.setName("jSpinner8"); // NOI18N
+        rotationYSpinner.setModel(new DoubleSpinnerModel(0.0,360.0, 1.0, 0.0));
+        rotationYSpinner.setName("rotationYSpinner"); // NOI18N
+        rotationYSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                spinnerPropertyChanged(evt);
+            }
+        });
 
-        jSpinner9.setName("jSpinner9"); // NOI18N
+        rotationZSpinner.setModel(new DoubleSpinnerModel(0.0,360.0, 1.0, 0.0));
+        rotationZSpinner.setName("rotationZSpinner"); // NOI18N
+        rotationZSpinner.addChangeListener(new javax.swing.event.ChangeListener() {
+            public void stateChanged(javax.swing.event.ChangeEvent evt) {
+                spinnerPropertyChanged(evt);
+            }
+        });
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
         jPanel3.setLayout(jPanel3Layout);
@@ -185,9 +386,9 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
                     .addComponent(jLabel9))
                 .addGap(32, 32, 32)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jSpinner7, javax.swing.GroupLayout.DEFAULT_SIZE, 51, Short.MAX_VALUE)
-                    .addComponent(jSpinner8, javax.swing.GroupLayout.DEFAULT_SIZE, 51, Short.MAX_VALUE)
-                    .addComponent(jSpinner9, javax.swing.GroupLayout.DEFAULT_SIZE, 51, Short.MAX_VALUE))
+                    .addComponent(rotationXSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, 70, Short.MAX_VALUE)
+                    .addComponent(rotationYSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, 70, Short.MAX_VALUE)
+                    .addComponent(rotationZSpinner, javax.swing.GroupLayout.DEFAULT_SIZE, 70, Short.MAX_VALUE))
                 .addContainerGap())
         );
         jPanel3Layout.setVerticalGroup(
@@ -195,39 +396,130 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
-                    .addComponent(jSpinner7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(rotationXSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel8)
-                    .addComponent(jSpinner8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(rotationYSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel9)
-                    .addComponent(jSpinner9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+                    .addComponent(rotationZSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
+        );
+
+        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(resourceMap.getString("jPanel4.border.title"))); // NOI18N
+        jPanel4.setName("jPanel4"); // NOI18N
+
+        objectComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Cuboid", "Ellipsoid" }));
+        objectComboBox.setName("objectComboBox"); // NOI18N
+        objectComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                objectPropertyHandler(evt);
+            }
+        });
+
+        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(csgbuilder.CSGBuilderApp.class).getContext().getActionMap(ObjectPropertyPanel.class, this);
+        jButton1.setAction(actionMap.get("loadObject")); // NOI18N
+        jButton1.setText(resourceMap.getString("jButton1.text")); // NOI18N
+        jButton1.setName("jButton1"); // NOI18N
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                loadObject(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
+        jPanel4.setLayout(jPanel4Layout);
+        jPanel4Layout.setHorizontalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel4Layout.createSequentialGroup()
+                .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addComponent(jButton1, javax.swing.GroupLayout.Alignment.LEADING, javax.swing.GroupLayout.DEFAULT_SIZE, 112, Short.MAX_VALUE)
+                    .addComponent(objectComboBox, 0, 112, Short.MAX_VALUE))
+                .addContainerGap())
+        );
+        jPanel4Layout.setVerticalGroup(
+            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel4Layout.createSequentialGroup()
+                .addComponent(objectComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(this);
         this.setLayout(layout);
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+            .addGroup(layout.createSequentialGroup()
+                .addContainerGap()
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jPanel4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel2, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap())
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
+                .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(18, 18, 18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jPanel3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(73, Short.MAX_VALUE))
         );
     }// </editor-fold>//GEN-END:initComponents
+    
+private void objectPropertyHandler(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_objectPropertyHandler
+    if (evt.getSource().equals(objectComboBox)) {
+        javax.swing.JComboBox source = (javax.swing.JComboBox)evt.getSource();
+        
+        if (source.getSelectedItem().toString().equals("Cuboid")) {
+            tree = new CSGTree(new CSGCuboid(new double[] {0,0,0}, new double[] {0.5,0.5,0.5}, new double[] {0,0,0}));
+        }
+        else if (source.getSelectedItem().toString().equals("Ellipsoid")) {
+            tree = new CSGTree(new CSGEllipsoid(new double[] {0,0,0}, new double[] {0.5,0.5,0.5}, new double[] {0,0,0}));
+        }
+        
+        setMesh();
+    }
+}//GEN-LAST:event_objectPropertyHandler
 
+private void spinnerPropertyChanged(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_spinnerPropertyChanged
+    javax.swing.JSpinner source = (javax.swing.JSpinner)evt.getSource(); 
+    double value = ((Double)source.getValue()).doubleValue();
+    
+    if (evt.getSource().equals(widthSpinner) ||
+        evt.getSource().equals(heightSpinner) ||
+        evt.getSource().equals(lengthSpinner)) {
+        tree.resize(getDimensions());
+        setMesh();
+    }
+    else if (evt.getSource().equals(positionXSpinner) ||
+             evt.getSource().equals(positionYSpinner) ||
+             evt.getSource().equals(positionZSpinner)) {
+        tree.move(getPosition());
+        setMesh();
+    }
+    else if (evt.getSource().equals(rotationXSpinner) ||
+             evt.getSource().equals(rotationYSpinner) ||
+             evt.getSource().equals(rotationZSpinner)) {
+        tree.rotate(getRotation());       
+        setMesh();
+    }
+}//GEN-LAST:event_spinnerPropertyChanged
 
+private void loadObject(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadObject
+    jFileChooser1.showOpenDialog(this);
+}//GEN-LAST:event_loadObject
+    
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JSpinner heightSpinner;
+    private javax.swing.JButton jButton1;
+    private javax.swing.JFileChooser jFileChooser1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
@@ -240,15 +532,15 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel2;
     private javax.swing.JPanel jPanel3;
-    private javax.swing.JSpinner jSpinner1;
-    private javax.swing.JSpinner jSpinner2;
-    private javax.swing.JSpinner jSpinner3;
-    private javax.swing.JSpinner jSpinner4;
-    private javax.swing.JSpinner jSpinner5;
-    private javax.swing.JSpinner jSpinner6;
-    private javax.swing.JSpinner jSpinner7;
-    private javax.swing.JSpinner jSpinner8;
-    private javax.swing.JSpinner jSpinner9;
+    private javax.swing.JPanel jPanel4;
+    private javax.swing.JSpinner lengthSpinner;
+    private javax.swing.JComboBox objectComboBox;
+    private javax.swing.JSpinner positionXSpinner;
+    private javax.swing.JSpinner positionYSpinner;
+    private javax.swing.JSpinner positionZSpinner;
+    private javax.swing.JSpinner rotationXSpinner;
+    private javax.swing.JSpinner rotationYSpinner;
+    private javax.swing.JSpinner rotationZSpinner;
+    private javax.swing.JSpinner widthSpinner;
     // End of variables declaration//GEN-END:variables
-
 }

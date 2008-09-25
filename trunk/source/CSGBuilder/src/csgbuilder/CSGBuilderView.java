@@ -31,35 +31,40 @@ public class CSGBuilderView extends FrameView {
         GLCapabilities caps = new GLCapabilities();
         caps.setDoubleBuffered(true);
         
-		OperandViewer lvAOperandViewer = new OperandViewer();
+	OperandViewer lvAOperandViewer = new OperandViewer();
         jSplitPane1.setLeftComponent(lvAOperandViewer.getCanvas());
 		
-		// Create a CSG Tree
+	// Create a CSG Tree
         CSGTree lvTree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{1.0,1.0,1.0}));
         lvTree.union(new CSGEllipsoid(new double[]{0.5,0.5,0.5}, new double[]{1.0,1.0,1.0}));
 			
-		// Get the mesh for this tree
-		CSGTreePolygoniser lvPolygoniser = new CSGTreePolygoniser();
-		OperandMesh lvMesh = lvPolygoniser.getMesh(lvTree);
+	// Get the mesh for this tree
+	CSGTreePolygoniser lvPolygoniser = new CSGTreePolygoniser();
+	OperandMesh lvMesh = lvPolygoniser.getMesh(lvTree);
 		
-		// Tell the viewer to render the mesh
-		lvAOperandViewer.setMesh(lvMesh);
+	// Tell the viewer to render the mesh
+	lvAOperandViewer.setMesh(lvMesh);
 		
         // Start
-		lvAOperandViewer.start();
+	lvAOperandViewer.start();
 		
 		
-//		OperandViewer lvBOperandViewer = new OperandViewer();
-//        jSplitPane1.setRightComponent(lvBOperandViewer.getCanvas());
-//        
-//        CSGTree lvBOpTree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{0.5,0.5,0.5}));
-//		OperandMesh lvBOpMesh = lvPolygoniser.getMesh(lvBOpTree);
-//		
-//		lvBOperandViewer.setMesh(lvBOpMesh);
-//		
-//		lvBOperandViewer.start();
+	OperandViewer lvBOperandViewer = new OperandViewer();
+        
+        //CSGTree lvBOpTree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{0.5,0.5,0.5}));
+        CSGTree lvBOpTree = new CSGTree(new CSGCuboid(new double[]{0.0,0.0,0.0}, new double[]{0.5,0.5,0.5}, new double[]{Math.PI/4, Math.PI/4, Math.PI/4}));
+        
+        jSplitPane2.setLeftComponent(lvBOperandViewer.getCanvas());
+        jSplitPane2.setRightComponent(new ObjectPropertyPanel(lvBOpTree, lvBOperandViewer));
+        jSplitPane1.setRightComponent(jSplitPane2);
+        
+//	OperandMesh lvBOpMesh = lvPolygoniser.getMesh(lvBOpTree);
 		
-		// status bar initialization - message timeout, idle icon and busy animation, etc
+//	lvBOperandViewer.setMesh(lvBOpMesh);
+		
+	lvBOperandViewer.start();
+		
+	// status bar initialization - message timeout, idle icon and busy animation, etc
         ResourceMap resourceMap = getResourceMap();
         int messageTimeout = resourceMap.getInteger("StatusBar.messageTimeout");
         messageTimer = new Timer(messageTimeout, new ActionListener() {
@@ -136,11 +141,6 @@ public class CSGBuilderView extends FrameView {
         mainPanel = new javax.swing.JPanel();
         jSplitPane1 = new javax.swing.JSplitPane();
         jSplitPane2 = new javax.swing.JSplitPane();
-        menuBar = new javax.swing.JMenuBar();
-        javax.swing.JMenu fileMenu = new javax.swing.JMenu();
-        javax.swing.JMenuItem exitMenuItem = new javax.swing.JMenuItem();
-        javax.swing.JMenu helpMenu = new javax.swing.JMenu();
-        javax.swing.JMenuItem aboutMenuItem = new javax.swing.JMenuItem();
         statusPanel = new javax.swing.JPanel();
         javax.swing.JSeparator statusPanelSeparator = new javax.swing.JSeparator();
         statusMessageLabel = new javax.swing.JLabel();
@@ -156,31 +156,9 @@ public class CSGBuilderView extends FrameView {
 
         jSplitPane2.setName("jSplitPane2"); // NOI18N
         jSplitPane2.setPreferredSize(new java.awt.Dimension(179, 50));
-        jSplitPane1.setRightComponent(jSplitPane2);
+        jSplitPane1.setLeftComponent(jSplitPane2);
 
         mainPanel.add(jSplitPane1);
-
-        menuBar.setName("menuBar"); // NOI18N
-
-        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(csgbuilder.CSGBuilderApp.class).getContext().getResourceMap(CSGBuilderView.class);
-        fileMenu.setText(resourceMap.getString("fileMenu.text")); // NOI18N
-        fileMenu.setName("fileMenu"); // NOI18N
-
-        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(csgbuilder.CSGBuilderApp.class).getContext().getActionMap(CSGBuilderView.class, this);
-        exitMenuItem.setAction(actionMap.get("quit")); // NOI18N
-        exitMenuItem.setName("exitMenuItem"); // NOI18N
-        fileMenu.add(exitMenuItem);
-
-        menuBar.add(fileMenu);
-
-        helpMenu.setText(resourceMap.getString("helpMenu.text")); // NOI18N
-        helpMenu.setName("helpMenu"); // NOI18N
-
-        aboutMenuItem.setAction(actionMap.get("showAboutBox")); // NOI18N
-        aboutMenuItem.setName("aboutMenuItem"); // NOI18N
-        helpMenu.add(aboutMenuItem);
-
-        menuBar.add(helpMenu);
 
         statusPanel.setName("statusPanel"); // NOI18N
 
@@ -220,7 +198,6 @@ public class CSGBuilderView extends FrameView {
         );
 
         setComponent(mainPanel);
-        setMenuBar(menuBar);
         setStatusBar(statusPanel);
     }// </editor-fold>//GEN-END:initComponents
 
@@ -228,7 +205,6 @@ public class CSGBuilderView extends FrameView {
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JSplitPane jSplitPane2;
     private javax.swing.JPanel mainPanel;
-    private javax.swing.JMenuBar menuBar;
     private javax.swing.JProgressBar progressBar;
     private javax.swing.JLabel statusAnimationLabel;
     private javax.swing.JLabel statusMessageLabel;
