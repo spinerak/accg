@@ -27,7 +27,22 @@ public class Types {
             y = (float)py;
             z = (float)pz;
 		}
+		
+		public void normalize() {
+			x = x / length();
+			y = y / length();
+			z = z / length();
+		}
+		
+		public void subtract(Vertex pvVertex) {
+			x = x - pvVertex.x;
+			y = y - pvVertex.y;
+			z = z - pvVertex.z;
+		}
 
+		public float length() {
+			return (float) Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
+		}
     }
     class Triangle {
         public Vertex[] p;
