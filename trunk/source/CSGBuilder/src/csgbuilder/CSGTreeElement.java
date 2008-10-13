@@ -3,7 +3,7 @@ package csgbuilder;
 import java.util.Arrays;
 import java.io.Serializable;
 
-public abstract class CSGTreeElement {
+public abstract class CSGTreeElement implements Serializable {
     public abstract BoundingBox getBoundingBox();
     public abstract double getFunctionValue(double x, double y, double z);
     

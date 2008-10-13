@@ -7,7 +7,7 @@ package csgbuilder;
 public class Types {
 
 }
-    class Vertex {
+    class Vertex implements java.io.Serializable {
         public float x;
         public float y;
         public float z;
@@ -77,7 +77,7 @@ public class Types {
 		}
     }
     
-    class BoundingBox {
+    class BoundingBox implements java.io.Serializable {
         public Vertex[] p = new Vertex[8];
         /* p[0] = (0,0,0)
          * p[1] = (1,0,0)

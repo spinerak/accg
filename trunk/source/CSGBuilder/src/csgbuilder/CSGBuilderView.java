@@ -11,17 +11,22 @@ import org.jdesktop.application.FrameView;
 import org.jdesktop.application.TaskMonitor;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import javax.swing.Timer;
 import javax.swing.Icon;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.media.opengl.*;
+import javax.swing.JFileChooser;
 
 /**
  * The application's main frame.
  */
 public class CSGBuilderView extends FrameView {
 
+    // HACK
+    private CSGTree lvTree;
+    
     public CSGBuilderView(SingleFrameApplication app) {
         super(app);
 
@@ -32,10 +37,12 @@ public class CSGBuilderView extends FrameView {
         caps.setDoubleBuffered(true);
         
 	OperandViewer lvAOperandViewer = new OperandViewer();
-        jSplitPane1.setLeftComponent(lvAOperandViewer.getCanvas());
+        canvas1 = lvAOperandViewer.getCanvas();
+        jSplitPane1.setLeftComponent(canvas1);
+        
 		
 	// Create a CSG Tree
-        CSGTree lvTree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{1.0,1.0,1.0}));
+        lvTree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{1.0,1.0,1.0}));
         lvTree.difference(new CSGEllipsoid(new double[]{0.8,0.8,0.8}, new double[]{1.0,1.0,1.0}));
 			
 	// Get the mesh for this tree
@@ -117,6 +124,16 @@ public class CSGBuilderView extends FrameView {
                 }
             }
         });
+        
+        canvas1.addMouseListener(new java.awt.event.MouseAdapter(){
+            @Override public void mouseClicked(java.awt.event.MouseEvent e) {
+                switch (e.getButton()) {
+                    case java.awt.event.MouseEvent.BUTTON3:
+                        jDialog1.setVisible(true);
+                        break;
+                }
+            }
+        });        
     }
 
     @Action
@@ -146,6 +163,9 @@ public class CSGBuilderView extends FrameView {
         statusMessageLabel = new javax.swing.JLabel();
         statusAnimationLabel = new javax.swing.JLabel();
         progressBar = new javax.swing.JProgressBar();
+        jDialog1 = new javax.swing.JDialog();
+        jButton1 = new javax.swing.JButton();
+        jFileChooser1 = new javax.swing.JFileChooser();
 
         mainPanel.setName("mainPanel"); // NOI18N
         mainPanel.setLayout(new java.awt.GridLayout(1, 0));
@@ -197,11 +217,79 @@ public class CSGBuilderView extends FrameView {
                 .addGap(3, 3, 3))
         );
 
+        jDialog1.setTitle("Object properties");
+        jDialog1.setMinimumSize(new java.awt.Dimension(200, 250));
+        jDialog1.setModal(true);
+        jDialog1.setName("jDialog1"); // NOI18N
+        jDialog1.setResizable(false);
+
+        org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(csgbuilder.CSGBuilderApp.class).getContext().getResourceMap(CSGBuilderView.class);
+        jButton1.setText(resourceMap.getString("jButton1.text")); // NOI18N
+        jButton1.setName("jButton1"); // NOI18N
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton1ActionPerformed(evt);
+            }
+        });
+
+        javax.swing.GroupLayout jDialog1Layout = new javax.swing.GroupLayout(jDialog1.getContentPane());
+        jDialog1.getContentPane().setLayout(jDialog1Layout);
+        jDialog1Layout.setHorizontalGroup(
+            jDialog1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jDialog1Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
+                .addContainerGap())
+        );
+        jDialog1Layout.setVerticalGroup(
+            jDialog1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jDialog1Layout.createSequentialGroup()
+                .addContainerGap(112, Short.MAX_VALUE)
+                .addComponent(jButton1)
+                .addContainerGap())
+        );
+
+        jFileChooser1.setName("jFileChooser1"); // NOI18N
+
         setComponent(mainPanel);
         setStatusBar(statusPanel);
     }// </editor-fold>//GEN-END:initComponents
 
+private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+    int returnVal = jFileChooser1.showSaveDialog(this.mainPanel);
+    
+    if(returnVal != javax.swing.JFileChooser.APPROVE_OPTION) {
+        javax.swing.JOptionPane.showMessageDialog(this.mainPanel,
+            "Error while saving file: could not save to selected file.",
+            "Error",
+            javax.swing.JOptionPane.ERROR_MESSAGE);
+        
+        return;
+    }
+
+    java.io.FileOutputStream fos;    
+    java.io.ObjectOutputStream out;
+        
+    try {
+        String filepath = jFileChooser1.getSelectedFile().getAbsolutePath();
+        fos = new java.io.FileOutputStream(filepath);
+        out = new java.io.ObjectOutputStream(fos);
+        out.writeObject(lvTree);
+        out.close();
+    }
+    catch (java.io.IOException ioe) {
+        javax.swing.JOptionPane.showMessageDialog(this.mainPanel,
+            "Error while saving file: could not save to selected file.",
+            "Error",
+            javax.swing.JOptionPane.ERROR_MESSAGE);
+        ioe.printStackTrace();
+    }
+}//GEN-LAST:event_jButton1ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton jButton1;
+    private javax.swing.JDialog jDialog1;
+    private javax.swing.JFileChooser jFileChooser1;
     private javax.swing.JSplitPane jSplitPane1;
     private javax.swing.JSplitPane jSplitPane2;
     private javax.swing.JPanel mainPanel;
@@ -212,8 +300,7 @@ public class CSGBuilderView extends FrameView {
     // End of variables declaration//GEN-END:variables
 
 
-    private javax.media.opengl.GLCanvas gljPanel1;
-    private javax.media.opengl.GLCanvas gljPanel2;
+    private javax.media.opengl.GLCanvas canvas1;
     
     private final Timer messageTimer;
     private final Timer busyIconTimer;
