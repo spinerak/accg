@@ -14,12 +14,14 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
     private CSGTree tree;
     private OperandViewer viewer;
     private CSGTreePolygoniser polygoniser = new CSGTreePolygoniser();
+    private java.util.HashMap<String, CSGTree> loadedTrees = 
+        new java.util.HashMap<String, CSGTree>();
     
     /** Creates new form ObjectPropertyPanel */
     public ObjectPropertyPanel(CSGTree tree, OperandViewer viewer) {
         initComponents();
         setCSGObject(tree);
-        setViewer(viewer);
+        setViewer(viewer);      
         resetValues();
     }
     
@@ -37,6 +39,8 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
         widthSpinner.setEnabled(tree.isResizable());
         heightSpinner.setEnabled(tree.isResizable());
         lengthSpinner.setEnabled(tree.isResizable());
+        
+ //       resetValues();
     }
     
     public void setViewer(OperandViewer viewer) {
@@ -478,10 +482,13 @@ private void objectPropertyHandler(java.awt.event.ActionEvent evt) {//GEN-FIRST:
         javax.swing.JComboBox source = (javax.swing.JComboBox)evt.getSource();
         
         if (source.getSelectedItem().toString().equals("Cuboid")) {
-            tree = new CSGTree(new CSGCuboid(new double[] {0,0,0}, new double[] {0.5,0.5,0.5}, new double[] {0,0,0}));
+            setCSGObject(new CSGTree(new CSGCuboid(new double[] {0,0,0}, new double[] {0.5,0.5,0.5}, new double[] {0,0,0})));
         }
         else if (source.getSelectedItem().toString().equals("Ellipsoid")) {
-            tree = new CSGTree(new CSGEllipsoid(new double[] {0,0,0}, new double[] {0.5,0.5,0.5}, new double[] {0,0,0}));
+            setCSGObject(new CSGTree(new CSGEllipsoid(new double[] {0,0,0}, new double[] {0.5,0.5,0.5}, new double[] {0,0,0})));
+        }
+        else {
+            setCSGObject(loadedTrees.get(source.getSelectedItem().toString()));
         }
         
         setMesh();
@@ -513,7 +520,46 @@ private void spinnerPropertyChanged(javax.swing.event.ChangeEvent evt) {//GEN-FI
 }//GEN-LAST:event_spinnerPropertyChanged
 
 private void loadObject(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadObject
-    jFileChooser1.showOpenDialog(this);
+    int returnVal = jFileChooser1.showOpenDialog(this);
+    
+    if(returnVal != javax.swing.JFileChooser.APPROVE_OPTION) {
+        javax.swing.JOptionPane.showMessageDialog(this,
+            "Error while opening file: the selected file could not be opened.",
+            "Error",
+            javax.swing.JOptionPane.ERROR_MESSAGE);
+        
+        return;
+    }
+
+    java.io.FileInputStream fis;    
+    java.io.ObjectInputStream in;
+    CSGTree csgTree;
+        
+    try {
+        String filepath = jFileChooser1.getSelectedFile().getAbsolutePath();
+        String filename = jFileChooser1.getSelectedFile().getName();
+        fis = new java.io.FileInputStream(filepath);
+        in  = new java.io.ObjectInputStream(fis);
+        csgTree = (CSGTree)in.readObject();
+        fis.close();
+        in.close();
+
+        objectComboBox.addItem(filename);
+        loadedTrees.put(filename, csgTree);
+    }
+    catch(java.io.IOException ioe) {
+        javax.swing.JOptionPane.showMessageDialog(this,
+            "Error while opening file: the selected file could not be opened.",
+            "Error",
+            javax.swing.JOptionPane.ERROR_MESSAGE);
+                
+        ioe.printStackTrace();
+        System.exit(-1);
+    }
+    catch(ClassNotFoundException cnfe) {
+        cnfe.printStackTrace();
+        System.exit(-1);
+    }
 }//GEN-LAST:event_loadObject
     
     // Variables declaration - do not modify//GEN-BEGIN:variables
