@@ -62,9 +62,32 @@ public class OperandViewerMIA extends MouseInputAdapter implements KeyListener {
 
 	public void keyPressed(KeyEvent e) {
 		// When ctrl is pressed do translation instead of ratation
-		if (e.getKeyCode() == 17) {
-			mTranslate = true;
-		}
+        OperandMesh mesh = mRenderer.getViewer().getMesh();
+        
+		switch (e.getKeyCode()) {
+            case 17: // CTRL
+                mTranslate = true;
+                break;
+            case 87: // W
+                mesh.setRenderMethod(OperandMesh.RenderMethod.WireFrame);
+                break;
+            case 83: // S
+                mesh.setRenderMethod(OperandMesh.RenderMethod.Fill);
+                break;
+            case 78: // N
+                mesh.toggleShowNormals();
+                break;
+            case 66: // B
+                mesh.toggleShowBB();
+                break;
+            case 65: // A
+                break;
+            case 77: // M
+                mesh.toggleShowMC();
+                break;
+        }
+        
+        //System.out.printf("%d\n", e.getKeyCode());
 	}
 
 	public void keyReleased(KeyEvent e) {

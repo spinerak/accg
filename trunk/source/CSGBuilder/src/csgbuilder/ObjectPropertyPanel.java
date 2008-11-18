@@ -49,8 +49,13 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
     }
     
     private void setMesh() {        
-	OperandMesh mesh = polygoniser.getMesh(tree);
-        viewer.setMesh(mesh);
+        if (polygoniser.isAlive()) {
+            polygoniser.stop();
+        }
+        
+        polygoniser.setTree(tree);
+        polygoniser.setViewer(viewer);
+        //polygoniser.start();
     }
     
     private double[] getPosition() {

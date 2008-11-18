@@ -7,7 +7,10 @@ import java.util.ArrayList;
 /**
  * http://local.wasp.uwa.edu.au/~pbourke/geometry/polygonise/index.html
  */
-public class CSGTreePolygoniser {
+public class CSGTreePolygoniser extends Thread {
+    private CSGTree mTree;
+    private OperandViewer mViewer;
+    
 	// Whether or not to do marching cubes
 	static final boolean ADAPTIVE = true;
 	
@@ -24,7 +27,7 @@ public class CSGTreePolygoniser {
 	static final float NORMAL_DELTA = 0.001f;
 	
     // To visualize the marching cubes algorithm
-    private ArrayList<GridCell> marchingCubes;
+    private ArrayList<OcCell> marchingCubes;
     
     private int[] edgeTable = {
     0x0  , 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c,
@@ -60,33 +63,170 @@ public class CSGTreePolygoniser {
     0xf00, 0xe09, 0xd03, 0xc0a, 0xb06, 0xa0f, 0x905, 0x80c,
     0x70c, 0x605, 0x50f, 0x406, 0x30a, 0x203, 0x109, 0x0   };
     
+    // Maps edges to edges in neighbouring cubes
+    int[][][] edgeMapping = {
+        /* Cube 0 */
+        {
+        /* Edge 0 */{-1},
+        /* Edge 1 */{3, 1, -1},
+        /* Edge 2 */{0, 3, -1},
+        /* Edge 3 */{-1},
+        /* Edge 4 */{-1},
+        /* Edge 5 */{7, 1, 1, 4, 3, 5, -1},
+        /* Edge 6 */{4, 3, 0, 7, 2, 4, -1},
+        /* Edge 7 */{-1},
+        /* Edge 8 */{-1},
+        /* Edge 9 */{8, 1, -1},
+        /* Edge 10 */{11, 1, 8, 2, 2, 3, -1},
+        /* Edge 11 */{8, 3, -1}
+        },
+        /* Cube 1 */
+        {
+        /* Edge 0 */{-1},
+        /* Edge 1 */{-1},
+        /* Edge 2 */{0, 2, -1},
+        /* Edge 3 */{1, 0, -1},
+        /* Edge 4 */{-1},
+        /* Edge 5 */{-1},
+        /* Edge 6 */{4, 2, 0, 6, 2, 5, -1},
+        /* Edge 7 */{5, 0, 3, 5, 1, 4, -1},
+        /* Edge 8 */{9, 1, -1},
+        /* Edge 9 */{-1},
+        /* Edge 10 */{9, 2, -1},
+        /* Edge 11 */{10, 0, 8, 2, 2, 3, -1}
+        },
+        /* Cube 2 */
+        {
+        /* Edge 0 */{-1},
+        /* Edge 1 */{-1},
+        /* Edge 2 */{-1},
+        /* Edge 3 */{-1},
+        /* Edge 4 */{-1},
+        /* Edge 5 */{-1},
+        /* Edge 6 */{-1},
+        /* Edge 7 */{-1},
+        /* Edge 8 */{-1},
+        /* Edge 9 */{-1},
+        /* Edge 10 */{-1},
+        /* Edge 11 */{-1}
+        },
+         /* Cube 3 */
+        {
+        /* Edge 0 */{-1},
+        /* Edge 1 */{-1},
+        /* Edge 2 */{-1},
+        /* Edge 3 */{-1},
+        /* Edge 4 */{-1},
+        /* Edge 5 */{-1},
+        /* Edge 6 */{-1},
+        /* Edge 7 */{-1},
+        /* Edge 8 */{-1},
+        /* Edge 9 */{-1},
+        /* Edge 10 */{-1},
+        /* Edge 11 */{-1}
+        },       
+         /* Cube 4 */
+        {
+        /* Edge 0 */{-1},
+        /* Edge 1 */{-1},
+        /* Edge 2 */{-1},
+        /* Edge 3 */{-1},
+        /* Edge 4 */{-1},
+        /* Edge 5 */{-1},
+        /* Edge 6 */{-1},
+        /* Edge 7 */{-1},
+        /* Edge 8 */{-1},
+        /* Edge 9 */{-1},
+        /* Edge 10 */{-1},
+        /* Edge 11 */{-1}
+        },       
+         /* Cube 5 */
+        {
+        /* Edge 0 */{-1},
+        /* Edge 1 */{-1},
+        /* Edge 2 */{-1},
+        /* Edge 3 */{-1},
+        /* Edge 4 */{-1},
+        /* Edge 5 */{-1},
+        /* Edge 6 */{-1},
+        /* Edge 7 */{-1},
+        /* Edge 8 */{-1},
+        /* Edge 9 */{-1},
+        /* Edge 10 */{-1},
+        /* Edge 11 */{-1}
+        },       
+         /* Cube 6 */
+        {
+        /* Edge 0 */{-1},
+        /* Edge 1 */{-1},
+        /* Edge 2 */{-1},
+        /* Edge 3 */{-1},
+        /* Edge 4 */{-1},
+        /* Edge 5 */{-1},
+        /* Edge 6 */{-1},
+        /* Edge 7 */{-1},
+        /* Edge 8 */{-1},
+        /* Edge 9 */{-1},
+        /* Edge 10 */{-1},
+        /* Edge 11 */{-1}
+        },       
+         /* Cube 7 */
+        {
+        /* Edge 0 */{-1},
+        /* Edge 1 */{-1},
+        /* Edge 2 */{-1},
+        /* Edge 3 */{-1},
+        /* Edge 4 */{-1},
+        /* Edge 5 */{-1},
+        /* Edge 6 */{-1},
+        /* Edge 7 */{-1},
+        /* Edge 8 */{-1},
+        /* Edge 9 */{-1},
+        /* Edge 10 */{-1},
+        /* Edge 11 */{-1}
+        }       
+    };
+
     public CSGTreePolygoniser () {
-        marchingCubes = new ArrayList<GridCell>();
+        marchingCubes = new ArrayList<OcCell>();
     }
     
-    public ArrayList<GridCell> getMarchingCubes() {
+    public CSGTreePolygoniser (OperandViewer pvViewer, CSGTree pvTree) {
+        marchingCubes = new ArrayList<OcCell>();
+        
+        setViewer(pvViewer);
+        setTree(pvTree);
+    }
+    
+    public ArrayList<OcCell> getMarchingCubes() {
         return this.marchingCubes;
     }
     
     public ArrayList<Vertex> getPolygonsAdaptive(CSGTree tree) {
-        Vertex start = tree.getBoundingBox().p[0];
-        Vertex end = tree.getBoundingBox().p[6];
-
+        // Construct the octree
+        OcTree ocTree = new OcTree(tree);
+        
 		ArrayList<Vertex> vertices = new ArrayList<Vertex>();
-		polygonsAdaptiveRecursive(vertices, 0, 0, start, end, tree);
+		polygonsAdaptiveRecursive(vertices, ocTree.root);
 		return vertices;
+    }
+    
+    public void setTree(CSGTree pvTree) {
+        mTree = pvTree;
+    }
+    
+    public void setViewer(OperandViewer pvViewer) {
+        mViewer = pvViewer;
+    }
+    
+    public void run() {
+        mViewer.setMesh(getMesh(mTree));
     }
 	
 	public OperandMesh getMesh(CSGTree pvTree) {
 		ArrayList<Vertex> lvVertexArray;
 		
-		if (ADAPTIVE) {
-	        lvVertexArray = this.getPolygonsAdaptive(pvTree);
-		}
-		else
-		{
-			lvVertexArray = this.getPolygons(pvTree);
-		}
+        lvVertexArray = this.getPolygonsAdaptive(pvTree);
 		
 		OperandMesh lvMesh = new OperandMesh(lvVertexArray.size());
 
@@ -112,82 +252,123 @@ public class CSGTreePolygoniser {
 		return lvMesh;
     }
     
+    private void polygonsAdaptiveRecursive(ArrayList<Vertex> vertices, OcCell cell) {
+        Polygonise(cell, 0);
+        
+        Vertex[] mapVertices = new Vertex[12];
 
-    private void polygonsAdaptiveRecursive(ArrayList<Vertex> vertices, float isoLevel, int depth, Vertex s, Vertex e, CSGTree tree) {
-        // Divide into 8 cubes and only recurse into the cubes that contain geometry
-        ArrayList<GridCell> cells = new ArrayList<GridCell>();
-        
-        // Divide sides in half
-        Vertex dim = new Vertex();
-		dim.x = (e.x - s.x) / 2; dim.y = (e.y - s.y) / 2; dim.z = (e.z - s.z) / 2;
-        
-        // Bottom 4 cubes
-        cells.add(BuildCell(s.x, s.y, s.z, dim, tree));
-        cells.add(BuildCell(s.x + dim.x, s.y, s.z, dim, tree));
-        cells.add(BuildCell(s.x + dim.x, s.y, s.z + dim.z, dim, tree));
-        cells.add(BuildCell(s.x, s.y, s.z + dim.z, dim, tree));
-        
-        // Top 4 cubes
-        cells.add(BuildCell(s.x, s.y + dim.y, s.z, dim, tree));
-        cells.add(BuildCell(s.x + dim.x, s.y + dim.y, s.z, dim, tree));
-        cells.add(BuildCell(s.x + dim.x, s.y + dim.y, s.z + dim.z, dim, tree));
-        cells.add(BuildCell(s.x, s.y + dim.y, s.z + dim.z, dim, tree));
-        
-        this.marchingCubes.addAll(cells);
-        boolean recurseAll = false;
-		boolean doRecurseAll = false;
-        for (GridCell cell : cells) {
-            if (depth >= MAX_RECURSIONS) {
-                //this.marchingCubes.add(cell);
-                // Do marching cubes
-                //Polygonize(vertices, cell, isoLevel);
-				if (TETRAHEDRONS) {
-					PolygoniseCubeTri(vertices, cell, 0);
-				}
-				else
-				{
-					Polygonise(vertices, cell, 0);
-				}
-				
-                continue;
+        if (cell.hasChildren) {
+            // Recurse on all children
+            boolean notRecursed = false;
+            boolean recursed = false;
+            for (int i = 0; i < 8; i++) {
+                OcCell c = cell.child[i];
+                polygonsAdaptiveRecursive(vertices, c);
+                
+                if (!recursed) recursed = c.hasChildren;
+                if (!notRecursed) notRecursed = !c.hasChildren;
+                
+//                // update parent coords
+//                for (int j = 0; c.edges[j] != -1; j++) {
+//                    // check if the edge can be mapped on a parent edge
+//                    int e = c.edges[j];
+//                    int e1 = i, e2 = -1, e3 = -1;
+//                    if (i < 4) {
+//                        e2 = (i + 3) % 4;
+//                        e3 = i + 8;
+//                    } else {
+//                        e2 = (i + 7) % 8;
+//                        e3 = i + 4;
+//                    }
+//                    
+//                    if ((e == e1) || (e == e2) || (e == e3)) {
+//                        // edge e can be mapped to edge e on the parent
+//                        mapVertices[e] = (Vertex) c.vertices.get(j);
+//                    }
+//                }
+//                
+//                // do the mapping
+//                for (int j = 0; cell.edges[j] != -1; j++) {
+//                    if (mapVertices[j] != null) {
+//                        Vertex v = (Vertex) cell.vertices.get(j);
+//                        v.x = mapVertices[j].x;
+//                        v.y = mapVertices[j].y;
+//                        v.z = mapVertices[j].z;
+//                    }
+//                }
             }
             
-		   boolean verticeInSurface = false;
-		   // Check if there is at least one of the vertices inside of the surface
-		   for (double iso : cell.val) {
-			   if (iso < isoLevel) {
-				   verticeInSurface = true;
-				   break;
-			   }
-		   }
-
-           // Test if we should recurse
-           Boolean recurse = false;
-           
-           if (verticeInSurface) {
-               // At least one of the vertices is inside the volume
-               recurse = true;
-           }
-		   
-           /* Cube is entirely in/out of the surface */
-		   if (recurse && doRecurseAll) {
-			   recurseAll = true;
-			   break;
-		   }
-		   else if (recurse)
-           {
-                polygonsAdaptiveRecursive(vertices, isoLevel, depth + 1, cell.p[0], cell.p[6], tree);
-           }
+//            if (recursed && notRecursed) {
+//                for (int i = 0; i < 8; i++) {
+//                    OcCell c = cell.child[i];
+//                    if (c.hasChildren) continue;
+//                    
+//                     for (int j = 0; c.edges[j] != -1; j++) {
+//                        int[] edgeMap = edgeMapping[i][j];
+//                        
+//                        for (int k = 0; edgeMap[k] != -1; i += 2) {
+//                            int mapEdge = edgeMap[k];
+//                            int mapCube = edgeMap[k+1];
+//                            // edge j maps to mapEdge in mapCube
+//                            
+//                            // If it also has no children we cant copy vertices
+//                            if (cell.child[mapCube].hasChildren == false) {
+//                                continue;
+//                            }
+//                            
+//                            // Search for the correct edge in the neighbouring edges
+//                            for (int l = 0; cell.child[mapCube].edges[l] != -1; l++) {
+//                                if (cell.child[mapCube].edges[l] == mapEdge) {
+//                                    Vertex v = (Vertex) c.vertices.get(j);
+//                                    Vertex w = (Vertex) cell.child[mapCube].vertices.get(l);
+//                                    v.x = w.x;
+//                                    v.y = w.y;
+//                                    v.z = w.z;
+//                                    break;
+//                                }
+//                            }
+//                        }                        
+//                     }
+//                   
+//                }
+//            }
+            
+            // If we encounter a cell that has no children, but it's neighbouring
+            // cells do have children we have to fix cracks caused by the difference
+            // in cell resolution.
+//            if (false && recursed && notRecursed) {
+//                for (int i = 0; i < 8; i++) {
+//                    OcCell c = cell.child[i];
+//                    if (c.hasChildren) continue;
+//                    
+//                    // Fix cracks
+//                    // For all edges take the interpolated vertice from a neighbouring
+//                    // cell (if this cell is recursed), else do nothing.
+//                    for (int j = 0; c.edges[j] != -1; j++) {
+//                        int[] edgeMap = edgeMapping[i][j];
+//                        
+//                        for (int k = 0; edgeMap[k] != -1; i += 2) {
+//                            int mapEdge = edgeMap[k];
+//                            int mapCube = edgeMap[k+1];
+//                            // edge j maps to mapEdge in mapCube
+//                            
+//                            // If it also has no children we cant copy vertices
+//                            if (cell.child[mapCube].hasChildren == false) {
+//                                continue;
+//                            }
+//                        }
+//                    }
+//                }                
+//            }
         }
-		
-		if (recurseAll)
-		{
-			for (GridCell cell : cells) {
-				polygonsAdaptiveRecursive(vertices, isoLevel, depth + 1, cell.p[0], cell.p[6], tree);
-			}
-		}
+        else {
+            // It's a leaf -> polgonize
+            vertices.addAll(cell.vertices);
+        }
+        
+        this.marchingCubes.add(cell);
     }
-    
+
     private GridCell BuildCell(Vertex p, Vertex dim, CSGTree tree) {
         return BuildCell(p.x, p.y, p.z, dim, tree);
     }
@@ -195,7 +376,7 @@ public class CSGTreePolygoniser {
     private GridCell BuildCell(float x, float y, float z, Vertex dim, CSGTree tree) {
         GridCell cell = new GridCell();
         
-                    // Set vertices
+        // Set vertices
         cell.p[0].x = x; cell.p[0].y = y; cell.p[0].z = z;
         cell.p[1].x = x + dim.x; cell.p[1].y = y; cell.p[1].z = z;
         cell.p[2].x = x + dim.x; cell.p[2].y = y; cell.p[2].z = z + dim.z;
@@ -217,42 +398,42 @@ public class CSGTreePolygoniser {
         return cell;
     }
     
-    public ArrayList<Vertex> getPolygons(CSGTree tree) {
-		ArrayList<Vertex> vertices = new ArrayList<Vertex>();
-        
-        Vertex start = new Vertex(); start.x = -1f; start.y = -1f; start.z = -1f;
-        Vertex end = new Vertex(); end.x = 1f; end.y = 1f; end.z = 1f;
-
-		int div = (int) Math.pow((double)NUM_CUBES, 1.0/3.0);
-		if (div == 0) {
-			return vertices;
-		}
-		
-		Vertex step = new Vertex();
-		step.x = (end.x - start.x)/div;
-		step.y = (end.y - start.y)/div;
-		step.z = (end.z - start.z)/div;
-
-        for (float x = start.x; x < end.x; x += step.x) {
-             for (float y = start.y; y < end.y; y += step.y) {
-                 for (float z = start.z; z < end.z; z += step.z) {
-                    GridCell cell = BuildCell(x, y, z, step, tree);                    
-                    this.marchingCubes.add(cell);
-                    
-					if (TETRAHEDRONS) {
-						PolygoniseCubeTri(vertices, cell, 0);
-					}
-					else
-					{
-						Polygonise(vertices, cell, 0);
-					}
-                    //ArrayList<Triangle> newTriangles = PolygoniseCubeTri(cell, 0);
-                 }
-             }
-        }
-        
-        return vertices;
-    }
+//    public ArrayList<Vertex> getPolygons(CSGTree tree) {
+//		ArrayList<Vertex> vertices = new ArrayList<Vertex>();
+//        
+//        Vertex start = new Vertex(); start.x = -1f; start.y = -1f; start.z = -1f;
+//        Vertex end = new Vertex(); end.x = 1f; end.y = 1f; end.z = 1f;
+//
+//		int div = (int) Math.pow((double)NUM_CUBES, 1.0/3.0);
+//		if (div == 0) {
+//			return vertices;
+//		}
+//		
+//		Vertex step = new Vertex();
+//		step.x = (end.x - start.x)/div;
+//		step.y = (end.y - start.y)/div;
+//		step.z = (end.z - start.z)/div;
+//
+//        for (float x = start.x; x < end.x; x += step.x) {
+//             for (float y = start.y; y < end.y; y += step.y) {
+//                 for (float z = start.z; z < end.z; z += step.z) {
+//                    GridCell cell = BuildCell(x, y, z, step, tree);                    
+//                    this.marchingCubes.add(cell);
+//                    
+//					if (TETRAHEDRONS) {
+//						PolygoniseCubeTri(vertices, cell, 0);
+//					}
+//					else
+//					{
+//						Polygonise(vertices, cell, 0);
+//					}
+//                    //ArrayList<Triangle> newTriangles = PolygoniseCubeTri(cell, 0);
+//                 }
+//             }
+//        }
+//        
+//        return vertices;
+//    }
 
 
     /*
@@ -263,7 +444,7 @@ public class CSGTreePolygoniser {
             0 will be returned if the grid cell is either totally above
        of totally below the isolevel.
     */
-    private void Polygonise(ArrayList<Vertex> vertices, GridCell grid, float isolevel)
+    public void Polygonise(OcCell cell, float isolevel)
     {
        int i,ntriang;
        int cubeindex;
@@ -532,14 +713,16 @@ public class CSGTreePolygoniser {
           tells us which vertices are inside of the surface
        */
        cubeindex = 0;
-       if (grid.val[0] < isolevel) cubeindex |= 1;
-       if (grid.val[1] < isolevel) cubeindex |= 2;
-       if (grid.val[2] < isolevel) cubeindex |= 4;
-       if (grid.val[3] < isolevel) cubeindex |= 8;
-       if (grid.val[4] < isolevel) cubeindex |= 16;
-       if (grid.val[5] < isolevel) cubeindex |= 32;
-       if (grid.val[6] < isolevel) cubeindex |= 64;
-       if (grid.val[7] < isolevel) cubeindex |= 128;
+       if (cell.val[0] < isolevel) cubeindex |= 1;
+       if (cell.val[1] < isolevel) cubeindex |= 2;
+       if (cell.val[2] < isolevel) cubeindex |= 4;
+       if (cell.val[3] < isolevel) cubeindex |= 8;
+       if (cell.val[4] < isolevel) cubeindex |= 16;
+       if (cell.val[5] < isolevel) cubeindex |= 32;
+       if (cell.val[6] < isolevel) cubeindex |= 64;
+       if (cell.val[7] < isolevel) cubeindex |= 128;
+       
+       cell.edges = triTable[cubeindex];
 
        /* Cube is entirely in/out of the surface */
        if (edgeTable[cubeindex] == 0)
@@ -548,44 +731,45 @@ public class CSGTreePolygoniser {
        /* Find the vertices where the surface intersects the cube */
        if ((edgeTable[cubeindex] & 1) == 1)
           vertlist[0] =
-             VertexInterp(isolevel,grid.p[0],grid.p[1],grid.val[0],grid.val[1]);
+             VertexInterp(isolevel,cell.p[0],cell.p[1],cell.val[0],cell.val[1]);
        if ((edgeTable[cubeindex] & 2) == 2)
           vertlist[1] =
-             VertexInterp(isolevel,grid.p[1],grid.p[2],grid.val[1],grid.val[2]);
+             VertexInterp(isolevel,cell.p[1],cell.p[2],cell.val[1],cell.val[2]);
        if ((edgeTable[cubeindex] & 4) == 4)
           vertlist[2] =
-             VertexInterp(isolevel,grid.p[2],grid.p[3],grid.val[2],grid.val[3]);
+             VertexInterp(isolevel,cell.p[2],cell.p[3],cell.val[2],cell.val[3]);
        if ((edgeTable[cubeindex] & 8) == 8)
           vertlist[3] =
-             VertexInterp(isolevel,grid.p[3],grid.p[0],grid.val[3],grid.val[0]);
+             VertexInterp(isolevel,cell.p[3],cell.p[0],cell.val[3],cell.val[0]);
        if ((edgeTable[cubeindex] & 16) == 16)
           vertlist[4] =
-             VertexInterp(isolevel,grid.p[4],grid.p[5],grid.val[4],grid.val[5]);
+             VertexInterp(isolevel,cell.p[4],cell.p[5],cell.val[4],cell.val[5]);
        if ((edgeTable[cubeindex] & 32) == 32)
           vertlist[5] =
-             VertexInterp(isolevel,grid.p[5],grid.p[6],grid.val[5],grid.val[6]);
+             VertexInterp(isolevel,cell.p[5],cell.p[6],cell.val[5],cell.val[6]);
        if ((edgeTable[cubeindex] & 64) == 64)
           vertlist[6] =
-             VertexInterp(isolevel,grid.p[6],grid.p[7],grid.val[6],grid.val[7]);
+             VertexInterp(isolevel,cell.p[6],cell.p[7],cell.val[6],cell.val[7]);
        if ((edgeTable[cubeindex] & 128) == 128)
           vertlist[7] =
-             VertexInterp(isolevel,grid.p[7],grid.p[4],grid.val[7],grid.val[4]);
+             VertexInterp(isolevel,cell.p[7],cell.p[4],cell.val[7],cell.val[4]);
        if ((edgeTable[cubeindex] & 256) == 256)
           vertlist[8] =
-             VertexInterp(isolevel,grid.p[0],grid.p[4],grid.val[0],grid.val[4]);
+             VertexInterp(isolevel,cell.p[0],cell.p[4],cell.val[0],cell.val[4]);
        if ((edgeTable[cubeindex] & 512) == 512)
           vertlist[9] =
-             VertexInterp(isolevel,grid.p[1],grid.p[5],grid.val[1],grid.val[5]);
+             VertexInterp(isolevel,cell.p[1],cell.p[5],cell.val[1],cell.val[5]);
        if ((edgeTable[cubeindex] & 1024) == 1024)
           vertlist[10] =
-             VertexInterp(isolevel,grid.p[2],grid.p[6],grid.val[2],grid.val[6]);
+             VertexInterp(isolevel,cell.p[2],cell.p[6],cell.val[2],cell.val[6]);
        if ((edgeTable[cubeindex] & 2048) == 2048)
           vertlist[11] =
-             VertexInterp(isolevel,grid.p[3],grid.p[7],grid.val[3],grid.val[7]);
+             VertexInterp(isolevel,cell.p[3],cell.p[7],cell.val[3],cell.val[7]);
 
        /* Create the triangle */
        for (i=0;triTable[cubeindex][i]!=-1;i++) {
-		   vertices.add(vertlist[triTable[cubeindex][i]]);
+		   //vertices.add(vertlist[triTable[cubeindex][i]]);
+		   cell.vertices.add(vertlist[triTable[cubeindex][i]]);
 	   }
     }
 
@@ -614,7 +798,7 @@ public class CSGTreePolygoniser {
     }
     
     
-    public void PolygoniseCubeTri(ArrayList<Vertex> vertices, GridCell g, float iso) {
+    public void PolygoniseCubeTri(ArrayList<Vertex> vertices, OcCell g, float iso) {
         // Split cube into five tetrahedrons and use the PolygoniseTri to polygonise
         PolygoniseTri(vertices, g, iso, 0, 1, 2, 5);
         PolygoniseTri(vertices, g, iso, 0, 2, 3, 7);
@@ -623,7 +807,7 @@ public class CSGTreePolygoniser {
         PolygoniseTri(vertices, g, iso, 0, 2, 5, 7);
     }
     
-     public void PolygoniseTri(ArrayList<Vertex>vertices, GridCell g,float iso,int v0,int v1,int v2,int v3)
+     public void PolygoniseTri(ArrayList<Vertex>vertices, OcCell g,float iso,int v0,int v1,int v2,int v3)
     {
        int ntri = 0;
        int triindex;

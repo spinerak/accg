@@ -46,11 +46,8 @@ public class CSGBuilderView extends FrameView {
         lvTree.difference(new CSGEllipsoid(new double[]{0.8,0.8,0.8}, new double[]{1.0,1.0,1.0}));
 			
 	// Get the mesh for this tree
-	CSGTreePolygoniser lvPolygoniser = new CSGTreePolygoniser();
-	OperandMesh lvMesh = lvPolygoniser.getMesh(lvTree);
-		
-	// Tell the viewer to render the mesh
-	lvAOperandViewer.setMesh(lvMesh);
+	CSGTreePolygoniser lvPolygoniser = new CSGTreePolygoniser(lvAOperandViewer, lvTree);
+    lvPolygoniser.start();
 		
         // Start
 	lvAOperandViewer.start();

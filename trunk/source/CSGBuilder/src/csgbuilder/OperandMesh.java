@@ -15,9 +15,15 @@ import javax.media.opengl.GL;
  * @author s031407
  */
 public class OperandMesh {
-	private static boolean SHOW_BB = false;
-	private static boolean SHOW_MC = false;
-	private static boolean SHOW_NORMALS = true;
+	private boolean SHOW_BB = false;
+	private boolean SHOW_MC = false;
+	private boolean SHOW_NORMALS = true;
+    private RenderMethod mRenderMethod = RenderMethod.Fill;
+                
+    public enum RenderMethod {
+        WireFrame,
+        Fill
+    }
 	
 	// Contains the array of vertices
 	private FloatBuffer mVertices;
@@ -37,35 +43,48 @@ public class OperandMesh {
 		mNormals = BufferUtil.newFloatBuffer(pVertexCount * 3);
 		mVertexCount = pVertexCount;
 	}
+    
+    public void setRenderMethod(RenderMethod method) {
+        mRenderMethod = method;
+    }
+    
+    public void toggleShowNormals() {
+        SHOW_NORMALS = !SHOW_NORMALS;
+    }
+    
+    public void toggleShowBB() {
+        SHOW_BB = !SHOW_BB;
+    }
 	
-	public void render(GL gl) {
+    public void toggleShowMC() {
+        SHOW_MC = !SHOW_MC;
+    }
+    
+    public void toggleShowAxis() {
+        SHOW_NORMALS = !SHOW_NORMALS;
+    }
+
+    public void render(GL gl) {
 		if (mVertexCount > 0) {
-//            gl.glEnableClientState(GL.GL_VERTEX_ARRAY);  // Enable Vertex Arrays
-//			gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
-//            gl.glColor3f(0.0f, 1.0f, 0.0f);
-//			gl.glDrawArrays(GL.GL_TRIANGLES, 0, mVertexCount);  
-//            gl.glDisableClientState(GL.GL_VERTEX_ARRAY);
-
-
-			
-			
-			
-			
-			
-			gl.glEnableClientState(GL.GL_VERTEX_ARRAY);  // Enable Vertex Arrays
+            gl.glEnableClientState(GL.GL_VERTEX_ARRAY);  // Enable Vertex Arrays
 			gl.glVertexPointer(3, GL.GL_FLOAT, 0, mVertices); 
 
 			gl.glEnableClientState(GL.GL_NORMAL_ARRAY);
 			gl.glNormalPointer(GL.GL_FLOAT, 0, mNormals);
 			
 
-			
-			gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL);
+			if (mRenderMethod == RenderMethod.WireFrame) {
+                gl.glDisable(GL.GL_LIGHTING);   // Enable Lighting
+                gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINES);
+            }
+            else {
+                gl.glEnable(GL.GL_LIGHTING);   // Enable Lighting
+                gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL);
+            }
+                        
 			// Draw all at once
             gl.glColor3f(1.0f, 0.0f, 0.0f);
 			gl.glDrawArrays(GL.GL_TRIANGLES, 0, mVertexCount);  
-			
-
 			
 			// Disable Vertex Arrays
 			gl.glDisableClientState(GL.GL_NORMAL_ARRAY);
@@ -184,9 +203,9 @@ public class OperandMesh {
         gl.glEnd();
     }
 	
-	public void setDebugMCCells(ArrayList<GridCell> pCells) {
+	public void setDebugMCCells(ArrayList<OcCell> pCells) {
                         mDebugMCCells = BufferUtil.newFloatBuffer(pCells.size() * 4 * 4 * 3);
-                        for (GridCell cell : pCells) {
+                        for (OcCell cell : pCells) {
                                 // Bottom
                                 mDebugMCCells.put(new float[]{cell.p[0].x, cell.p[0].y, cell.p[0].z});
                                 mDebugMCCells.put(new float[]{cell.p[1].x, cell.p[1].y, cell.p[1].z});
