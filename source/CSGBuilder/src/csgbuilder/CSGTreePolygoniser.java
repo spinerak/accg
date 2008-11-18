@@ -202,12 +202,11 @@ public class CSGTreePolygoniser extends Thread {
         return this.marchingCubes;
     }
     
-    public ArrayList<Vertex> getPolygonsAdaptive(CSGTree tree) {
+    public ArrayList<Vertex> getPolygonsAdaptive(CSGTree tree, ArrayList<Vertex> vertices, ArrayList<Vertex> normals) {
         // Construct the octree
         OcTree ocTree = new OcTree(tree);
         
-		ArrayList<Vertex> vertices = new ArrayList<Vertex>();
-		polygonsAdaptiveRecursive(vertices, ocTree.root);
+		polygonsAdaptiveRecursive(vertices, normals, ocTree.root);
 		return vertices;
     }
     
@@ -224,23 +223,16 @@ public class CSGTreePolygoniser extends Thread {
     }
 	
 	public OperandMesh getMesh(CSGTree pvTree) {
-		ArrayList<Vertex> lvVertexArray;
-		
-        lvVertexArray = this.getPolygonsAdaptive(pvTree);
-		
-		OperandMesh lvMesh = new OperandMesh(lvVertexArray.size());
+		ArrayList<Vertex> vertices = new ArrayList<Vertex>();
+		ArrayList<Vertex> normals = new ArrayList<Vertex>();
 
-		for (Vertex v : lvVertexArray) {
-			lvMesh.addVertex(v);
-			
-			Vertex n = new Vertex();
-			float d = NORMAL_DELTA;
-			n.x = (float) ((pvTree.getFunctionValue(v.x + d, v.y, v.z) - pvTree.getFunctionValue(v.x, v.y, v.z)) / d);
-			n.y = (float) ((pvTree.getFunctionValue(v.x, v.y + d, v.z) - pvTree.getFunctionValue(v.x, v.y, v.z)) / d);
-			n.z = (float) ((pvTree.getFunctionValue(v.x, v.y, v.z + d) - pvTree.getFunctionValue(v.x, v.y, v.z)) / d);
-			n.subtract(v);
-			n.normalize();
-			lvMesh.addNormal(n);
+        this.getPolygonsAdaptive(pvTree, vertices, normals);
+		
+		OperandMesh lvMesh = new OperandMesh(vertices.size());
+
+		for (int i = 0; i < vertices.size(); i++) {
+			lvMesh.addVertex(vertices.get(i));
+			lvMesh.addNormal(normals.get(i));
 		}
 		
 		lvMesh.flipVertices();
@@ -252,118 +244,20 @@ public class CSGTreePolygoniser extends Thread {
 		return lvMesh;
     }
     
-    private void polygonsAdaptiveRecursive(ArrayList<Vertex> vertices, OcCell cell) {
-        Polygonise(cell, 0);
+    private void polygonsAdaptiveRecursive(ArrayList<Vertex> vertices, ArrayList<Vertex> normals, OcCell cell) {
+//        Polygonise(cell, 0);
         
-        Vertex[] mapVertices = new Vertex[12];
-
         if (cell.hasChildren) {
             // Recurse on all children
-            boolean notRecursed = false;
-            boolean recursed = false;
             for (int i = 0; i < 8; i++) {
                 OcCell c = cell.child[i];
-                polygonsAdaptiveRecursive(vertices, c);
-                
-                if (!recursed) recursed = c.hasChildren;
-                if (!notRecursed) notRecursed = !c.hasChildren;
-                
-//                // update parent coords
-//                for (int j = 0; c.edges[j] != -1; j++) {
-//                    // check if the edge can be mapped on a parent edge
-//                    int e = c.edges[j];
-//                    int e1 = i, e2 = -1, e3 = -1;
-//                    if (i < 4) {
-//                        e2 = (i + 3) % 4;
-//                        e3 = i + 8;
-//                    } else {
-//                        e2 = (i + 7) % 8;
-//                        e3 = i + 4;
-//                    }
-//                    
-//                    if ((e == e1) || (e == e2) || (e == e3)) {
-//                        // edge e can be mapped to edge e on the parent
-//                        mapVertices[e] = (Vertex) c.vertices.get(j);
-//                    }
-//                }
-//                
-//                // do the mapping
-//                for (int j = 0; cell.edges[j] != -1; j++) {
-//                    if (mapVertices[j] != null) {
-//                        Vertex v = (Vertex) cell.vertices.get(j);
-//                        v.x = mapVertices[j].x;
-//                        v.y = mapVertices[j].y;
-//                        v.z = mapVertices[j].z;
-//                    }
-//                }
+                polygonsAdaptiveRecursive(vertices, normals, c);
             }
-            
-//            if (recursed && notRecursed) {
-//                for (int i = 0; i < 8; i++) {
-//                    OcCell c = cell.child[i];
-//                    if (c.hasChildren) continue;
-//                    
-//                     for (int j = 0; c.edges[j] != -1; j++) {
-//                        int[] edgeMap = edgeMapping[i][j];
-//                        
-//                        for (int k = 0; edgeMap[k] != -1; i += 2) {
-//                            int mapEdge = edgeMap[k];
-//                            int mapCube = edgeMap[k+1];
-//                            // edge j maps to mapEdge in mapCube
-//                            
-//                            // If it also has no children we cant copy vertices
-//                            if (cell.child[mapCube].hasChildren == false) {
-//                                continue;
-//                            }
-//                            
-//                            // Search for the correct edge in the neighbouring edges
-//                            for (int l = 0; cell.child[mapCube].edges[l] != -1; l++) {
-//                                if (cell.child[mapCube].edges[l] == mapEdge) {
-//                                    Vertex v = (Vertex) c.vertices.get(j);
-//                                    Vertex w = (Vertex) cell.child[mapCube].vertices.get(l);
-//                                    v.x = w.x;
-//                                    v.y = w.y;
-//                                    v.z = w.z;
-//                                    break;
-//                                }
-//                            }
-//                        }                        
-//                     }
-//                   
-//                }
-//            }
-            
-            // If we encounter a cell that has no children, but it's neighbouring
-            // cells do have children we have to fix cracks caused by the difference
-            // in cell resolution.
-//            if (false && recursed && notRecursed) {
-//                for (int i = 0; i < 8; i++) {
-//                    OcCell c = cell.child[i];
-//                    if (c.hasChildren) continue;
-//                    
-//                    // Fix cracks
-//                    // For all edges take the interpolated vertice from a neighbouring
-//                    // cell (if this cell is recursed), else do nothing.
-//                    for (int j = 0; c.edges[j] != -1; j++) {
-//                        int[] edgeMap = edgeMapping[i][j];
-//                        
-//                        for (int k = 0; edgeMap[k] != -1; i += 2) {
-//                            int mapEdge = edgeMap[k];
-//                            int mapCube = edgeMap[k+1];
-//                            // edge j maps to mapEdge in mapCube
-//                            
-//                            // If it also has no children we cant copy vertices
-//                            if (cell.child[mapCube].hasChildren == false) {
-//                                continue;
-//                            }
-//                        }
-//                    }
-//                }                
-//            }
         }
         else {
             // It's a leaf -> polgonize
             vertices.addAll(cell.vertices);
+            normals.addAll(cell.normals);
         }
         
         this.marchingCubes.add(cell);
