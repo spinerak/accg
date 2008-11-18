@@ -66,6 +66,10 @@ public class OperandViewerRenderer implements GLEventListener {
 		mViewer = pViewer;
     }
 
+    public OperandViewer getViewer() {
+        return mViewer;
+    }
+    
     public void reshape(GLAutoDrawable drawable, int x, int y, int width, int height) {
         GL gl = drawable.getGL();
 

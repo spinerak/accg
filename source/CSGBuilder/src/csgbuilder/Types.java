@@ -21,18 +21,25 @@ public class Types {
             y = py;
             z = pz;
         }
+        
+        
 
-		Vertex(double px, double py, double pz) {
+		public Vertex(double px, double py, double pz) {
             x = (float)px;
             y = (float)py;
             z = (float)pz;
 		}
 		
 		public void normalize() {
-			x = x / length();
-			y = y / length();
-			z = z / length();
+            float l = length();
+			x = x / l;
+			y = y / l;
+			z = z / l;
 		}
+        
+        public Vertex clone() {
+            return new Vertex(x, y, z);
+        }
 		
 		public void subtract(Vertex pvVertex) {
 			x = x - pvVertex.x;
@@ -43,6 +50,10 @@ public class Types {
 		public float length() {
 			return (float) Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2) + Math.pow(z, 2));
 		}
+        
+        public float dot(Vertex v) {
+            return x * v.x + y * v.y + z * v.z;
+        }
     }
     class Triangle {
         public Vertex[] p;
