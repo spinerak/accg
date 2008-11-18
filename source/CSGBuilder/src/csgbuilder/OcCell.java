@@ -16,6 +16,9 @@ public class OcCell {
     Vertex[] p;
     float[] val;
     int[] edges;
+    float[] mDim;
+    int mDepth;
+    CSGTree mTree;
     ArrayList vertices;
     public OcCell parent;
     public boolean hasChildren;
@@ -30,6 +33,9 @@ public class OcCell {
         hasChildren = false;
         parent = pvParent;
         vertices = new ArrayList<Vertex>();
+        mDim = dim;
+        mDepth = depth;
+        mTree = tree;
         
         // Set vertices
         p[0].x = x; p[0].y = y; p[0].z = z;
@@ -86,7 +92,10 @@ public class OcCell {
         Vertex[] normals = new Vertex[this.vertices.size()];
         
         float d = 0.001f;
-        float delta = 0.5f;
+        
+        
+        float delta = 0.3f;
+        int maxDepth = 8;
         
         for (int i = 0; i < this.vertices.size(); i++) {
             Vertex v = (Vertex) this.vertices.get(i);
@@ -150,23 +159,54 @@ public class OcCell {
 ////        E = E / 8;
 //        recurse = E > 0.3; 
         
-        if (recurse && (depth < 8)) {
+        if (recurse && (depth < maxDepth)) {
+            recurse();
+            
+            boolean oneHasChildren = false;
+            for (int i = 0; i < 8; i++) { if (child[i].hasChildren) { oneHasChildren = true; } }
+            
+            // -> hack
+            // If one of the children has children and the current child has content -> recurse
+            if (oneHasChildren) {
+                for (OcCell c : child) {
+                    if (c.hasChildren) continue;
+                    
+                    for (Vertex v : c.p) {
+                        if (tree.getFunctionValue(v.x, v.y, v.z) < 0) {
+                            c.recurse();
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    public void recurse() {
+            float x = p[0].x;
+            float y = p[0].y;
+            float z = p[0].z;
+            
+            // Calculate new dimensions
+            float ndim[] = new float[3];
+            ndim[0] = mDim[0] / 2f; ndim[1] = mDim[1] / 2f; ndim[2] = mDim[2] / 2f;
+
+            
             child = new OcCell[8];
             hasChildren = true;
 
-            depth++;
+            int depth = mDepth + 1;
 
             // Bottom 4 cubes
-            child[0] = new OcCell(x, y, z, ndim, tree, depth, this);
-            child[1] = new OcCell(x + ndim[0], y, z, ndim, tree, depth, this);
-            child[2] = new OcCell(x + ndim[0], y, z + ndim[2], ndim, tree, depth, this);
-            child[3] = new OcCell(x, y, z + ndim[2], ndim, tree, depth, this);
+            child[0] = new OcCell(x, y, z, ndim, mTree, depth, this);
+            child[1] = new OcCell(x + ndim[0], y, z, ndim, mTree, depth, this);
+            child[2] = new OcCell(x + ndim[0], y, z + ndim[2], ndim, mTree, depth, this);
+            child[3] = new OcCell(x, y, z + ndim[2], ndim, mTree, depth, this);
 
             // Top 4 cubes
-            child[4] = new OcCell(x, y + ndim[1], z, ndim, tree, depth, this);
-            child[5] = new OcCell(x + ndim[0], y + ndim[1], z, ndim, tree, depth, this);
-            child[6] = new OcCell(x + ndim[0], y + ndim[1], z + ndim[2], ndim, tree, depth, this);
-            child[7] = new OcCell(x, y + ndim[1], z + ndim[2], ndim, tree, depth, this);
-        }
+            child[4] = new OcCell(x, y + ndim[1], z, ndim, mTree, depth, this);
+            child[5] = new OcCell(x + ndim[0], y + ndim[1], z, ndim, mTree, depth, this);
+            child[6] = new OcCell(x + ndim[0], y + ndim[1], z + ndim[2], ndim, mTree, depth, this);
+            child[7] = new OcCell(x, y + ndim[1], z + ndim[2], ndim, mTree, depth, this);        
     }
 }
