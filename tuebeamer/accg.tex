@@ -1,0 +1,113 @@
+\documentclass[t]{beamer}
+\usetheme[department=winuk,official=false]{tue2008}
+\usepackage[english]{babel}
+\usepackage{listings,amsmath,multimedia}
+
+\graphicspath{{images/}}
+
+\lstset{language=TeX,
+        basicstyle=\color{black}\ttfamily,
+        commentstyle=\color{gray}\it\ttfamily,
+        keywordstyle=\color{tuered}\bf\ttfamily,
+        showstringspaces=false,
+        frame=single,
+        backgroundcolor=\color{white},
+        moretexcs={usetheme,frametitle,setbeamercovered,setbeameroption,usebackgroundtemplate,movie,logo,note,uncover,chapter,subsection,subsubsection,EUR,EURofc,includegraphics,lstset,color,it,bf,RequirePackage,pause,overlay,frontmatter,backmatter,mainmatter,maketitle,setlength,fancyhf,fancyhead,fancyfoot,lhead,chead,rhead,lfoot,cfoot,rfoot,texteuro,textcelsius,appendix,selectlanguage,part,tableofcontents}
+}
+
+\newenvironment{descrsf}[1]
+  {\begin{list}{}{\renewcommand{\makelabel}[1]{\textsf{##1}\hfil}
+                  \setlength{\itemsep}{0.5em}
+                  \setlength{\parsep}{0pt}
+                  \settowidth{\labelwidth}{\textsf{#1}}
+                  \setlength{\labelsep}{10pt}
+                  \setlength{\leftmargin}{\labelwidth}
+                  \addtolength{\leftmargin}{\labelsep}
+                  \providecommand{\descriptionlabel}[1]%
+                      {\hspace{\labelsep}\textsf{#1}}
+                 }
+  }
+  {\end{list}}
+
+\title{\Huge CSGBuilder}
+\author{Maarten Manders\\ Bart van Arnhem}
+
+
+\begin{document}
+
+\begin{frame}
+\maketitle
+\end{frame}
+
+\setbeamercovered{transparent=30}
+\begin{frame}
+  \frametitle{Outline}
+  \tableofcontents[pausesections]
+\end{frame}
+\setbeamercovered{invisible}
+
+\section{Short recap of the project}
+\begin{frame}
+\frametitle{Short recap of the project}
+\begin{itemize}
+ \item Objects are implicit volumes
+ \item Build complex objects from simple building block objects using CSG (\textbf{C}onstructive \textbf{S}olid \textbf{G}eometry)
+ \item Constructed objects can be used as building blocks using save \& load
+ \item Objects internally represented as CSG trees
+ \item 
+\end{itemize}
+\end{frame}
+
+\subsection{Constructive Solid Geometry}
+\begin{frame}
+\frametitle{Constructive Solid Geometry}
+\begin{itemize}
+ \item Boolean operations like union, difference and intersection can be
+ realized using simple boolean operators on the implicit functions.
+\end{itemize}
+\begin{figure}
+\includegraphics<1->[width=0.4\textwidth]{accgimg/Boolean_difference}
+\caption{Source http://en.wikipedia.org/wiki/Constructive\_solid\_geometry}
+\end{figure}
+\end{frame}
+
+\subsection{CSG Trees}
+\begin{frame}
+\frametitle{CSG Trees}
+\begin{itemize}
+ \item \textbf{C}onstructive \textbf{S}olid \textbf{G}eometry tree
+\end{itemize}
+\begin{figure}
+\includegraphics<1->[width=0.4\textwidth]{accgimg/Csg_tree}
+\caption{Source http://en.wikipedia.org/wiki/Constructive\_solid\_geometry}
+\end{figure}
+\end{frame}
+
+\subsection{Marching Cubes}
+\begin{frame}
+\frametitle{CSG Trees}
+\begin{itemize}
+ \item Adaptive variant using octrees
+ \item Subdivide cube into 8 cubes where needed (for example wherever
+  the object has sharp features)
+ \item Detect sharp features using angle between surface normals
+\end{itemize}
+\end{frame}
+
+\section{Project status}
+\begin{frame}
+\frametitle{Project status}
+- done
+\end{frame}
+
+\section{Demo}
+\begin{frame}
+\frametitle{Demo}
+\end{frame}
+
+\section{Questions?}
+\begin{frame}
+\frametitle{Questions?}
+\end{frame}
+
+\end{document} 

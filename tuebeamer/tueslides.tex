@@ -1,0 +1,289 @@
+\documentclass[t]{beamer}
+\usetheme[department=winuk,official=false]{tue2008}
+\usepackage[english]{babel}
+\usepackage{listings,amsmath,multimedia}
+
+\graphicspath{{images/}}
+
+\lstset{language=TeX,
+        basicstyle=\color{black}\ttfamily,
+        commentstyle=\color{gray}\it\ttfamily,
+        keywordstyle=\color{tuered}\bf\ttfamily,
+        showstringspaces=false,
+        frame=single,
+        backgroundcolor=\color{white},
+        moretexcs={usetheme,frametitle,setbeamercovered,setbeameroption,usebackgroundtemplate,movie,logo,note,uncover,chapter,subsection,subsubsection,EUR,EURofc,includegraphics,lstset,color,it,bf,RequirePackage,pause,overlay,frontmatter,backmatter,mainmatter,maketitle,setlength,fancyhf,fancyhead,fancyfoot,lhead,chead,rhead,lfoot,cfoot,rfoot,texteuro,textcelsius,appendix,selectlanguage,part,tableofcontents}
+}
+
+\newenvironment{descrsf}[1]
+  {\begin{list}{}{\renewcommand{\makelabel}[1]{\textsf{##1}\hfil}
+                  \setlength{\itemsep}{0.5em}
+                  \setlength{\parsep}{0pt}
+                  \settowidth{\labelwidth}{\textsf{#1}}
+                  \setlength{\labelsep}{10pt}
+                  \setlength{\leftmargin}{\labelwidth}
+                  \addtolength{\leftmargin}{\labelsep}
+                  \providecommand{\descriptionlabel}[1]%
+                      {\hspace{\labelsep}\textsf{#1}}
+                 }
+  }
+  {\end{list}}
+
+\title{\Huge TU/e Slides using Beamer\\\Large Version 2008}
+\author{Marko Boon\\ \href{mailto:marko@win.tue.nl}{marko@win.tue.nl}}
+
+
+\begin{document}
+
+\begin{frame}
+\maketitle
+\end{frame}
+
+\setbeamercovered{transparent=30}
+\begin{frame}
+  \frametitle{Outline}
+  \tableofcontents[pausesections]
+\end{frame}
+\setbeamercovered{invisible}
+
+\section{PDF Presentations using \LaTeX}
+\begin{frame}
+\frametitle{PDF Presentations using \LaTeX}
+Several packages exist to create Powerpoint-like presentations in PDF using (PDF)\LaTeX. Until now the only possibility to create slides in the
+TU/e style was using TU/ePDFScreen, based on the standard package \textsf{pdfscreen}. This package has several disadvantages, e.g. many warning messages, no floats allowed, slideshows can only be created using PDF\LaTeX, a postprocessor is needed to show slides in several steps, no animations possible.
+
+In the mean time another PDF presentation package had been written that became some kind of standard: {\sf beamer}. The beamer package has a huge amount of possibilities, at least too many to mention here. Now a TU/e theme for beamer has been created so \LaTeX\ users can create TU/e style presentations and still use the full range of features included in {\sf beamer}.
+\end{frame}
+
+\section{Using the TU/e Beamer Theme}
+\begin{slidetop}
+\frametitle{Using the TU/e Beamer Theme}
+
+The TU/e Beamer 2008 theme is included for the first time on the MiK\TeX\ 2.7 CD-ROM, but it can be downloaded from \href{http://www.win.tue.nl/latex}{http://www.win.tue.nl/latex}. Usage is very straightforward:
+
+\begin{lstlisting}
+\usepackage{beamer}
+\usetheme{tue}
+\end{lstlisting}
+
+All you have to do now is divide your presentation into slides. A slide is called ``frame'' in the {\sf beamer} package, but ``slide'' is also recognised.
+
+\begin{lstlisting}
+\begin{frame}
+\frametitle{Title}
+
+Frame contents.
+\end{frame}
+\end{lstlisting}
+\end{slidetop}
+
+\section{TU/e Theme Options}
+\begin{frame}[fragile]
+\frametitle{TU/e Theme Options}
+
+Several options have been defined for the {\em tue} beamer theme. All are \textsf{key=value} combinations. Except for the department, all options are booleans, which means that they can be {\em true} or {\em false}.
+
+\begin{descrsf}{department}
+\item[official] when set to true, the current style is replaced by a style that resembles the ``official'' TU/e Powerpoint style more.
+\item[department] sets the department name that will be printed in the footer of each slide. Valid values are:
+{\tt ele, win, bmt, bwk, id, chem, tm, phys, wtb}. \\If you want the English department name, simply add {\tt uk} to the value.
+\end{descrsf}
+
+\pause
+Example:
+
+\begin{lstlisting}
+\usepackage[t]{beamer}
+\usetheme[department=winuk,official=true]{tue}
+\end{lstlisting}
+\end{frame}
+
+\begin{frame}[fragile]
+\frametitle{TU/e Theme Options: Multiple Slides per Page}
+
+Another option for the {\sf tue} beamer theme that can be set, is the number of slides that will be printed on one page. This option is very useful for printing handouts (which will be discussed later). Valid values are $1, 2, 3, 4$ and $6$.
+
+Example:
+\begin{lstlisting}
+\usetheme[department=winuk,slidesperpage=2]{tue}
+\end{lstlisting}
+\end{frame}
+
+
+\newlength{\vsp}
+\section{Beamer Features}
+\subsection{Animations}
+\begin{frame}<handout:15>  % <handout:15> makes sure that only the last slide (nr. 15) will be shown in handout mode.
+\animate<4-14>
+\animatevalue<1-15>{\vsp}{-15cm}{0cm}
+
+\frametitle{Beamer Features}
+
+Since TU/e Beamer is only a theme written for the {\sf beamer} package, you can use all of {\sf beamer}'s features. Open the beamer user guide for more information. You can find it using the LaTeX Packages Help in the Documentation subfolder of your MiKTeX Start Menu group.
+
+\bigskip
+Some features are:
+\begin{itemize}
+\pause\item reveal slides and animations in multiple steps
+\pause\item include multimedia (movies, sounds)
+\pause\item\hspace{\vsp}create animations (only with PDF\LaTeX\ and in Full Screen mode )
+\end{itemize}
+\end{frame}
+
+\subsection{Piecewise Enumeration}
+\begin{frame}[fragile]
+\frametitle{Piecewise enumeration uncovering}
+
+\begin{lstlisting}
+\begin{enumerate}[<+->]
+...
+\end{enumerate}
+\end{lstlisting}
+
+\begin{enumerate}[<+->]
+\item first item
+\item second item
+\item third item
+\end{enumerate}
+\pause
+With transparency (\lstinline|\setbeamercovered{transparent=30}|)
+\setbeamercovered{transparent=30}
+\begin{enumerate}[<+->]
+\item first item
+\item second item
+\item third item
+\end{enumerate}
+\setbeamercovered{invisible}
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\frametitle{Including images in several steps}
+
+This slide gives an example of how to use the beamer feature to show several images one by one by placing them on top of each other.
+
+\begin{center}
+\includegraphics<1->[width=0.7\textwidth]{figure1}%
+\llap{\includegraphics<2->[width=0.7\textwidth]{figure2}}%
+\llap{\includegraphics<3->[width=0.7\textwidth]{figure3}}%
+\llap{\includegraphics<4->[width=0.7\textwidth]{figure4}}%
+\llap{\includegraphics<5->[width=0.7\textwidth]{figure5}}%
+\llap{\includegraphics<6->[width=0.7\textwidth]{figure6}}%
+\end{center}
+
+\begin{lstlisting}
+\includegraphics<1->[width=7cm]{figure1}%
+\llap{\includegraphics<2->[width=7cm]{figure2}}%
+\end{lstlisting}
+\end{frame}
+
+\newcommand{\E}{\text{E}}
+%\newcommand{\V}{\text{Var}}
+\newcommand{\eps}{\varepsilon}
+\newcommand{\avg}[1]{\overline{#1}}
+\newcommand{\ds}[1]{\displaystyle{#1}}
+\begin{frame}[fragile]
+\frametitle{An equation in several steps}
+Use the \lstinline|\uncover| command in equation arrays:
+%\begin{alignat*}{2}
+%\E(\avg{y}) &= \uncover<2->{\E\left(\frac{\sum_{i=1}^n y_i}{n}\right)} &&\uncover<3->{= \frac{\ds{\sum_{i=1}^n \E(y_i)}}{n} \\}
+%&\uncover<4->{= \frac{\ds{\sum_{i=1}^n \E(\mu + \eps_i)}}{n}} &&\uncover<5->{= \frac{\ds{\sum_{i=1}^n (\mu + \E(\eps_i))}}{n} \\}
+%&\uncover<6->{= \frac{\ds{\sum_{i=1}^n \mu}}{n} }&&\uncover<7->{= \mu}
+%\end{alignat*}
+
+\end{frame}
+
+\subsection{Inserting Multimedia}
+\begin{frame}[fragile]
+\frametitle{Inserting Multimedia}
+
+\movie[width=3cm,height=2cm,poster]{}{media/neutrophil.avi}
+
+\begin{lstlisting}
+\usepackage{multimedia}
+
+...
+
+\movie[width=3cm,height=2cm,poster]{}{neutro.avi}
+\end{lstlisting}
+
+\movie[autostart]{}{media/carcrash.wav}
+Sounds can also be embedded with the \lstinline|\movie| command.
+\end{frame}
+
+\subsection{Notes}
+\begin{frame}[fragile]
+\frametitle{Notes}
+
+It is possible to add notes in your slides using the \lstinline|\note| command.
+Then specify the beamer option ``show notes on second screen''.
+
+\begin{lstlisting}
+\setbeameroption{show notes on second screen}
+...
+\note{Some notes for the current slide}
+\end{lstlisting}
+
+\note{Some notes for the current slide}
+\end{frame}
+
+\subsection{Handouts}
+\begin{frame}[fragile]
+\frametitle{Handouts}
+
+Handouts can be created using the beamer {\sf handout} option:
+
+\begin{lstlisting}
+\documentclass[t,handout]{beamer}
+\end{lstlisting}
+
+(the {\tt t} option stands for vertically aligned ``top'' frames).
+
+The {\sf handout} option will remove all piecewise appearing material and only show the final versions. It will also execute the options
+
+{\sf whitebg=true, blackheadings=true, slidesperpage=2}
+
+It is possible to override this manually.
+\end{frame}
+
+\usebackgroundtemplate{
+  \includegraphics[width=\paperwidth,height=\paperheight]{LaQuSoPresentation}
+}
+
+\subsection{Different Backgrounds}
+\begin{frame}[fragile]
+\vspace*{2cm}{\Large\color{white} A Different Background}
+
+\color{white}
+It is possible to use a different background template, e.g. an empty Powerpoint file that is converted to PNG, JPG, EPS or PDF.
+
+\begin{lstlisting}
+\usebackgroundtemplate{
+  \includegraphics[width=\paperwidth,
+                   height=\paperheight]{LaQuSo}
+}
+\end{lstlisting}
+
+\end{frame}
+
+\usebackgroundtemplate{\tuebackgroundtemplate}
+\section{Conclusion}
+\begin{frame}
+\frametitle{Conclusion}
+
+\begin{itemize}
+\item TU/e Beamer is a theme for the standard {\sf beamer} package to create TU/e style presentations.
+\item It can be used with \LaTeX\ and PDF\LaTeX
+\item Cupport for piecewise revealing of slides
+\item Limited support for animations
+\item Notes can be displayed on a second screen
+\item Easy creation of handouts, supports multiple slides on one page
+\end{itemize}
+
+Questions or requests about TU/e Beamer?
+
+$\Longrightarrow$ Send an email to \href{mailto:marko@win.tue.nl}{marko@win.tue.nl}
+\end{frame}
+
+\end{document} 
