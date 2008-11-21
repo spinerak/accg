@@ -1,0 +1,13 @@
+\beamer@endinputifotherversion {3.07pt}
+\select@language {english}
+\beamer@sectionintoc {1}{PDF Presentations using \textlatin {\LaTeX }}{7}{0}{1}
+\beamer@sectionintoc {2}{Using the TU/e Beamer Theme}{8}{0}{2}
+\beamer@sectionintoc {3}{TU/e Theme Options}{9}{0}{3}
+\beamer@sectionintoc {4}{Beamer Features}{12}{0}{4}
+\beamer@subsectionintoc {4}{1}{Animations}{12}{0}{4}
+\beamer@subsectionintoc {4}{2}{Piecewise Enumeration}{27}{0}{4}
+\beamer@subsectionintoc {4}{3}{Inserting Multimedia}{41}{0}{4}
+\beamer@subsectionintoc {4}{4}{Notes}{42}{0}{4}
+\beamer@subsectionintoc {4}{5}{Handouts}{43}{0}{4}
+\beamer@subsectionintoc {4}{6}{Different Backgrounds}{44}{0}{4}
+\beamer@sectionintoc {5}{Conclusion}{45}{0}{5}

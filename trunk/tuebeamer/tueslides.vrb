@@ -1,0 +1,12 @@
+\vspace *{2cm}{\Large\color{white} A Different Background}
+
+\color{white}
+It is possible to use a different background template, e.g. an empty Powerpoint file that is converted to PNG, JPG, EPS or PDF.
+
+\begin{lstlisting}
+\usebackgroundtemplate{
+  \includegraphics[width=\paperwidth,
+                   height=\paperheight]{LaQuSo}
+}
+\end{lstlisting}
+
