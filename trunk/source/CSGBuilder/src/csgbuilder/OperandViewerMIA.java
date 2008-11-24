@@ -17,12 +17,16 @@ import javax.swing.event.MouseInputAdapter;
  * @author s031407
  */
 public class OperandViewerMIA extends MouseInputAdapter implements KeyListener {
-    private OperandViewerRenderer mRenderer;
+    protected OperandViewerRenderer mRenderer;
 	
 	private boolean mTranslate = false;
     
     public OperandViewerMIA(OperandViewerRenderer pRenderer/*, GLAutoDrawable drawable*/) {
         mRenderer = pRenderer;
+    }
+    
+    public OperandViewerRenderer getRenderer() {
+        return mRenderer;
     }
     
     public void mouseClicked(MouseEvent e) {
@@ -86,14 +90,15 @@ public class OperandViewerMIA extends MouseInputAdapter implements KeyListener {
                 mesh.toggleShowMC();
                 break;
         }
-        
         //System.out.printf("%d\n", e.getKeyCode());
 	}
 
 	public void keyReleased(KeyEvent e) {
 		// When ctrl is pressed do translation instead of ratation
-		if (e.getKeyCode() == 17) {
-			mTranslate = false;
+		switch (e.getKeyCode()) {
+            case 17:
+                mTranslate = false;
+                break;
 		}
 	}
 }

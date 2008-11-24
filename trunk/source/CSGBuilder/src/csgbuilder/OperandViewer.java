@@ -16,21 +16,30 @@ import javax.media.opengl.GLCapabilities;
 public class OperandViewer {
 	// Mesh of the operand being shown (can be null if there is no operand loaded)
 	private OperandMesh mMesh = null;
+    private CSGTree mTree = null;
 	
 	// The GLCanvas used to render the mesh
 	private GLCanvas mCanvas;
 	
 	private OperandViewerRenderer mRenderer;
-	
-	/* Constructor */
-	public OperandViewer() {
+	CSGTreePolygoniser mPolygoniser;
+
+    /* Constructor */
+	public OperandViewer(OperandViewerRenderer pRenderer, OperandViewerMIA inputAdapter) {
         GLCapabilities lvCaps = new GLCapabilities();
-        lvCaps.setDoubleBuffered(true);
+           lvCaps.setRedBits(8);
+           lvCaps.setBlueBits(8);
+           lvCaps.setGreenBits(8);
+           lvCaps.setAlphaBits(8);
+           lvCaps.setDoubleBuffered(true);
 		
+        mPolygoniser = new CSGTreePolygoniser(this);
+
 		mCanvas = new GLCanvas(lvCaps);
 		
-		mRenderer = new OperandViewerRenderer(this);
-		OperandViewerMIA lvListener = new OperandViewerMIA(mRenderer);
+		mRenderer = pRenderer;
+        mRenderer.setViewer(this);
+		OperandViewerMIA lvListener = inputAdapter;
 		
         mCanvas.addGLEventListener(mRenderer);
         mCanvas.addMouseListener(lvListener);
@@ -49,6 +58,26 @@ public class OperandViewer {
 	public OperandMesh getMesh() {
 		return mMesh;
 	}
+    
+    public CSGTree getTree() {
+        return mTree;
+    }
+    
+    public void setTree(CSGTree pvTree) {
+        mTree = pvTree;
+    }
+    
+    public void startPolygonisation() {
+        // Clear mesh
+        mMesh = null;
+        
+        if (mPolygoniser.isAlive()) {
+            mPolygoniser.stop();
+        }
+        
+        mPolygoniser = new CSGTreePolygoniser(this);
+        mPolygoniser.start();
+    }
 
 	public GLCanvas getCanvas() {
 		return mCanvas;
