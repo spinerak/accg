@@ -50,7 +50,7 @@ public class OcCell {
         // Set vertices
         p[0].x = x; p[0].y = y; p[0].z = z;
         p[1].x = x + dim[0]; p[1].y = y; p[1].z = z;
-        p[2].x = x + dim[0]; p[2].y = y; p[2].z = z + dim[0];
+        p[2].x = x + dim[0]; p[2].y = y; p[2].z = z + dim[2];
         p[3].x = x; p[3].y = y; p[3].z = z + dim[2];
         p[4].x = x; p[4].y = y + dim[1]; p[4].z = z;
         p[5].x = x + dim[0]; p[5].y = y + dim[1]; p[5].z = z;
@@ -88,7 +88,7 @@ public class OcCell {
 
         boolean recurse = parent == null;
         
-        int maxDepth = 7;
+        int maxDepth = 8;
         
         // -> hack
         if (depth < 4) {

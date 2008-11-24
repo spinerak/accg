@@ -255,7 +255,7 @@ public class CSGTreePolygoniser extends Thread {
             }
         }
         else {
-            // It's a leaf -> polgonize
+            // It's a leaf -> polgonise
             vertices.addAll(cell.vertices);
             normals.addAll(cell.normals);
         }
