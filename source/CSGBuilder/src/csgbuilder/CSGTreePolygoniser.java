@@ -8,7 +8,6 @@ import java.util.ArrayList;
  * http://local.wasp.uwa.edu.au/~pbourke/geometry/polygonise/index.html
  */
 public class CSGTreePolygoniser extends Thread {
-    private CSGTree mTree;
     private OperandViewer mViewer;
     
 	// Whether or not to do marching cubes
@@ -191,12 +190,12 @@ public class CSGTreePolygoniser extends Thread {
         marchingCubes = new ArrayList<OcCell>();
     }
     
-    public CSGTreePolygoniser (OperandViewer pvViewer, CSGTree pvTree) {
+    public CSGTreePolygoniser (OperandViewer pvViewer) {
         marchingCubes = new ArrayList<OcCell>();
         
         setViewer(pvViewer);
-        setTree(pvTree);
     }
+
     
     public ArrayList<OcCell> getMarchingCubes() {
         return this.marchingCubes;
@@ -210,16 +209,12 @@ public class CSGTreePolygoniser extends Thread {
 		return vertices;
     }
     
-    public void setTree(CSGTree pvTree) {
-        mTree = pvTree;
-    }
-    
     public void setViewer(OperandViewer pvViewer) {
         mViewer = pvViewer;
     }
     
     public void run() {
-        mViewer.setMesh(getMesh(mTree));
+        mViewer.setMesh(getMesh(mViewer.getTree()));
     }
 	
 	public OperandMesh getMesh(CSGTree pvTree) {

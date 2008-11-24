@@ -25,6 +25,8 @@ import javax.media.opengl.glu.GLUquadric;
 public class OperandViewerRenderer implements GLEventListener {
     // Initial zoom value
 	private double mZoom = -6.0;
+    
+    static final float[] defaultColor = new float[]{1, 0, 0};
 	
 	private Point mStartDrag = null;
 	private Point mTranslation = new Point(0, 0);
@@ -57,13 +59,18 @@ public class OperandViewerRenderer implements GLEventListener {
 	
 	private FloatBuffer cells;	// Marching Cube debug cells data
 	private int cellCount;
+    
+    public boolean CSGMode = false;
 	
 	private BoundingBox mBoundingBox = null;
 	
 	private OperandViewer mViewer;
     
-    public OperandViewerRenderer(OperandViewer pViewer) {
-		mViewer = pViewer;
+    public OperandViewerRenderer() {
+    }
+    
+    public void setViewer(OperandViewer pViewer) {
+        mViewer = pViewer;
     }
 
     public OperandViewer getViewer() {
@@ -110,7 +117,7 @@ public class OperandViewerRenderer implements GLEventListener {
         gl.glClearDepth(1.0f);                                // Depth Buffer Setup
         gl.glDepthFunc(GL.GL_LEQUAL);  // The Type Of Depth Testing (Less Or Equal)
         gl.glEnable(GL.GL_DEPTH_TEST);                        // Enable Depth Testing
-        gl.glShadeModel(GL.GL_FLAT);   // Select Flat Shading (Nice Definition Of Objects)
+        gl.glShadeModel(GL.GL_SMOOTH);   // Select Flat Shading (Nice Definition Of Objects)
         
         // Set Perspective Calculations To Most Accurate
         gl.glHint(GL.GL_PERSPECTIVE_CORRECTION_HINT, GL.GL_NICEST);                
@@ -171,7 +178,7 @@ public class OperandViewerRenderer implements GLEventListener {
 		if (mStartDrag != null) {
 			mTranslation.x -= mStartDrag.x - pvMousePt.x;
 			mTranslation.y -= mStartDrag.y - pvMousePt.y;
-			
+            
 			mStartDrag = pvMousePt;
 		}
 	}
@@ -195,7 +202,28 @@ public class OperandViewerRenderer implements GLEventListener {
         }
     }
 
-
+    private void drawAxis(GL gl) {
+        gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
+        
+        gl.glBegin(GL.GL_TRIANGLES);
+        
+        gl.glColor4d(1.0, 0.0, 0.0, 1);        
+        gl.glVertex3d(-100, 0, 0);
+        gl.glVertex3d(100, 0, 0);
+        gl.glVertex3d(0, 0, 0);
+        
+        gl.glColor4d(0.0, 1.0, 0.0, 1);        
+        gl.glVertex3d(0, -100, 0);
+        gl.glVertex3d(0, 100, 0);
+        gl.glVertex3d(0, 0, 0);
+        
+        gl.glColor4d(0.0, 0.0, 1.0, 1);
+        gl.glVertex3d(0, 0, -100);
+        gl.glVertex3d(0, 0, 100);
+        gl.glVertex3d(0, 0, 0);
+        
+        gl.glEnd();
+    }
     
     private void drawBoundingBox(GL gl) {
 		BoundingBox box = mBoundingBox;
@@ -280,8 +308,11 @@ public class OperandViewerRenderer implements GLEventListener {
         //drawBoundingBox(gl);
         
 		if (mViewer.getMesh() != null) {
-			mViewer.getMesh().render(gl);
+			mViewer.getMesh().render(gl, CSGMode, defaultColor);
 		}
+        
+		// Debug axis
+		drawAxis(gl);
         
         gl.glPopMatrix();                   // NEW: Unapply Dynamic Transform
 

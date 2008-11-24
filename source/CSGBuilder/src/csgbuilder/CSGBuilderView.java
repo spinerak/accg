@@ -27,6 +27,9 @@ public class CSGBuilderView extends FrameView {
     // HACK
     private CSGTree lvTree;
     
+    public OperandViewer mAOperandViewer;
+    public OperandViewer mBOperandViewer;
+    
     public CSGBuilderView(SingleFrameApplication app) {
         super(app);
 
@@ -36,37 +39,40 @@ public class CSGBuilderView extends FrameView {
         GLCapabilities caps = new GLCapabilities();
         caps.setDoubleBuffered(true);
         
-	OperandViewer lvAOperandViewer = new OperandViewer();
-        canvas1 = lvAOperandViewer.getCanvas();
+        AOperandRenderer lvRenderer = new AOperandRenderer();
+        mAOperandViewer = new OperandViewer(lvRenderer,
+                new AOperandMIA(lvRenderer, this));
+        
+        canvas1 = mAOperandViewer.getCanvas();
         jSplitPane1.setLeftComponent(canvas1);
         
 		
 	// Create a CSG Tree
-        lvTree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{1.0,1.0,1.0}));
-        lvTree.intersect(new CSGEllipsoid(new double[]{0.8,0.8,0.8}, new double[]{1.0,1.0,1.0}));
+        lvTree = new CSGTree(new CSGEllipsoid(new double[]{0.5,0.0,0.0}, new double[]{1.0,1.0,1.0}));
+        //lvTree.intersect(new CSGEllipsoid(new double[]{0.8,0.8,0.8}, new double[]{1.0,1.0,1.0}));
 			
 	// Get the mesh for this tree
-	CSGTreePolygoniser lvPolygoniser = new CSGTreePolygoniser(lvAOperandViewer, lvTree);
-    lvPolygoniser.start();
+    mAOperandViewer.setTree(lvTree);
+    mAOperandViewer.startPolygonisation();
 		
         // Start
-	lvAOperandViewer.start();
+	mAOperandViewer.start();
 		
 		
-	OperandViewer lvBOperandViewer = new OperandViewer();
+    OperandViewerRenderer lvRenderer2 = new OperandViewerRenderer();
+    mBOperandViewer = new OperandViewer(lvRenderer2, new OperandViewerMIA(lvRenderer2));
         
         //CSGTree lvBOpTree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{0.5,0.5,0.5}));
         CSGTree lvBOpTree = new CSGTree(new CSGCuboid(new double[]{0.0,0.0,0.0}, new double[]{0.5,0.5,0.5}, new double[]{Math.PI/4, Math.PI/4, Math.PI/4}));
         
-        jSplitPane2.setLeftComponent(lvBOperandViewer.getCanvas());
-        jSplitPane2.setRightComponent(new ObjectPropertyPanel(lvBOpTree, lvBOperandViewer));
+        jSplitPane2.setLeftComponent(mBOperandViewer.getCanvas());
+        jSplitPane2.setRightComponent(new ObjectPropertyPanel(lvBOpTree, mBOperandViewer));
         jSplitPane1.setRightComponent(jSplitPane2);
         
-//	OperandMesh lvBOpMesh = lvPolygoniser.getMesh(lvBOpTree);
-		
-//	lvBOperandViewer.setMesh(lvBOpMesh);
-		
-	lvBOperandViewer.start();
+//	mBOperandViewer.setTree(lvBOpTree);
+//    mBOperandViewer.startPolygonisation();
+    
+	mBOperandViewer.start();
 		
 	// status bar initialization - message timeout, idle icon and busy animation, etc
         ResourceMap resourceMap = getResourceMap();

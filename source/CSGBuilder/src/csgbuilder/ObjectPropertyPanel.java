@@ -13,7 +13,7 @@ package csgbuilder;
 public class ObjectPropertyPanel extends javax.swing.JPanel {
     private CSGTree tree;
     private OperandViewer viewer;
-    private CSGTreePolygoniser polygoniser = new CSGTreePolygoniser();
+
     private java.util.HashMap<String, CSGTree> loadedTrees = 
         new java.util.HashMap<String, CSGTree>();
     
@@ -45,16 +45,14 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
     
     public void setViewer(OperandViewer viewer) {
         this.viewer = viewer;
-        setMesh();
+        //setMesh();
     }
     
     private void setMesh() {        
-        if (polygoniser.isAlive()) {
-            polygoniser.stop();
-        }
-        
-        polygoniser.setTree(tree);
-        polygoniser.setViewer(viewer);
+        //polygoniser.setTree(tree);
+        viewer.setTree(tree);
+        viewer.startPolygonisation();
+        //polygoniser.setViewer(viewer);
         //polygoniser.start();
     }
     

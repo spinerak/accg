@@ -88,7 +88,7 @@ public class OcCell {
 
         boolean recurse = parent == null;
         
-        int maxDepth = 8;
+        int maxDepth = 7;
         
         // -> hack
         if (depth < 4) {

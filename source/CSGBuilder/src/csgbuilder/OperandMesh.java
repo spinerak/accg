@@ -17,7 +17,7 @@ import javax.media.opengl.GL;
 public class OperandMesh {
 	private boolean SHOW_BB = false;
 	private boolean SHOW_MC = false;
-	private boolean SHOW_NORMALS = true;
+	private boolean SHOW_NORMALS = false;
     private RenderMethod mRenderMethod = RenderMethod.Fill;
                 
     public enum RenderMethod {
@@ -63,8 +63,12 @@ public class OperandMesh {
     public void toggleShowAxis() {
         SHOW_NORMALS = !SHOW_NORMALS;
     }
-
+    
     public void render(GL gl) {
+        render(gl, false, new float[]{1, 0, 0});
+    }
+    
+    public void render(GL gl, boolean CSGMode, float[] color) {
 		if (mVertexCount > 0) {
             gl.glEnableClientState(GL.GL_VERTEX_ARRAY);  // Enable Vertex Arrays
 			gl.glVertexPointer(3, GL.GL_FLOAT, 0, mVertices); 
@@ -75,16 +79,22 @@ public class OperandMesh {
 
 			if (mRenderMethod == RenderMethod.WireFrame) {
                 gl.glDisable(GL.GL_LIGHTING);   // Enable Lighting
-                gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINES);
+                gl.glPolygonMode(GL.GL_FRONT, GL.GL_LINES);
             }
             else {
                 gl.glEnable(GL.GL_LIGHTING);   // Enable Lighting
-                gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL);
+                gl.glPolygonMode(GL.GL_FRONT, GL.GL_FILL);
             }
                         
 			// Draw all at once
-            gl.glColor3f(1.0f, 0.0f, 0.0f);
-			gl.glDrawArrays(GL.GL_TRIANGLES, 0, mVertexCount);  
+            if (CSGMode) {
+                gl.glColor4f(color[0], color[1], color[2], 0.2f);
+            }
+            else {
+                gl.glColor3f(color[0], color[1], color[2]);
+            }
+            
+            gl.glDrawArrays(GL.GL_TRIANGLES, 0, mVertexCount);  
 			
 			// Disable Vertex Arrays
 			gl.glDisableClientState(GL.GL_NORMAL_ARRAY);
@@ -96,9 +106,6 @@ public class OperandMesh {
 			drawNormals(gl);
 		}
 		
-		// Debug axis
-		drawAxis(gl);
-			
 		if (SHOW_BB) {
 			// Debug bounding box
 			drawBB(gl);
@@ -237,27 +244,5 @@ public class OperandMesh {
 						mDebugMCCells.flip();
 	}
 
-    private void drawAxis(GL gl) {
-        gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
-        
-        gl.glBegin(GL.GL_TRIANGLES);
-        
-        gl.glColor4d(1.0, 0.0, 0.0, 1);        
-        gl.glVertex3d(-100, 0, 0);
-        gl.glVertex3d(100, 0, 0);
-        gl.glVertex3d(0, 0, 0);
-        
-        gl.glColor4d(0.0, 1.0, 0.0, 1);        
-        gl.glVertex3d(0, -100, 0);
-        gl.glVertex3d(0, 100, 0);
-        gl.glVertex3d(0, 0, 0);
-        
-        gl.glColor4d(0.0, 0.0, 1.0, 1);
-        gl.glVertex3d(0, 0, -100);
-        gl.glVertex3d(0, 0, 100);
-        gl.glVertex3d(0, 0, 0);
-        
-        gl.glEnd();
-    }
 }
 
