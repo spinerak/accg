@@ -72,6 +72,9 @@
                 <Property name="text" type="java.lang.String" resourceKey="jMenuItem1.text"/>
                 <Property name="name" type="java.lang.String" value="jMenuItem1" noResource="true"/>
               </Properties>
+              <Events>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenuItem1ActionPerformed"/>
+              </Events>
             </MenuItem>
           </SubComponents>
         </Menu>
@@ -86,6 +89,9 @@
             <Property name="text" type="java.lang.String" resourceKey="jMenu3.text"/>
             <Property name="name" type="java.lang.String" value="jMenu3" noResource="true"/>
           </Properties>
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jMenu3ActionPerformed"/>
+          </Events>
           <SubComponents>
             <MenuItem class="javax.swing.JCheckBoxMenuItem" name="jCheckBoxMenuItem1">
               <Properties>
@@ -93,6 +99,9 @@
                 <Property name="text" type="java.lang.String" resourceKey="jCheckBoxMenuItem1.text"/>
                 <Property name="name" type="java.lang.String" value="jCheckBoxMenuItem1" noResource="true"/>
               </Properties>
+              <Events>
+                <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="jCheckBoxMenuItem1ItemStateChanged"/>
+              </Events>
             </MenuItem>
             <MenuItem class="javax.swing.JCheckBoxMenuItem" name="jCheckBoxMenuItem2">
               <Properties>
@@ -100,6 +109,9 @@
                 <Property name="text" type="java.lang.String" resourceKey="jCheckBoxMenuItem2.text"/>
                 <Property name="name" type="java.lang.String" value="jCheckBoxMenuItem2" noResource="true"/>
               </Properties>
+              <Events>
+                <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="jCheckBoxMenuItem2ItemStateChanged"/>
+              </Events>
             </MenuItem>
             <MenuItem class="javax.swing.JCheckBoxMenuItem" name="jCheckBoxMenuItem3">
               <Properties>
@@ -107,6 +119,9 @@
                 <Property name="text" type="java.lang.String" resourceKey="jCheckBoxMenuItem3.text"/>
                 <Property name="name" type="java.lang.String" value="jCheckBoxMenuItem3" noResource="true"/>
               </Properties>
+              <Events>
+                <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="jCheckBoxMenuItem3ItemStateChanged"/>
+              </Events>
             </MenuItem>
             <MenuItem class="javax.swing.JCheckBoxMenuItem" name="jCheckBoxMenuItem4">
               <Properties>
@@ -114,17 +129,15 @@
                 <Property name="text" type="java.lang.String" resourceKey="jCheckBoxMenuItem4.text"/>
                 <Property name="name" type="java.lang.String" value="jCheckBoxMenuItem4" noResource="true"/>
               </Properties>
+              <Events>
+                <EventHandler event="itemStateChanged" listener="java.awt.event.ItemListener" parameters="java.awt.event.ItemEvent" handler="jCheckBoxMenuItem4ItemStateChanged"/>
+              </Events>
             </MenuItem>
           </SubComponents>
         </Menu>
       </SubComponents>
     </Container>
   </NonVisualComponents>
-  <Properties>
-    <Property name="component" type="javax.swing.JComponent" editor="org.netbeans.modules.form.ComponentChooserEditor">
-      <ComponentRef name="default"/>
-    </Property>
-  </Properties>
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="2"/>
     <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="true"/>
