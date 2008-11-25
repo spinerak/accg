@@ -105,7 +105,7 @@ public class Types {
 				p[i] = new Vertex();
 			}
         }
-        
+       
         public boolean intersects(BoundingBox b) {
             // TODO
             return true;

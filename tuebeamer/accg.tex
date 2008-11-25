@@ -42,7 +42,7 @@
 \setbeamercovered{transparent=30}
 \begin{frame}
   \frametitle{Outline}
-  \tableofcontents[pausesections]
+  \tableofcontents
 \end{frame}
 \setbeamercovered{invisible}
 
@@ -54,7 +54,6 @@
  \item Build complex objects from simple building block objects using CSG (\textbf{C}onstructive \textbf{S}olid \textbf{G}eometry)
  \item Constructed objects can be used as building blocks using save \& load
  \item Objects internally represented as CSG trees
- \item 
 \end{itemize}
 \end{frame}
 
@@ -64,9 +63,10 @@
 \begin{itemize}
  \item Boolean operations like union, difference and intersection can be
  realized using simple boolean operators on the implicit functions.
+ \item Basic objects: spere, cube.
 \end{itemize}
 \begin{figure}
-\includegraphics<1->[width=0.4\textwidth]{accgimg/Boolean_difference}
+\includegraphics<1->[width=0.4\textwidth]{./accgimg/Boolean_difference}
 \caption{Source http://en.wikipedia.org/wiki/Constructive\_solid\_geometry}
 \end{figure}
 \end{frame}
@@ -78,14 +78,14 @@
  \item \textbf{C}onstructive \textbf{S}olid \textbf{G}eometry tree
 \end{itemize}
 \begin{figure}
-\includegraphics<1->[width=0.4\textwidth]{accgimg/Csg_tree}
+\includegraphics<1->[width=0.4\textwidth]{./accgimg/Csg_tree}
 \caption{Source http://en.wikipedia.org/wiki/Constructive\_solid\_geometry}
 \end{figure}
 \end{frame}
 
 \subsection{Marching Cubes}
 \begin{frame}
-\frametitle{CSG Trees}
+\frametitle{Marching Cubes}
 \begin{itemize}
  \item Adaptive variant using octrees
  \item Subdivide cube into 8 cubes where needed (for example wherever
@@ -94,15 +94,21 @@
 \end{itemize}
 \end{frame}
 
-\section{Project status}
-\begin{frame}
-\frametitle{Project status}
-- done
-\end{frame}
-
 \section{Demo}
 \begin{frame}
 \frametitle{Demo}
+\end{frame}
+
+\section{Project status}
+\begin{frame}
+\frametitle{Project status}
+Todo
+\begin{itemize}
+ \item Superquadrics
+ \item Split GUI
+ \item Responsiveness
+ \item Tree view
+\end{itemize}
 \end{frame}
 
 \section{Questions?}

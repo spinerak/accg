@@ -3,6 +3,8 @@ package csgbuilder;
 import java.util.Arrays;
 import java.io.Serializable;
 
+import javax.swing.tree.*;
+
 public abstract class CSGTreeElement implements Serializable {
     public abstract BoundingBox getBoundingBox();
     public abstract double getFunctionValue(double x, double y, double z);
@@ -18,6 +20,8 @@ public abstract class CSGTreeElement implements Serializable {
     public abstract void rotate(double[] rot);
     public abstract void move(double[] pos);
     public abstract void resize(double[] size);
+    
+    public abstract DefaultMutableTreeNode CSGTree2TreeNode();
     
     @Override public abstract String toString();
     
@@ -125,6 +129,13 @@ class CSGTreeUnion extends CSGTreeOperation {
                         right.getFunctionValue(x,y,z));
     }
     
+    public DefaultMutableTreeNode CSGTree2TreeNode() {        
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Union");
+        root.insert(left.CSGTree2TreeNode(), 0);
+        root.insert(right.CSGTree2TreeNode(), 1);
+        return root;
+    }
+    
     @Override public String toString() {
         return "UNION(" + left.toString() + "," + right.toString() + ")";
     }
@@ -180,6 +191,13 @@ class CSGTreeIntersection extends CSGTreeOperation {
                         right.getFunctionValue(x,y,z));
     }
     
+    public DefaultMutableTreeNode CSGTree2TreeNode() {        
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Intersection");
+        root.insert(left.CSGTree2TreeNode(), 0);
+        root.insert(right.CSGTree2TreeNode(), 1);
+        return root;
+    }
+    
     @Override public String toString() {
         return "INTERSECTION(" + left.toString() + "," + right.toString() + ")";
     }
@@ -198,6 +216,13 @@ class CSGTreeDifference extends CSGTreeOperation {
     public double getFunctionValue(double x, double y, double z) {
         return Math.max(left.getFunctionValue(x, y, z), 
                         -right.getFunctionValue(x, y, z));
+    }
+    
+    public DefaultMutableTreeNode CSGTree2TreeNode() {        
+        DefaultMutableTreeNode root = new DefaultMutableTreeNode("Difference");
+        root.insert(left.CSGTree2TreeNode(), 0);
+        root.insert(right.CSGTree2TreeNode(), 1);
+        return root;
     }
     
     @Override public String toString() {
@@ -255,7 +280,7 @@ abstract class CSGObject extends CSGTreeElement {
     
     public void move(double pos[])
     {
-        this.pos = pos;
+        this.pos = pos;        
         computeBoundingBox();
     }
     
@@ -350,6 +375,10 @@ class CSGEllipsoid extends CSGObject {
                 rot[1] + "," + 
                 rot[2] + ")";
     }
+    
+    public DefaultMutableTreeNode CSGTree2TreeNode() {        
+        return new DefaultMutableTreeNode("Ellipsoid");
+    }
 }
 
 class CSGCuboid extends CSGObject {
@@ -365,6 +394,10 @@ class CSGCuboid extends CSGObject {
                Math.pow(v.z / size[2], 4) - 1;
     }
     
+    public DefaultMutableTreeNode CSGTree2TreeNode() {        
+        return new DefaultMutableTreeNode("Cubeoid");
+    }
+    
     public String toString() {
         return "CSGCUBEOID(" + 
                 pos[0] + "," +
@@ -376,5 +409,42 @@ class CSGCuboid extends CSGObject {
                 rot[0] + "," +
                 rot[1] + "," + 
                 rot[2] + ")";
+    }
+}
+
+class CSGSuperQuadric extends CSGObject {
+    private double[] exponents;
+
+    public double getFunctionValue(double x, double y, double z) {
+        Vertex v = getRotatedVertex(new Vertex((pos[0] + x) / size[0],
+                                               (pos[1] + y) / size[1],
+                                               (pos[2] + z) / size[2]));
+        
+        return Math.pow(v.x, exponents[0]) + 
+               Math.pow(v.y, exponents[0]) +
+               Math.pow(v.z, exponents[0]) - 1;
+    } 
+    
+    public void setExponents(double[] exponents) {
+        this.exponents = exponents;
+        computeBoundingBox();
+    }
+    
+    public double[] getExponents() {
+        return exponents;
+    }
+    
+    public CSGSuperQuadric(double[] pos, double[] size, double[] rot,
+                           double[] exponents) {
+        super(pos, size, rot);
+        this.exponents = exponents;
+    }    
+    
+    public DefaultMutableTreeNode CSGTree2TreeNode() {        
+        return new DefaultMutableTreeNode("Superquadric");
+    }
+    
+    public String toString() {
+        return "fail";
     }
 }

@@ -1,7 +1,10 @@
-This is pdfTeX, Version 3.1415926-1.40.9 (MiKTeX 2.7) (preloaded format=pdflatex 2008.11.21)  21 NOV 2008 15:01
+This is pdfTeX, Version 3.1415926-1.40.9 (MiKTeX 2.7) (preloaded format=pdflatex 2008.11.23)  24 NOV 2008 11:57
 entering extended mode
-**D:/My*Documents/school/tuebeamer/accg.tex
-("D:/My Documents/school/tuebeamer/accg.tex"
+**D:/My*Documents/jaar*5/2IV05*-*Advanced*Component*Computer*Graphics/project/t
+uebeamer/accg.tex
+
+("D:/My Documents/jaar 5/2IV05 - Advanced Component Computer Graphics/project/t
+uebeamer/accg.tex"
 LaTeX2e <2005/12/01>
 Babel <v3.8l> and hyphenation patterns for english, dumylang, nohyphenation, ge
 rman, ngerman, german-x-2008-06-18, ngerman-x-2008-06-18, french, loaded.
@@ -1080,78 +1083,61 @@ ig/pdftex.map}
 File: tuelogo.pdf Graphic file (type pdf)
  <use tuelogo.pdf> [2
 
-] (accg.toc)
-File: tuelogo.pdf Graphic file (type pdf)
- <use tuelogo.pdf>
-[3
-
-] (accg.toc)
-File: tuelogo.pdf Graphic file (type pdf)
- <use tuelogo.pdf> [4
-
-] (accg.toc)
-File: tuelogo.pdf Graphic file (type pdf)
- <use tuelogo.pdf> [5
-
 ]
-LaTeX Font Info:    Try loading font information for U+msa on input line 59.
+LaTeX Font Info:    Try loading font information for U+msa on input line 58.
 
 ("C:\Program Files\MiKTeX 2.7\tex\latex\amsfonts\umsa.fd"
 File: umsa.fd 2002/01/19 v2.2g AMS font definitions
 )
-LaTeX Font Info:    Try loading font information for U+msb on input line 59.
+LaTeX Font Info:    Try loading font information for U+msb on input line 58.
 
 ("C:\Program Files\MiKTeX 2.7\tex\latex\amsfonts\umsb.fd"
 File: umsb.fd 2002/01/19 v2.2g AMS font definitions
 )
-LaTeX Font Info:    Try loading font information for TS1+ptm on input line 59.
+LaTeX Font Info:    Try loading font information for TS1+ptm on input line 58.
 
 ("C:\Program Files\MiKTeX 2.7\tex\latex\psnfss\ts1ptm.fd"
 File: ts1ptm.fd 2001/06/04 font definitions for TS1/ptm.
 )
 LaTeX Font Warning: Font shape `T1/zmb/m/it' undefined
-(Font)              using `T1/zmb/m/n' instead on input line 59.
+(Font)              using `T1/zmb/m/n' instead on input line 58.
 File: tuelogo.pdf Graphic file (type pdf)
  <use tuelogo.pdf>
-[6
+[3
 
-] <accgimg/Boolean_difference.png, id=116, 401.5pt x 301.125pt>
-File: accgimg/Boolean_difference.png Graphic file (type png)
+] <./accgimg/Boolean_difference.png, id=80, 401.5pt x 301.125pt>
+File: ./accgimg/Boolean_difference.png Graphic file (type png)
 
-<use accgimg/Boolean_difference.png>
+<use ./accgimg/Boolean_difference.png>
+File: tuelogo.pdf Graphic file (type pdf)
+ <use tuelogo.pdf> [4
+
+ <D:/My Documents/jaar 5/2IV05 - Advanced Component Computer Graphics/project/t
+uebeamer/accgimg/Boolean_difference.png (PNG copy)>]
+<./accgimg/Csg_tree.png, id=86, 803.0pt x 711.65875pt>
+File: ./accgimg/Csg_tree.png Graphic file (type png)
+
+<use ./accgimg/Csg_tree.png>
+File: tuelogo.pdf Graphic file (type pdf)
+ <use tuelogo.pdf> [5
+
+ <D:/My Documents/jaar 5/2IV05 - Advanced Component Computer Graphics/project/t
+uebeamer/accgimg/Csg_tree.png>]
+File: tuelogo.pdf Graphic file (type pdf)
+ <use tuelogo.pdf> [6
+
+]
 File: tuelogo.pdf Graphic file (type pdf)
  <use tuelogo.pdf> [7
 
- <accgimg/Boolean_difference.png (PNG copy)>] <accgimg/Csg_tree.png, id=123, 80
-3.0pt x 711.65875pt>
-File: accgimg/Csg_tree.png Graphic file (type png)
-
-<use accgimg/Csg_tree.png>
+]
 File: tuelogo.pdf Graphic file (type pdf)
  <use tuelogo.pdf> [8
 
- <accgimg/Csg_tree.png>]
-LaTeX Font Info:    Try loading font information for MY2+zmb on input line 97.
-LaTeX Font Info:    No file MY2zmb.fd. on input line 97.
-LaTeX Font Warning: Font shape `MY2/zmb/m/n' undefined
-(Font)              using `MY2/mtt/m/n' instead
-(Font)              for symbol `textbullet' on input line 97.
+]
 File: tuelogo.pdf Graphic file (type pdf)
 
 <use tuelogo.pdf> [9
-
-]
-File: tuelogo.pdf Graphic file (type pdf)
- <use tuelogo.pdf> [10
-
-]
-File: tuelogo.pdf Graphic file (type pdf)
- <use tuelogo.pdf> [11
-
-]
-File: tuelogo.pdf Graphic file (type pdf)
-
-<use tuelogo.pdf> [12
 
 ]
 \tf@nav=\write5
@@ -1163,13 +1149,13 @@ LaTeX Font Warning: Size substitutions with differences
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
  ) 
 Here is how much of TeX's memory you used:
- 14800 strings out of 95304
- 250386 string characters out of 1183031
+ 14748 strings out of 95304
+ 249408 string characters out of 1183031
  370703 words of memory out of 1500000
- 17563 multiletter control sequences out of 110000
+ 17525 multiletter control sequences out of 110000
  13513 words of font info for 31 fonts, out of 1200000 for 2000
  14 hyphenation exceptions out of 8191
- 43i,13n,67p,455b,589s stack positions out of 5000i,500n,10000p,200000b,5000s
+ 43i,13n,67p,508b,589s stack positions out of 5000i,500n,10000p,200000b,5000s
  <C:\Documents and Settings\All Users\Application Data\MiKTeX\2.7\fonts\pk\lj
 four\jknappen\ec\dpi600\ecrm1000.pk> <C:\Documents and Settings\All Users\Appli
 cation Data\MiKTeX\2.7\fonts\pk\ljfour\jknappen\ec\dpi600\ecrm1440.pk> <C:\Docu
@@ -1178,6 +1164,9 @@ en\ec\dpi600\ecrm1095.pk> <C:\Documents and Settings\All Users\Application Data
 \MiKTeX\2.7\fonts\pk\ljfour\jknappen\ec\dpi600\ecrm2488.pk> <C:\Documents and S
 ettings\All Users\Application Data\MiKTeX\2.7\fonts\pk\ljfour\jknappen\ec\dpi60
 0\ecrm0600.pk><C:/Program Files/MiKTeX 2.7/fonts/type1/bluesky/ams/msam7.pfb>
-!pdfTeX error: pdflatex (file mtsy.pfb): cannot open Type 1 font file for readi
-ng
- ==> Fatal error occurred, no output PDF file produced!
+Output written on accg.pdf (9 pages, 201807 bytes).
+PDF statistics:
+ 283 PDF objects out of 1000 (max. 8388607)
+ 26 named destinations out of 1000 (max. 131072)
+ 124 words of extra memory for PDF output out of 10000 (max. 10000000)
+

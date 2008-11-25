@@ -18,6 +18,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.media.opengl.*;
 import javax.swing.JFileChooser;
+import javax.swing.*;
 
 /**
  * The application's main frame.
@@ -30,10 +31,18 @@ public class CSGBuilderView extends FrameView {
     public OperandViewer mAOperandViewer;
     public OperandViewer mBOperandViewer;
     
+    private JFrame mainFrame = new JFrame("CSGBuilder");
+    private JFrame editorFrame = new JFrame("CSGBuilder - Editore");    
+    private JFrame viewerFrame = new JFrame("CSGBuilder - Viewer");   
+    private JFrame propertiesFrame = new JFrame("CSGBuilder - Properties");
+    private JFrame treeFrame = new JFrame("CSGBuilder - Tree");
+    
     public CSGBuilderView(SingleFrameApplication app) {
         super(app);
 
         initComponents();
+
+        mainFrame.setJMenuBar(jMenuBar1);
         
         // Init GLJPanlels
         GLCapabilities caps = new GLCapabilities();
@@ -44,7 +53,7 @@ public class CSGBuilderView extends FrameView {
                 new AOperandMIA(lvRenderer, this));
         
         canvas1 = mAOperandViewer.getCanvas();
-        jSplitPane1.setLeftComponent(canvas1);
+        editorFrame.add(canvas1);
         
 		
 	// Create a CSG Tree
@@ -65,69 +74,15 @@ public class CSGBuilderView extends FrameView {
         //CSGTree lvBOpTree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{0.5,0.5,0.5}));
         CSGTree lvBOpTree = new CSGTree(new CSGCuboid(new double[]{0.0,0.0,0.0}, new double[]{0.5,0.5,0.5}, new double[]{Math.PI/4, Math.PI/4, Math.PI/4}));
         
-        jSplitPane2.setLeftComponent(mBOperandViewer.getCanvas());
-        jSplitPane2.setRightComponent(new ObjectPropertyPanel(lvBOpTree, mBOperandViewer));
-        jSplitPane1.setRightComponent(jSplitPane2);
+        viewerFrame.add(mBOperandViewer.getCanvas());
+        propertiesFrame.add(new ObjectPropertyPanel(lvBOpTree, mBOperandViewer));
+
         
 //	mBOperandViewer.setTree(lvBOpTree);
 //    mBOperandViewer.startPolygonisation();
     
 	mBOperandViewer.start();
 		
-	// status bar initialization - message timeout, idle icon and busy animation, etc
-        ResourceMap resourceMap = getResourceMap();
-        int messageTimeout = resourceMap.getInteger("StatusBar.messageTimeout");
-        messageTimer = new Timer(messageTimeout, new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                statusMessageLabel.setText("");
-            }
-        });
-        messageTimer.setRepeats(false);
-        int busyAnimationRate = resourceMap.getInteger("StatusBar.busyAnimationRate");
-        for (int i = 0; i < busyIcons.length; i++) {
-            busyIcons[i] = resourceMap.getIcon("StatusBar.busyIcons[" + i + "]");
-        }
-        busyIconTimer = new Timer(busyAnimationRate, new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                busyIconIndex = (busyIconIndex + 1) % busyIcons.length;
-                statusAnimationLabel.setIcon(busyIcons[busyIconIndex]);
-            }
-        });
-        idleIcon = resourceMap.getIcon("StatusBar.idleIcon");
-        statusAnimationLabel.setIcon(idleIcon);
-        progressBar.setVisible(false);
-
-        // connecting action tasks to status bar via TaskMonitor
-        TaskMonitor taskMonitor = new TaskMonitor(getApplication().getContext());
-        taskMonitor.addPropertyChangeListener(new java.beans.PropertyChangeListener() {
-            public void propertyChange(java.beans.PropertyChangeEvent evt) {
-                String propertyName = evt.getPropertyName();
-                if ("started".equals(propertyName)) {
-                    if (!busyIconTimer.isRunning()) {
-                        statusAnimationLabel.setIcon(busyIcons[0]);
-                        busyIconIndex = 0;
-                        busyIconTimer.start();
-                    }
-                    progressBar.setVisible(true);
-                    progressBar.setIndeterminate(true);
-                } else if ("done".equals(propertyName)) {
-                    busyIconTimer.stop();
-                    statusAnimationLabel.setIcon(idleIcon);
-                    progressBar.setVisible(false);
-                    progressBar.setValue(0);
-                } else if ("message".equals(propertyName)) {
-                    String text = (String)(evt.getNewValue());
-                    statusMessageLabel.setText((text == null) ? "" : text);
-                    messageTimer.restart();
-                } else if ("progress".equals(propertyName)) {
-                    int value = (Integer)(evt.getNewValue());
-                    progressBar.setVisible(true);
-                    progressBar.setIndeterminate(false);
-                    progressBar.setValue(value);
-                }
-            }
-        });
-        
         canvas1.addMouseListener(new java.awt.event.MouseAdapter(){
             @Override public void mouseClicked(java.awt.event.MouseEvent e) {
                 switch (e.getButton()) {
@@ -136,19 +91,50 @@ public class CSGBuilderView extends FrameView {
                         break;
                 }
             }
-        });        
-    }
+        });
+        
+        int screenWidth = java.awt.Toolkit.getDefaultToolkit().getScreenSize().width;
+        int screenHeight = java.awt.Toolkit.getDefaultToolkit().getScreenSize().height;        
+        
+        mainFrame.pack();
+        mainFrame.setVisible(true);
+        mainFrame.setBounds(0, 0, screenWidth, mainFrame.getHeight());        
+        mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        mainFrame.setResizable(false);
+        mainFrame.setAlwaysOnTop(true);
+        
+        int top = mainFrame.getHeight();
+        int height = screenHeight - top;
+        
+        JScrollPane treePane = new JScrollPane(new JTree(lvTree.CSGTree2TreeNode()));
+        treeFrame.add(treePane);
+        
+        treeFrame.pack();
+        propertiesFrame.pack();
+        treeFrame.setBounds(0, top, treeFrame.getWidth(), height);
+        propertiesFrame.setBounds(screenWidth - propertiesFrame.getWidth(), top, propertiesFrame.getWidth(), height);
+        
+        int width = (screenWidth - treeFrame.getWidth() - propertiesFrame.getWidth()) / 2;
+        
+        editorFrame.setBounds(treeFrame.getWidth(),top,width,height);
+        viewerFrame.setBounds(treeFrame.getWidth()+width,top,width,height);
+        
+        treeFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        editorFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        viewerFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+        propertiesFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-    @Action
-    public void showAboutBox() {
-        if (aboutBox == null) {
-            JFrame mainFrame = CSGBuilderApp.getApplication().getMainFrame();
-            aboutBox = new CSGBuilderAboutBox(mainFrame);
-            aboutBox.setLocationRelativeTo(mainFrame);
-        }
-        CSGBuilderApp.getApplication().show(aboutBox);
+        treeFrame.setAlwaysOnTop(true);
+        editorFrame.setAlwaysOnTop(true);
+        viewerFrame.setAlwaysOnTop(true);
+        propertiesFrame.setAlwaysOnTop(true);
+        
+        treeFrame.setVisible(true);
+        editorFrame.setVisible(true);
+        viewerFrame.setVisible(true);
+        propertiesFrame.setVisible(true);
     }
-
+    
     /** This method is called from within the constructor to
      * initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is
@@ -158,67 +144,18 @@ public class CSGBuilderView extends FrameView {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        mainPanel = new javax.swing.JPanel();
-        jSplitPane1 = new javax.swing.JSplitPane();
-        jSplitPane2 = new javax.swing.JSplitPane();
-        statusPanel = new javax.swing.JPanel();
-        javax.swing.JSeparator statusPanelSeparator = new javax.swing.JSeparator();
-        statusMessageLabel = new javax.swing.JLabel();
-        statusAnimationLabel = new javax.swing.JLabel();
-        progressBar = new javax.swing.JProgressBar();
         jDialog1 = new javax.swing.JDialog();
         jButton1 = new javax.swing.JButton();
         jFileChooser1 = new javax.swing.JFileChooser();
-
-        mainPanel.setName("mainPanel"); // NOI18N
-        mainPanel.setLayout(new java.awt.GridLayout(1, 0));
-
-        jSplitPane1.setMinimumSize(new java.awt.Dimension(150, 150));
-        jSplitPane1.setName("jSplitPane1"); // NOI18N
-        jSplitPane1.setPreferredSize(new java.awt.Dimension(150, 150));
-
-        jSplitPane2.setName("jSplitPane2"); // NOI18N
-        jSplitPane2.setPreferredSize(new java.awt.Dimension(179, 50));
-        jSplitPane1.setLeftComponent(jSplitPane2);
-
-        mainPanel.add(jSplitPane1);
-
-        statusPanel.setName("statusPanel"); // NOI18N
-
-        statusPanelSeparator.setName("statusPanelSeparator"); // NOI18N
-
-        statusMessageLabel.setName("statusMessageLabel"); // NOI18N
-
-        statusAnimationLabel.setHorizontalAlignment(javax.swing.SwingConstants.LEFT);
-        statusAnimationLabel.setName("statusAnimationLabel"); // NOI18N
-
-        progressBar.setName("progressBar"); // NOI18N
-
-        javax.swing.GroupLayout statusPanelLayout = new javax.swing.GroupLayout(statusPanel);
-        statusPanel.setLayout(statusPanelLayout);
-        statusPanelLayout.setHorizontalGroup(
-            statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(statusPanelSeparator, javax.swing.GroupLayout.DEFAULT_SIZE, 402, Short.MAX_VALUE)
-            .addGroup(statusPanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(statusMessageLabel)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 232, Short.MAX_VALUE)
-                .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(statusAnimationLabel)
-                .addContainerGap())
-        );
-        statusPanelLayout.setVerticalGroup(
-            statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(statusPanelLayout.createSequentialGroup()
-                .addComponent(statusPanelSeparator, javax.swing.GroupLayout.PREFERRED_SIZE, 2, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(statusPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(statusMessageLabel)
-                    .addComponent(statusAnimationLabel)
-                    .addComponent(progressBar, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(3, 3, 3))
-        );
+        jMenuBar1 = new javax.swing.JMenuBar();
+        jMenu1 = new javax.swing.JMenu();
+        jMenuItem1 = new javax.swing.JMenuItem();
+        jMenu2 = new javax.swing.JMenu();
+        jMenu3 = new javax.swing.JMenu();
+        jCheckBoxMenuItem1 = new javax.swing.JCheckBoxMenuItem();
+        jCheckBoxMenuItem2 = new javax.swing.JCheckBoxMenuItem();
+        jCheckBoxMenuItem3 = new javax.swing.JCheckBoxMenuItem();
+        jCheckBoxMenuItem4 = new javax.swing.JCheckBoxMenuItem();
 
         jDialog1.setTitle("Object properties");
         jDialog1.setMinimumSize(new java.awt.Dimension(200, 250));
@@ -254,15 +191,53 @@ public class CSGBuilderView extends FrameView {
 
         jFileChooser1.setName("jFileChooser1"); // NOI18N
 
-        setComponent(mainPanel);
-        setStatusBar(statusPanel);
+        jMenuBar1.setName("jMenuBar1"); // NOI18N
+
+        jMenu1.setText(resourceMap.getString("jMenu1.text")); // NOI18N
+        jMenu1.setName("jMenu1"); // NOI18N
+
+        jMenuItem1.setText(resourceMap.getString("jMenuItem1.text")); // NOI18N
+        jMenuItem1.setName("jMenuItem1"); // NOI18N
+        jMenu1.add(jMenuItem1);
+
+        jMenuBar1.add(jMenu1);
+
+        jMenu2.setText(resourceMap.getString("jMenu2.text")); // NOI18N
+        jMenu2.setName("jMenu2"); // NOI18N
+        jMenuBar1.add(jMenu2);
+
+        jMenu3.setText(resourceMap.getString("jMenu3.text")); // NOI18N
+        jMenu3.setName("jMenu3"); // NOI18N
+
+        jCheckBoxMenuItem1.setSelected(true);
+        jCheckBoxMenuItem1.setText(resourceMap.getString("jCheckBoxMenuItem1.text")); // NOI18N
+        jCheckBoxMenuItem1.setName("jCheckBoxMenuItem1"); // NOI18N
+        jMenu3.add(jCheckBoxMenuItem1);
+
+        jCheckBoxMenuItem2.setSelected(true);
+        jCheckBoxMenuItem2.setText(resourceMap.getString("jCheckBoxMenuItem2.text")); // NOI18N
+        jCheckBoxMenuItem2.setName("jCheckBoxMenuItem2"); // NOI18N
+        jMenu3.add(jCheckBoxMenuItem2);
+
+        jCheckBoxMenuItem3.setSelected(true);
+        jCheckBoxMenuItem3.setText(resourceMap.getString("jCheckBoxMenuItem3.text")); // NOI18N
+        jCheckBoxMenuItem3.setName("jCheckBoxMenuItem3"); // NOI18N
+        jMenu3.add(jCheckBoxMenuItem3);
+
+        jCheckBoxMenuItem4.setSelected(true);
+        jCheckBoxMenuItem4.setText(resourceMap.getString("jCheckBoxMenuItem4.text")); // NOI18N
+        jCheckBoxMenuItem4.setName("jCheckBoxMenuItem4"); // NOI18N
+        jMenu3.add(jCheckBoxMenuItem4);
+
+        jMenuBar1.add(jMenu3);
+
     }// </editor-fold>//GEN-END:initComponents
 
 private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-    int returnVal = jFileChooser1.showSaveDialog(this.mainPanel);
+    int returnVal = jFileChooser1.showSaveDialog(this.mainFrame);
     
     if(returnVal != javax.swing.JFileChooser.APPROVE_OPTION) {
-        javax.swing.JOptionPane.showMessageDialog(this.mainPanel,
+        javax.swing.JOptionPane.showMessageDialog(this.mainFrame,
             "Error while saving file: could not save to selected file.",
             "Error",
             javax.swing.JOptionPane.ERROR_MESSAGE);
@@ -281,7 +256,7 @@ private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         out.close();
     }
     catch (java.io.IOException ioe) {
-        javax.swing.JOptionPane.showMessageDialog(this.mainPanel,
+        javax.swing.JOptionPane.showMessageDialog(this.mainFrame,
             "Error while saving file: could not save to selected file.",
             "Error",
             javax.swing.JOptionPane.ERROR_MESSAGE);
@@ -291,25 +266,18 @@ private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
+    private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem2;
+    private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem3;
+    private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem4;
     private javax.swing.JDialog jDialog1;
     private javax.swing.JFileChooser jFileChooser1;
-    private javax.swing.JSplitPane jSplitPane1;
-    private javax.swing.JSplitPane jSplitPane2;
-    private javax.swing.JPanel mainPanel;
-    private javax.swing.JProgressBar progressBar;
-    private javax.swing.JLabel statusAnimationLabel;
-    private javax.swing.JLabel statusMessageLabel;
-    private javax.swing.JPanel statusPanel;
+    private javax.swing.JMenu jMenu1;
+    private javax.swing.JMenu jMenu2;
+    private javax.swing.JMenu jMenu3;
+    private javax.swing.JMenuBar jMenuBar1;
+    private javax.swing.JMenuItem jMenuItem1;
     // End of variables declaration//GEN-END:variables
 
-
-    private javax.media.opengl.GLCanvas canvas1;
-    
-    private final Timer messageTimer;
-    private final Timer busyIconTimer;
-    private final Icon idleIcon;
-    private final Icon[] busyIcons = new Icon[15];
-    private int busyIconIndex = 0;
-
-    private JDialog aboutBox;
+    private GLCanvas canvas1;
 }
