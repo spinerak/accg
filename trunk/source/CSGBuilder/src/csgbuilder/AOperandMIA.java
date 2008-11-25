@@ -27,10 +27,10 @@ public class AOperandMIA extends OperandViewerMIA {
         
 		switch (e.getKeyCode()) {
             case 16: // shift
-                lvRenderer.startUnion(mView.mBOperandViewer.getMesh());
+                lvRenderer.startUnion(mView.mBOperandViewer.getMesh(), mView.mBOperandViewer.getTree());
                 break;
             case 18: // alt
-                lvRenderer.startDifference(mView.mBOperandViewer.getMesh());
+                lvRenderer.startDifference(mView.mBOperandViewer.getMesh(), mView.mBOperandViewer.getTree());
                 break;
         }
         
@@ -58,12 +58,27 @@ public class AOperandMIA extends OperandViewerMIA {
     public void mouseClicked(MouseEvent e) {
         if (SwingUtilities.isLeftMouseButton(e)) {
             AOperandRenderer lvRenderer = (AOperandRenderer) getRenderer();
+            CSGTree lvBTree = mView.mBOperandViewer.getTree();
+            //lvBTree.root.move(mView.mBOperandViewer.getMesh().realTranslation);
+            
             if (lvRenderer.doCSGUnion()) {
-                mView.mAOperandViewer.getTree().union(mView.mBOperandViewer.getTree());
+                if (mView.mAOperandViewer.getTree() == null) {
+                    mView.mAOperandViewer.setTree((CSGTree) lvBTree.clone());
+                }
+                else
+                {
+                    mView.mAOperandViewer.getTree().union(lvBTree.clone());
+                }
                 mView.mAOperandViewer.startPolygonisation();
             }
             else if (lvRenderer.doCSGDifference()) {
-                mView.mAOperandViewer.getTree().difference(mView.mBOperandViewer.getTree());
+                if (mView.mAOperandViewer.getTree() == null) {
+                    mView.mAOperandViewer.setTree((CSGTree) lvBTree.clone());
+                }
+                else
+                {
+                    mView.mAOperandViewer.getTree().difference(lvBTree.clone());
+                }
                 mView.mAOperandViewer.startPolygonisation();
             }
         }

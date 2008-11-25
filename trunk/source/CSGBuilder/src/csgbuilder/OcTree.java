@@ -23,6 +23,8 @@ public class OcTree {
         dim[1] = Math.abs(e.y - s.y);
         dim[2] = Math.abs(e.z - s.z);
         
-        root = new OcCell(s.x, s.y, s.z, dim, tree, 0, null);
+        double pos[] = new double[3];
+        
+        root = new OcCell(s.x - (float)pos[0], s.y - (float)pos[1], s.z - (float)pos[2], dim, tree, 0, null);
     }
 }

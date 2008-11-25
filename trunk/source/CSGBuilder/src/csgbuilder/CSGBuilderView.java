@@ -58,11 +58,11 @@ public class CSGBuilderView extends FrameView {
 		
 	// Create a CSG Tree
         lvTree = new CSGTree(new CSGEllipsoid(new double[]{0.5,0.0,0.0}, new double[]{1.0,1.0,1.0}));
-        lvTree.difference(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{0.7,0.7,0.7}));
+        //lvTree.difference(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{0.7,0.7,0.7}));
 			
 	// Get the mesh for this tree
-    mAOperandViewer.setTree(lvTree);
-    mAOperandViewer.startPolygonisation();
+    //mAOperandViewer.setTree(lvTree);
+    //mAOperandViewer.startPolygonisation();
 		
         // Start
 	mAOperandViewer.start();
@@ -72,7 +72,7 @@ public class CSGBuilderView extends FrameView {
     mBOperandViewer = new OperandViewer(lvRenderer2, new OperandViewerMIA(lvRenderer2));
         
         //CSGTree lvBOpTree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{0.5,0.5,0.5}));
-        CSGTree lvBOpTree = new CSGTree(new CSGCuboid(new double[]{0.0,0.0,0.0}, new double[]{0.5,0.5,0.5}, new double[]{Math.PI/4, Math.PI/4, Math.PI/4}));
+        CSGTree lvBOpTree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{0.5,0.5,0.5}, new double[]{Math.PI/4, Math.PI/4, Math.PI/4}));
         
         viewerFrame.add(mBOperandViewer.getCanvas());
         propertiesFrame.add(new ObjectPropertyPanel(lvBOpTree, mBOperandViewer));

@@ -86,7 +86,6 @@ public class CSGTreePolygoniser extends Thread {
         // Construct the octree
         OcTree ocTree = new OcTree(tree);
         
-        
         if (DUAL_GRID) {
             DualGrid grid = new DualGrid(ocTree);
             polygonsDualGrid(grid, vertices, normals);
