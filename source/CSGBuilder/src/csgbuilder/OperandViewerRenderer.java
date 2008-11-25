@@ -26,6 +26,8 @@ public class OperandViewerRenderer implements GLEventListener {
     // Initial zoom value
 	private double mZoom = -6.0;
     
+    private double polyAnimOffset = 0; 
+    
     static final float[] defaultColor = new float[]{1, 0, 0};
 	
 	private Point mStartDrag = null;
@@ -117,7 +119,7 @@ public class OperandViewerRenderer implements GLEventListener {
         gl.glClearDepth(1.0f);                                // Depth Buffer Setup
         gl.glDepthFunc(GL.GL_LEQUAL);  // The Type Of Depth Testing (Less Or Equal)
         gl.glEnable(GL.GL_DEPTH_TEST);                        // Enable Depth Testing
-        gl.glShadeModel(GL.GL_SMOOTH);   // Select Flat Shading (Nice Definition Of Objects)
+        gl.glShadeModel(GL.GL_FLAT);   // Select Flat Shading (Nice Definition Of Objects)
         
         // Set Perspective Calculations To Most Accurate
         gl.glHint(GL.GL_PERSPECTIVE_CORRECTION_HINT, GL.GL_NICEST);                
@@ -303,16 +305,58 @@ public class OperandViewerRenderer implements GLEventListener {
         gl.glMultMatrixf(matrix, 0);        // NEW: Apply Dynamic Transform
         gl.glColor3f(1.0f, 0.75f, 0.75f);
 
-        gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
         //drawGrid(gl);
         //drawBoundingBox(gl);
         
-		if (mViewer.getMesh() != null) {
+        if (mViewer.isPolygonising) {
+            gl.glColor3f(0.8f, 0.8f, 0.8f);
+            
+            double w = 1.5;
+            double h = 0.05;
+            
+            double animw = 0.5;
+            
+            double animInc = 0.2;
+            
+            gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
+            gl.glBegin(GL.GL_QUADS);
+                gl.glVertex3d(-w/2, -h/2, 0);
+                gl.glVertex3d(w/2, -h/2, 0);
+                gl.glVertex3d(w/2, h/2, 0);
+                gl.glVertex3d(-w/2, h/2, 0);
+            gl.glEnd();
+            
+            gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL);
+            
+            double xOffset = -w/2 + polyAnimOffset;
+
+            if (polyAnimOffset < 0) {
+                animw = animw + polyAnimOffset;
+                xOffset -= polyAnimOffset;
+            }
+            animw = Math.min(animw, w - polyAnimOffset);
+            
+            
+            gl.glBegin(GL.GL_QUADS);
+                gl.glVertex3d(xOffset, -h/2, 0);
+                gl.glVertex3d(xOffset + animw, -h/2, 0);
+                gl.glVertex3d(xOffset + animw, h/2, 0);
+                gl.glVertex3d(xOffset, h/2, 0);
+            gl.glEnd();
+
+            polyAnimOffset += animInc;
+            
+            if (polyAnimOffset > w) polyAnimOffset = -animw;
+
+        }
+        else if (mViewer.getMesh() != null) {
 			mViewer.getMesh().render(gl, CSGMode, defaultColor);
 		}
         
-		// Debug axis
-		drawAxis(gl);
+        if (!mViewer.isPolygonising) {
+            // Debug axis
+            drawAxis(gl);
+        }
         
         gl.glPopMatrix();                   // NEW: Unapply Dynamic Transform
 

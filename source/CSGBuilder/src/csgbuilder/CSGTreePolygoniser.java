@@ -24,9 +24,12 @@ public class CSGTreePolygoniser extends Thread {
 	
 	// Delta used when calculating vertex normal
 	static final float NORMAL_DELTA = 0.001f;
+    
+    static final boolean DUAL_GRID = false;
 	
     // To visualize the marching cubes algorithm
     private ArrayList<OcCell> marchingCubes;
+    private ArrayList<DualGridCell> dualCells;
     
     private int[] edgeTable = {
     0x0  , 0x109, 0x203, 0x30a, 0x406, 0x50f, 0x605, 0x70c,
@@ -62,136 +65,14 @@ public class CSGTreePolygoniser extends Thread {
     0xf00, 0xe09, 0xd03, 0xc0a, 0xb06, 0xa0f, 0x905, 0x80c,
     0x70c, 0x605, 0x50f, 0x406, 0x30a, 0x203, 0x109, 0x0   };
     
-    // Maps edges to edges in neighbouring cubes
-    int[][][] edgeMapping = {
-        /* Cube 0 */
-        {
-        /* Edge 0 */{-1},
-        /* Edge 1 */{3, 1, -1},
-        /* Edge 2 */{0, 3, -1},
-        /* Edge 3 */{-1},
-        /* Edge 4 */{-1},
-        /* Edge 5 */{7, 1, 1, 4, 3, 5, -1},
-        /* Edge 6 */{4, 3, 0, 7, 2, 4, -1},
-        /* Edge 7 */{-1},
-        /* Edge 8 */{-1},
-        /* Edge 9 */{8, 1, -1},
-        /* Edge 10 */{11, 1, 8, 2, 2, 3, -1},
-        /* Edge 11 */{8, 3, -1}
-        },
-        /* Cube 1 */
-        {
-        /* Edge 0 */{-1},
-        /* Edge 1 */{-1},
-        /* Edge 2 */{0, 2, -1},
-        /* Edge 3 */{1, 0, -1},
-        /* Edge 4 */{-1},
-        /* Edge 5 */{-1},
-        /* Edge 6 */{4, 2, 0, 6, 2, 5, -1},
-        /* Edge 7 */{5, 0, 3, 5, 1, 4, -1},
-        /* Edge 8 */{9, 1, -1},
-        /* Edge 9 */{-1},
-        /* Edge 10 */{9, 2, -1},
-        /* Edge 11 */{10, 0, 8, 2, 2, 3, -1}
-        },
-        /* Cube 2 */
-        {
-        /* Edge 0 */{-1},
-        /* Edge 1 */{-1},
-        /* Edge 2 */{-1},
-        /* Edge 3 */{-1},
-        /* Edge 4 */{-1},
-        /* Edge 5 */{-1},
-        /* Edge 6 */{-1},
-        /* Edge 7 */{-1},
-        /* Edge 8 */{-1},
-        /* Edge 9 */{-1},
-        /* Edge 10 */{-1},
-        /* Edge 11 */{-1}
-        },
-         /* Cube 3 */
-        {
-        /* Edge 0 */{-1},
-        /* Edge 1 */{-1},
-        /* Edge 2 */{-1},
-        /* Edge 3 */{-1},
-        /* Edge 4 */{-1},
-        /* Edge 5 */{-1},
-        /* Edge 6 */{-1},
-        /* Edge 7 */{-1},
-        /* Edge 8 */{-1},
-        /* Edge 9 */{-1},
-        /* Edge 10 */{-1},
-        /* Edge 11 */{-1}
-        },       
-         /* Cube 4 */
-        {
-        /* Edge 0 */{-1},
-        /* Edge 1 */{-1},
-        /* Edge 2 */{-1},
-        /* Edge 3 */{-1},
-        /* Edge 4 */{-1},
-        /* Edge 5 */{-1},
-        /* Edge 6 */{-1},
-        /* Edge 7 */{-1},
-        /* Edge 8 */{-1},
-        /* Edge 9 */{-1},
-        /* Edge 10 */{-1},
-        /* Edge 11 */{-1}
-        },       
-         /* Cube 5 */
-        {
-        /* Edge 0 */{-1},
-        /* Edge 1 */{-1},
-        /* Edge 2 */{-1},
-        /* Edge 3 */{-1},
-        /* Edge 4 */{-1},
-        /* Edge 5 */{-1},
-        /* Edge 6 */{-1},
-        /* Edge 7 */{-1},
-        /* Edge 8 */{-1},
-        /* Edge 9 */{-1},
-        /* Edge 10 */{-1},
-        /* Edge 11 */{-1}
-        },       
-         /* Cube 6 */
-        {
-        /* Edge 0 */{-1},
-        /* Edge 1 */{-1},
-        /* Edge 2 */{-1},
-        /* Edge 3 */{-1},
-        /* Edge 4 */{-1},
-        /* Edge 5 */{-1},
-        /* Edge 6 */{-1},
-        /* Edge 7 */{-1},
-        /* Edge 8 */{-1},
-        /* Edge 9 */{-1},
-        /* Edge 10 */{-1},
-        /* Edge 11 */{-1}
-        },       
-         /* Cube 7 */
-        {
-        /* Edge 0 */{-1},
-        /* Edge 1 */{-1},
-        /* Edge 2 */{-1},
-        /* Edge 3 */{-1},
-        /* Edge 4 */{-1},
-        /* Edge 5 */{-1},
-        /* Edge 6 */{-1},
-        /* Edge 7 */{-1},
-        /* Edge 8 */{-1},
-        /* Edge 9 */{-1},
-        /* Edge 10 */{-1},
-        /* Edge 11 */{-1}
-        }       
-    };
-
     public CSGTreePolygoniser () {
         marchingCubes = new ArrayList<OcCell>();
+        dualCells = new ArrayList<DualGridCell>();
     }
     
     public CSGTreePolygoniser (OperandViewer pvViewer) {
         marchingCubes = new ArrayList<OcCell>();
+        dualCells = new ArrayList<DualGridCell>();
         
         setViewer(pvViewer);
     }
@@ -205,7 +86,15 @@ public class CSGTreePolygoniser extends Thread {
         // Construct the octree
         OcTree ocTree = new OcTree(tree);
         
-		polygonsAdaptiveRecursive(vertices, normals, ocTree.root);
+        
+        if (DUAL_GRID) {
+            DualGrid grid = new DualGrid(ocTree);
+            polygonsDualGrid(grid, vertices, normals);
+        }
+        else {
+            polygonsAdaptiveRecursive(vertices, normals, ocTree.root);
+        }
+        
 		return vertices;
     }
     
@@ -234,9 +123,38 @@ public class CSGTreePolygoniser extends Thread {
 		
 		// SET DEBUG DATA
 		lvMesh.setDebugBB(pvTree.getBoundingBox());
-		lvMesh.setDebugMCCells(this.getMarchingCubes());
-			
+        
+        if (DUAL_GRID) {
+    		lvMesh.setDebugDGCells(this.dualCells);
+        }
+        else {
+    		lvMesh.setDebugMCCells(this.getMarchingCubes());
+        }
 		return lvMesh;
+    }
+    
+    private void polygonsDualGrid(DualGrid grid, ArrayList<Vertex> vertices, ArrayList<Vertex> normals) {
+        CSGTree tree = mViewer.getTree();
+        float d = 0.001f;
+       
+        for (int i = 0; i < grid.cells.size(); i++) {
+            DualGridCell c = (DualGridCell) grid.cells.get(i);
+            Polygonise(c, 0);
+            
+            for (int j = 0; j < c.vertices.size(); j++) {
+                Vertex v = (Vertex) c.vertices.get(j);
+                Vertex n = new Vertex();
+                n.x = (float) ((tree.getFunctionValue(v.x + d, v.y, v.z) - tree.getFunctionValue(v.x, v.y, v.z)) / d);
+                n.y = (float) ((tree.getFunctionValue(v.x, v.y + d, v.z) - tree.getFunctionValue(v.x, v.y, v.z)) / d);
+                n.z = (float) ((tree.getFunctionValue(v.x, v.y, v.z + d) - tree.getFunctionValue(v.x, v.y, v.z)) / d);
+                n.normalize();
+                normals.add(n);
+            }
+            
+            vertices.addAll(c.vertices);
+            normals.addAll(c.normals);
+            this.dualCells.add(c);
+        }
     }
     
     private void polygonsAdaptiveRecursive(ArrayList<Vertex> vertices, ArrayList<Vertex> normals, OcCell cell) {
@@ -244,15 +162,23 @@ public class CSGTreePolygoniser extends Thread {
         
         if (cell.hasChildren) {
             // Recurse on all children
+            boolean oneHasChildren = false;
             for (int i = 0; i < 8; i++) {
                 OcCell c = cell.child[i];
                 polygonsAdaptiveRecursive(vertices, normals, c);
             }
+            
+                for (OcCell c : cell.child) {
+                    if (c.hasChildren) continue;
+                    
+                    vertices.addAll(c.vertices);
+                    normals.addAll(c.normals);                    
+                }
         }
         else {
             // It's a leaf -> polgonise
-            vertices.addAll(cell.vertices);
-            normals.addAll(cell.normals);
+            //vertices.addAll(cell.vertices);
+            //normals.addAll(cell.normals);
         }
         
         this.marchingCubes.add(cell);
@@ -333,7 +259,15 @@ public class CSGTreePolygoniser extends Thread {
             0 will be returned if the grid cell is either totally above
        of totally below the isolevel.
     */
-    public void Polygonise(OcCell cell, float isolevel)
+    public void Polygonise(DualGridCell cell, float isolevel) {
+        Polygonise(cell.vertices, cell.p, cell.val, isolevel);
+    }
+    
+    public void Polygonise(OcCell cell, float isolevel) {
+        Polygonise(cell.vertices, cell.p, cell.val, isolevel);
+    }
+    
+    public void Polygonise(ArrayList vertices, Vertex[] p, float[] val, float isolevel)
     {
        int i,ntriang;
        int cubeindex;
@@ -602,16 +536,16 @@ public class CSGTreePolygoniser extends Thread {
           tells us which vertices are inside of the surface
        */
        cubeindex = 0;
-       if (cell.val[0] < isolevel) cubeindex |= 1;
-       if (cell.val[1] < isolevel) cubeindex |= 2;
-       if (cell.val[2] < isolevel) cubeindex |= 4;
-       if (cell.val[3] < isolevel) cubeindex |= 8;
-       if (cell.val[4] < isolevel) cubeindex |= 16;
-       if (cell.val[5] < isolevel) cubeindex |= 32;
-       if (cell.val[6] < isolevel) cubeindex |= 64;
-       if (cell.val[7] < isolevel) cubeindex |= 128;
+       if (val[0] < isolevel) cubeindex |= 1;
+       if (val[1] < isolevel) cubeindex |= 2;
+       if (val[2] < isolevel) cubeindex |= 4;
+       if (val[3] < isolevel) cubeindex |= 8;
+       if (val[4] < isolevel) cubeindex |= 16;
+       if (val[5] < isolevel) cubeindex |= 32;
+       if (val[6] < isolevel) cubeindex |= 64;
+       if (val[7] < isolevel) cubeindex |= 128;
        
-       cell.edges = triTable[cubeindex];
+       //cell.edges = triTable[cubeindex];
 
        /* Cube is entirely in/out of the surface */
        if (edgeTable[cubeindex] == 0)
@@ -620,45 +554,45 @@ public class CSGTreePolygoniser extends Thread {
        /* Find the vertices where the surface intersects the cube */
        if ((edgeTable[cubeindex] & 1) == 1)
           vertlist[0] =
-             VertexInterp(isolevel,cell.p[0],cell.p[1],cell.val[0],cell.val[1]);
+             VertexInterp(isolevel,p[0],p[1],val[0],val[1]);
        if ((edgeTable[cubeindex] & 2) == 2)
           vertlist[1] =
-             VertexInterp(isolevel,cell.p[1],cell.p[2],cell.val[1],cell.val[2]);
+             VertexInterp(isolevel,p[1],p[2],val[1],val[2]);
        if ((edgeTable[cubeindex] & 4) == 4)
           vertlist[2] =
-             VertexInterp(isolevel,cell.p[2],cell.p[3],cell.val[2],cell.val[3]);
+             VertexInterp(isolevel,p[2],p[3],val[2],val[3]);
        if ((edgeTable[cubeindex] & 8) == 8)
           vertlist[3] =
-             VertexInterp(isolevel,cell.p[3],cell.p[0],cell.val[3],cell.val[0]);
+             VertexInterp(isolevel,p[3],p[0],val[3],val[0]);
        if ((edgeTable[cubeindex] & 16) == 16)
           vertlist[4] =
-             VertexInterp(isolevel,cell.p[4],cell.p[5],cell.val[4],cell.val[5]);
+             VertexInterp(isolevel,p[4],p[5],val[4],val[5]);
        if ((edgeTable[cubeindex] & 32) == 32)
           vertlist[5] =
-             VertexInterp(isolevel,cell.p[5],cell.p[6],cell.val[5],cell.val[6]);
+             VertexInterp(isolevel,p[5],p[6],val[5],val[6]);
        if ((edgeTable[cubeindex] & 64) == 64)
           vertlist[6] =
-             VertexInterp(isolevel,cell.p[6],cell.p[7],cell.val[6],cell.val[7]);
+             VertexInterp(isolevel,p[6],p[7],val[6],val[7]);
        if ((edgeTable[cubeindex] & 128) == 128)
           vertlist[7] =
-             VertexInterp(isolevel,cell.p[7],cell.p[4],cell.val[7],cell.val[4]);
+             VertexInterp(isolevel,p[7],p[4],val[7],val[4]);
        if ((edgeTable[cubeindex] & 256) == 256)
           vertlist[8] =
-             VertexInterp(isolevel,cell.p[0],cell.p[4],cell.val[0],cell.val[4]);
+             VertexInterp(isolevel,p[0],p[4],val[0],val[4]);
        if ((edgeTable[cubeindex] & 512) == 512)
           vertlist[9] =
-             VertexInterp(isolevel,cell.p[1],cell.p[5],cell.val[1],cell.val[5]);
+             VertexInterp(isolevel,p[1],p[5],val[1],val[5]);
        if ((edgeTable[cubeindex] & 1024) == 1024)
           vertlist[10] =
-             VertexInterp(isolevel,cell.p[2],cell.p[6],cell.val[2],cell.val[6]);
+             VertexInterp(isolevel,p[2],p[6],val[2],val[6]);
        if ((edgeTable[cubeindex] & 2048) == 2048)
           vertlist[11] =
-             VertexInterp(isolevel,cell.p[3],cell.p[7],cell.val[3],cell.val[7]);
+             VertexInterp(isolevel,p[3],p[7],val[3],val[7]);
 
        /* Create the triangle */
        for (i=0;triTable[cubeindex][i]!=-1;i++) {
 		   //vertices.add(vertlist[triTable[cubeindex][i]]);
-		   cell.vertices.add(vertlist[triTable[cubeindex][i]]);
+		   vertices.add(vertlist[triTable[cubeindex][i]]);
 	   }
     }
 
@@ -687,16 +621,16 @@ public class CSGTreePolygoniser extends Thread {
     }
     
     
-    public void PolygoniseCubeTri(ArrayList<Vertex> vertices, OcCell g, float iso) {
+    public void PolygoniseCubeTri(OcCell g, float iso) {
         // Split cube into five tetrahedrons and use the PolygoniseTri to polygonise
-        PolygoniseTri(vertices, g, iso, 0, 1, 2, 5);
-        PolygoniseTri(vertices, g, iso, 0, 2, 3, 7);
-        PolygoniseTri(vertices, g, iso, 5, 6, 7, 2);
-        PolygoniseTri(vertices, g, iso, 4, 5, 7, 0);
-        PolygoniseTri(vertices, g, iso, 0, 2, 5, 7);
+        PolygoniseTri(g, iso, 0, 1, 2, 5);
+        PolygoniseTri(g, iso, 0, 2, 3, 7);
+        PolygoniseTri(g, iso, 5, 6, 7, 2);
+        PolygoniseTri(g, iso, 4, 5, 7, 0);
+        PolygoniseTri(g, iso, 0, 2, 5, 7);
     }
     
-     public void PolygoniseTri(ArrayList<Vertex>vertices, OcCell g,float iso,int v0,int v1,int v2,int v3)
+     public void PolygoniseTri(OcCell g,float iso,int v0,int v1,int v2,int v3)
     {
        int ntri = 0;
        int triindex;
@@ -724,64 +658,64 @@ public class CSGTreePolygoniser extends Thread {
            tri.p[0] = VertexInterp(iso,g.p[v0],g.p[v1],g.val[v0],g.val[v1]);
            tri.p[1] = VertexInterp(iso,g.p[v0],g.p[v2],g.val[v0],g.val[v2]);
            tri.p[2] = VertexInterp(iso,g.p[v0],g.p[v3],g.val[v0],g.val[v3]);
-           vertices.add(tri.p[0]); vertices.add(tri.p[1]); vertices.add(tri.p[2]);
+           g.vertices.add(tri.p[0]); g.vertices.add(tri.p[1]); g.vertices.add(tri.p[2]);
           break;
        case 0x0D:
        case 0x02:
           tri.p[0] = VertexInterp(iso,g.p[v1],g.p[v0],g.val[v1],g.val[v0]);
           tri.p[1] = VertexInterp(iso,g.p[v1],g.p[v3],g.val[v1],g.val[v3]);
           tri.p[2] = VertexInterp(iso,g.p[v1],g.p[v2],g.val[v1],g.val[v2]);
-           vertices.add(tri.p[0]); vertices.add(tri.p[1]); vertices.add(tri.p[2]);
+           g.vertices.add(tri.p[0]); g.vertices.add(tri.p[1]); g.vertices.add(tri.p[2]);
           break;
        case 0x0C:
        case 0x03:
           tri.p[0] = VertexInterp(iso,g.p[v0],g.p[v3],g.val[v0],g.val[v3]);
           tri.p[1] = VertexInterp(iso,g.p[v0],g.p[v2],g.val[v0],g.val[v2]);
           tri.p[2] = VertexInterp(iso,g.p[v1],g.p[v3],g.val[v1],g.val[v3]);
-           vertices.add(tri.p[0]); vertices.add(tri.p[1]); vertices.add(tri.p[2]);
+           g.vertices.add(tri.p[0]); g.vertices.add(tri.p[1]); g.vertices.add(tri.p[2]);
 
           tri2.p[0] = tri.p[2];
           tri2.p[1] = VertexInterp(iso,g.p[v1],g.p[v2],g.val[v1],g.val[v2]);
           tri2.p[2] = tri.p[1];
-           vertices.add(tri2.p[0]); vertices.add(tri2.p[1]); vertices.add(tri2.p[2]);
+           g.vertices.add(tri2.p[0]); g.vertices.add(tri2.p[1]); g.vertices.add(tri2.p[2]);
           break;
        case 0x0B:
        case 0x04:
           tri.p[0] = VertexInterp(iso,g.p[v2],g.p[v0],g.val[v2],g.val[v0]);
           tri.p[1] = VertexInterp(iso,g.p[v2],g.p[v1],g.val[v2],g.val[v1]);
           tri.p[2] = VertexInterp(iso,g.p[v2],g.p[v3],g.val[v2],g.val[v3]);
-           vertices.add(tri.p[0]); vertices.add(tri.p[1]); vertices.add(tri.p[2]);
+           g.vertices.add(tri.p[0]); g.vertices.add(tri.p[1]); g.vertices.add(tri.p[2]);
           break;
        case 0x0A:
        case 0x05:
           tri.p[0] = VertexInterp(iso,g.p[v0],g.p[v1],g.val[v0],g.val[v1]);
           tri.p[1] = VertexInterp(iso,g.p[v2],g.p[v3],g.val[v2],g.val[v3]);
           tri.p[2] = VertexInterp(iso,g.p[v0],g.p[v3],g.val[v0],g.val[v3]);
-           vertices.add(tri.p[0]); vertices.add(tri.p[1]); vertices.add(tri.p[2]);
+           g.vertices.add(tri.p[0]); g.vertices.add(tri.p[1]); g.vertices.add(tri.p[2]);
 
           tri2.p[0] = tri.p[0];
           tri2.p[1] = VertexInterp(iso,g.p[v1],g.p[v2],g.val[v1],g.val[v2]);
           tri2.p[2] = tri.p[1];
-           vertices.add(tri2.p[0]); vertices.add(tri2.p[1]); vertices.add(tri2.p[2]);
+           g.vertices.add(tri2.p[0]); g.vertices.add(tri2.p[1]); g.vertices.add(tri2.p[2]);
           break;
        case 0x09:
        case 0x06:
           tri.p[0] = VertexInterp(iso,g.p[v0],g.p[v1],g.val[v0],g.val[v1]);
           tri.p[1] = VertexInterp(iso,g.p[v1],g.p[v3],g.val[v1],g.val[v3]);
           tri.p[2] = VertexInterp(iso,g.p[v2],g.p[v3],g.val[v2],g.val[v3]);
-           vertices.add(tri.p[0]); vertices.add(tri.p[1]); vertices.add(tri.p[2]);
+           g.vertices.add(tri.p[0]); g.vertices.add(tri.p[1]); g.vertices.add(tri.p[2]);
 
            tri2.p[0] = tri.p[0];
           tri2.p[1] = VertexInterp(iso,g.p[v0],g.p[v2],g.val[v0],g.val[v2]);
           tri2.p[2] = tri.p[2];
-           vertices.add(tri2.p[0]); vertices.add(tri2.p[1]); vertices.add(tri2.p[2]);
+           g.vertices.add(tri2.p[0]); g.vertices.add(tri2.p[1]); g.vertices.add(tri2.p[2]);
           break;
        case 0x07:
        case 0x08:
           tri.p[0] = VertexInterp(iso,g.p[v3],g.p[v0],g.val[v3],g.val[v0]);
           tri.p[1] = VertexInterp(iso,g.p[v3],g.p[v2],g.val[v3],g.val[v2]);
           tri.p[2] = VertexInterp(iso,g.p[v3],g.p[v1],g.val[v3],g.val[v1]);
-            vertices.add(tri.p[0]); vertices.add(tri.p[1]); vertices.add(tri.p[2]);
+            g.vertices.add(tri.p[0]); g.vertices.add(tri.p[1]); g.vertices.add(tri.p[2]);
           break;
        }
 
