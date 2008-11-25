@@ -62,7 +62,7 @@
 \frametitle{Constructive Solid Geometry}
 \begin{itemize}
  \item Boolean operations like union, difference and intersection can be
- realized using simple boolean operators on the implicit functions.
+ realized using simple boolean operators (like \textbf{min}, \textbf{max} and \textbf{negation}) on the implicit functions.
  \item Basic objects: spere, cube.
 \end{itemize}
 \begin{figure}
@@ -92,11 +92,26 @@
   the object has sharp features)
  \item Detect sharp features using angle between surface normals
 \end{itemize}
+\begin{figure}
+\centering
+\includegraphics<1->[width=0.4\textwidth]{./accgimg/Surface_normal}
+\caption{Source http://en.wikipedia.org/wiki/Surface\_normal}
+\end{figure}
 \end{frame}
 
-\section{Demo}
 \begin{frame}
-\frametitle{Demo}
+\frametitle{Marching Cubes (problems)}
+\begin{itemize}
+ \item Cracks in mesh caused by different resolution cubes
+\end{itemize}
+\begin{figure}
+\centering
+\includegraphics<1->[width=0.4\textwidth]{./accgimg/amccrack}
+\end{figure}
+
+\begin{itemize}
+ \item \textbf{Solution:} Patching cracks or use dual marching cubes algorithm
+\end{itemize}
 \end{frame}
 
 \section{Project status}
@@ -105,10 +120,16 @@
 Todo
 \begin{itemize}
  \item Superquadrics
- \item Split GUI
- \item Responsiveness
- \item Tree view
+% \item Split GUI
+ \item Optimization
+ \item Advanced GUI interaction
+ \item Improve AMC
 \end{itemize}
+\end{frame}
+
+\section{Demo}
+\begin{frame}
+\frametitle{Demo}
 \end{frame}
 
 \section{Questions?}
