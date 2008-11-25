@@ -179,4 +179,8 @@ public class CSGTree extends CSGTreeElement {
     public BoundingBox getBoundingBox() {
         return root.getBoundingBox();
     }
+    
+    public javax.swing.tree.DefaultMutableTreeNode CSGTree2TreeNode() {
+        return root.CSGTree2TreeNode();
+    }
 }

@@ -203,16 +203,16 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
         setBorder(javax.swing.BorderFactory.createTitledBorder(resourceMap.getString("Form.border.title"))); // NOI18N
         setName("Form"); // NOI18N
 
-        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(resourceMap.getString("jPanel1.border.title"))); // NOI18N
+        jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Position")); // NOI18N
         jPanel1.setName("jPanel1"); // NOI18N
 
-        jLabel1.setText(resourceMap.getString("jLabel1.text")); // NOI18N
+        jLabel1.setText("x:"); // NOI18N
         jLabel1.setName("jLabel1"); // NOI18N
 
-        jLabel2.setText(resourceMap.getString("jLabel2.text")); // NOI18N
+        jLabel2.setText("y:"); // NOI18N
         jLabel2.setName("jLabel2"); // NOI18N
 
-        jLabel3.setText(resourceMap.getString("jLabel3.text")); // NOI18N
+        jLabel3.setText("z:"); // NOI18N
         jLabel3.setName("jLabel3"); // NOI18N
 
         positionXSpinner.setModel(new DoubleSpinnerModel(-10.0, 10.0, 0.1, 0.0));
@@ -271,16 +271,16 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
                     .addComponent(positionZSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder(resourceMap.getString("jPanel2.border.title"))); // NOI18N
+        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Dimensions")); // NOI18N
         jPanel2.setName("jPanel2"); // NOI18N
 
-        jLabel4.setText(resourceMap.getString("jLabel4.text")); // NOI18N
+        jLabel4.setText("Width:"); // NOI18N
         jLabel4.setName("jLabel4"); // NOI18N
 
-        jLabel5.setText(resourceMap.getString("jLabel5.text")); // NOI18N
+        jLabel5.setText("Height:"); // NOI18N
         jLabel5.setName("jLabel5"); // NOI18N
 
-        jLabel6.setText(resourceMap.getString("jLabel6.text")); // NOI18N
+        jLabel6.setText("Length:"); // NOI18N
         jLabel6.setName("jLabel6"); // NOI18N
 
         widthSpinner.setModel(new DoubleSpinnerModel(-10.0, 10.0, 0.1, 0.0));
@@ -346,16 +346,16 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
                     .addComponent(lengthSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
-        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder(resourceMap.getString("jPanel3.border.title"))); // NOI18N
+        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Rotation")); // NOI18N
         jPanel3.setName("jPanel3"); // NOI18N
 
-        jLabel7.setText(resourceMap.getString("jLabel7.text")); // NOI18N
+        jLabel7.setText("x-rotation:"); // NOI18N
         jLabel7.setName("jLabel7"); // NOI18N
 
-        jLabel8.setText(resourceMap.getString("jLabel8.text")); // NOI18N
+        jLabel8.setText("y-rotation:"); // NOI18N
         jLabel8.setName("jLabel8"); // NOI18N
 
-        jLabel9.setText(resourceMap.getString("jLabel9.text")); // NOI18N
+        jLabel9.setText("z-rotation:"); // NOI18N
         jLabel9.setName("jLabel9"); // NOI18N
 
         rotationXSpinner.setModel(new DoubleSpinnerModel(0.0,360.0, 1.0, 0.0));
@@ -414,7 +414,7 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
                     .addComponent(rotationZSpinner, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)))
         );
 
-        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder(resourceMap.getString("jPanel4.border.title"))); // NOI18N
+        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Object")); // NOI18N
         jPanel4.setName("jPanel4"); // NOI18N
 
         objectComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Cuboid", "Ellipsoid" }));
@@ -425,9 +425,7 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
             }
         });
 
-        javax.swing.ActionMap actionMap = org.jdesktop.application.Application.getInstance(csgbuilder.CSGBuilderApp.class).getContext().getActionMap(ObjectPropertyPanel.class, this);
-        jButton1.setAction(actionMap.get("loadObject")); // NOI18N
-        jButton1.setText(resourceMap.getString("jButton1.text")); // NOI18N
+        jButton1.setText("Load"); // NOI18N
         jButton1.setName("jButton1"); // NOI18N
         jButton1.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {

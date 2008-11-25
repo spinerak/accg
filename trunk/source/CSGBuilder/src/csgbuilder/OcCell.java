@@ -91,7 +91,7 @@ public class OcCell {
         int maxDepth = 7;
         
         // -> hack
-        if (depth < 4) {
+        if (depth < 5) {
             recurse = parent == null;
             for (Vertex v : p) {
                 if (tree.getFunctionValue(v.x, v.y, v.z) < 0) {
