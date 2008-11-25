@@ -5,7 +5,7 @@ import java.io.Serializable;
 
 import javax.swing.tree.*;
 
-public abstract class CSGTreeElement implements Serializable {
+public abstract class CSGTreeElement implements Serializable, Cloneable {
     public abstract BoundingBox getBoundingBox();
     public abstract double getFunctionValue(double x, double y, double z);
     
@@ -20,6 +20,7 @@ public abstract class CSGTreeElement implements Serializable {
     public abstract void rotate(double[] rot);
     public abstract void move(double[] pos);
     public abstract void resize(double[] size);
+    public abstract CSGTreeElement clone();
     
     public abstract DefaultMutableTreeNode CSGTree2TreeNode();
     
@@ -37,7 +38,6 @@ public abstract class CSGTreeElement implements Serializable {
             return -1; 
         }
     }
-    
 }
 
 abstract class CSGTreeOperation extends CSGTreeElement {
@@ -78,6 +78,7 @@ abstract class CSGTreeOperation extends CSGTreeElement {
     public abstract double getFunctionValue(double x, double y, double z);
     @Override public abstract String toString();
 }
+
 
 class CSGTreeUnion extends CSGTreeOperation {
     public CSGTreeUnion(CSGTreeElement left, CSGTreeElement right) {
@@ -138,6 +139,11 @@ class CSGTreeUnion extends CSGTreeOperation {
     
     @Override public String toString() {
         return "UNION(" + left.toString() + "," + right.toString() + ")";
+    }
+
+    @Override
+    public CSGTreeElement clone() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }
 
@@ -201,8 +207,12 @@ class CSGTreeIntersection extends CSGTreeOperation {
     @Override public String toString() {
         return "INTERSECTION(" + left.toString() + "," + right.toString() + ")";
     }
-}
 
+    @Override
+    public CSGTreeElement clone() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }
+}
 class CSGTreeDifference extends CSGTreeOperation {
     public CSGTreeDifference(CSGTreeElement left, CSGTreeElement right) {
         this.left = left;
@@ -228,6 +238,11 @@ class CSGTreeDifference extends CSGTreeOperation {
     @Override public String toString() {
         return "DIFFERENCE(" + left.toString() + "," + right.toString() + ")";
     }
+    
+    @Override
+    public CSGTreeElement clone() {
+        throw new UnsupportedOperationException("Not supported yet.");
+    }    
 }
 
 abstract class CSGObject extends CSGTreeElement {
@@ -280,6 +295,7 @@ abstract class CSGObject extends CSGTreeElement {
     
     public void move(double pos[])
     {
+        
         this.pos = pos;        
         computeBoundingBox();
     }
@@ -352,6 +368,10 @@ class CSGEllipsoid extends CSGObject {
     public CSGEllipsoid(double[] pos, double[] size) {
 	super(pos, size, new double[]{0.0, 0.0, 0.0});
     }
+    
+    public CSGTreeElement clone() {
+        return new CSGEllipsoid(pos, size);
+    }
 	
     public CSGEllipsoid(double[] pos, double[] size, double[] rot) {
         super(pos, size, rot);
@@ -384,6 +404,10 @@ class CSGEllipsoid extends CSGObject {
 class CSGCuboid extends CSGObject {
     public CSGCuboid(double[] pos, double[] size, double[] rot) {
         super(pos, size, rot);
+    }
+    
+    public CSGCuboid clone() {
+        return new CSGCuboid(pos, size, rot);
     }
     
     public double getFunctionValue(double x, double y, double z) {
@@ -446,5 +470,10 @@ class CSGSuperQuadric extends CSGObject {
     
     public String toString() {
         return "fail";
+    }
+    
+    @Override
+    public CSGTreeElement clone() {
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 }

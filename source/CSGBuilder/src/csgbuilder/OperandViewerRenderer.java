@@ -68,6 +68,8 @@ public class OperandViewerRenderer implements GLEventListener {
 	
 	private OperandViewer mViewer;
     
+    public boolean translated = true;
+    
     public OperandViewerRenderer() {
     }
     
@@ -175,6 +177,13 @@ public class OperandViewerRenderer implements GLEventListener {
 			  
 			  return new Vertex(wcoord[0], wcoord[1], wcoord[2]);
 	}
+    
+    private double[] getCurrentTranslation(GL gl) {
+        double[] pm = new double[16];
+        gl.glGetDoublev(gl.GL_PROJECTION_MATRIX, pm, 0);
+        
+        return new double[]{pm[10], pm[11], pm[12]};
+    }
 	
 	void translate(Point pvMousePt) {
 		if (mStartDrag != null) {
@@ -182,6 +191,7 @@ public class OperandViewerRenderer implements GLEventListener {
 			mTranslation.y -= mStartDrag.y - pvMousePt.y;
             
 			mStartDrag = pvMousePt;
+            translated = true;
 		}
 	}
 
@@ -295,11 +305,17 @@ public class OperandViewerRenderer implements GLEventListener {
         gl.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT);                
         gl.glLoadIdentity();                  // Reset The Current Modelview Matrix
         
-        
-        // Convert translation to projection coords
-		Vertex lvTranslation = getProjectionCoords(mTranslation, gl, mZoom);
-		//Vertex lvTranslation = new Vertex(0, 0, 0);
-        gl.glTranslatef(lvTranslation.x, lvTranslation.y, (float)mZoom);  
+        if (translated) {
+             // Convert translation to projection coords
+            Vertex lvTranslation = getProjectionCoords(mTranslation, gl, mZoom);
+            //Vertex lvTranslation = new Vertex(0, 0, 0);
+            gl.glTranslatef(lvTranslation.x, lvTranslation.y, (float)mZoom);
+            if (mViewer.getMesh() != null) {
+                mViewer.getMesh().realTranslation = getCurrentTranslation(gl);    
+            }
+            
+        }
+
 
         gl.glPushMatrix();                  // NEW: Prepare Dynamic Transform
         gl.glMultMatrixf(matrix, 0);        // NEW: Apply Dynamic Transform
@@ -350,13 +366,22 @@ public class OperandViewerRenderer implements GLEventListener {
 
         }
         else if (mViewer.getMesh() != null) {
-			mViewer.getMesh().render(gl, CSGMode, defaultColor);
+			mViewer.getMesh().render(gl, CSGMode, defaultColor, new double[]{0,0,0});
 		}
         
         if (!mViewer.isPolygonising) {
+        
+            if (translated) {
+                 // Convert translation to projection coords
+                //Vertex lvTranslation = getProjectionCoords(mTranslation, gl, mZoom);
+                //Vertex lvTranslation = new Vertex(0, 0, 0);
+                //gl.glTranslatef(-lvTranslation.x, -lvTranslation.y, -(float)mZoom);
+            }
             // Debug axis
             drawAxis(gl);
         }
+        
+        //if (translated) translated = false;
         
         gl.glPopMatrix();                   // NEW: Unapply Dynamic Transform
 

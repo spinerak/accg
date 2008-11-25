@@ -19,6 +19,7 @@ public class OperandMesh {
 	private boolean SHOW_MC = false;
 	private boolean SHOW_NORMALS = false;
     private RenderMethod mRenderMethod = RenderMethod.Fill;
+    public double[] realTranslation = new double[3];
                 
     public enum RenderMethod {
         WireFrame,
@@ -65,10 +66,10 @@ public class OperandMesh {
     }
     
     public void render(GL gl) {
-        render(gl, false, new float[]{1, 0, 0});
+        render(gl, false, new float[]{1, 0, 0}, new double[]{0,0,0});
     }
     
-    public void render(GL gl, boolean CSGMode, float[] color) {
+    public void render(GL gl, boolean CSGMode, float[] color, double[] translation) {
 
         
         if (mVertexCount > 0) {
@@ -90,12 +91,12 @@ public class OperandMesh {
                         
 			// Draw all at once
             if (CSGMode) {
-                gl.glColor4f(color[0], color[1], color[2], 0.2f);
+                gl.glColor4f(color[0], color[1], color[2], 1f);
             }
             else {
                 gl.glColor3f(color[0], color[1], color[2]);
             }
-            
+            gl.glTranslated(translation[0], translation[1], translation[2]);
             gl.glDrawArrays(GL.GL_TRIANGLES, 0, mVertexCount);  
 			
 			// Disable Vertex Arrays

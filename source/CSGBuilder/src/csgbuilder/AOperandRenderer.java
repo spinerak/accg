@@ -6,6 +6,7 @@
 package csgbuilder;
 
 import java.awt.Color;
+import javax.media.opengl.GL;
 import javax.media.opengl.GLAutoDrawable;
 
 /**
@@ -17,6 +18,7 @@ public class AOperandRenderer extends OperandViewerRenderer {
     private boolean isDifference = false;
     
     private OperandMesh activeCSGMesh = null;
+    private CSGTree activeCSGTree = null;
     
     public AOperandRenderer () {
         super();
@@ -34,7 +36,7 @@ public class AOperandRenderer extends OperandViewerRenderer {
         return CSGMode;
     }
     
-    public void startUnion(OperandMesh pvMesh) {
+    public void startUnion(OperandMesh pvMesh, CSGTree pvTree) {
         if (pvMesh == null) {
             return;
         }
@@ -43,9 +45,10 @@ public class AOperandRenderer extends OperandViewerRenderer {
         isDifference = false;
         CSGMode = true;
         activeCSGMesh = pvMesh;
+        activeCSGTree = pvTree;
     }
     
-    public void startDifference(OperandMesh pvMesh) {
+    public void startDifference(OperandMesh pvMesh, CSGTree pvTree) {
         if (pvMesh == null) {
             return;
         }
@@ -53,7 +56,8 @@ public class AOperandRenderer extends OperandViewerRenderer {
         isUnion = false;
         isDifference = true;
         CSGMode = true;
-        activeCSGMesh = pvMesh;        
+        activeCSGMesh = pvMesh; 
+        activeCSGTree = pvTree;
     }
     
     public void stopUnion() {
@@ -69,10 +73,14 @@ public class AOperandRenderer extends OperandViewerRenderer {
     public void display(GLAutoDrawable drawable) {
         super.display(drawable);
         
-        if (doCSG()) {
+        if (doCSG() && !getViewer().isPolygonising) {
             // We know activeCSGMesh is not null because of the checkes in
             // startUnion and startDifference
-            activeCSGMesh.render(drawable.getGL(), false, new float[]{0, 1, 0});
+            GL gl = drawable.getGL();
+//            double[] pos = activeCSGTree.getPosition();
+//            double[] pos2 = new double[]{pos[0], pos[1], pos[2]};
+//            System.out.printf("%f %f %f\n", pos[0], pos[1], pos[2]);
+            activeCSGMesh.render(gl, false, new float[]{0, 1, 0}, new double[]{0,0,0});
         }
     }
 }

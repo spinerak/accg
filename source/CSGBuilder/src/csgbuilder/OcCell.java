@@ -106,7 +106,7 @@ public class OcCell implements Comparable {
             normals.add(n);
         }
         
-        float delta = 0.4f;
+        float delta = 0.3f;
 
         ArrayList cn = normals;
             
@@ -133,10 +133,10 @@ public class OcCell implements Comparable {
 
         boolean recurse = parent == null;
         
-        int maxDepth = 4;
+        int maxDepth = 6;
         
         // -> hack
-        if (depth < 2) {
+        if (depth < 4) {
             recurse = parent == null || inObject;
         }
         
@@ -173,7 +173,7 @@ public class OcCell implements Comparable {
                     
                     for (Vertex v : c.p) {
                         if (tree.getFunctionValue(v.x, v.y, v.z) < 0) {
-                            c.recurse(recurseDepth - c.mDepth - 1);
+                            c.recurse(recurseDepth - c.mDepth);
                             break;
                         }
                     }

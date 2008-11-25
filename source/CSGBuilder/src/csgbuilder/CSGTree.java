@@ -55,7 +55,6 @@ public class CSGTree extends CSGTreeElement {
         return root.getDimensions();
     }
     
- 
     public void resize(double[] size) {
         root.resize(size);
     }
@@ -66,6 +65,10 @@ public class CSGTree extends CSGTreeElement {
     
     public void rotate(double[] rot) {
         root.rotate(rot);
+    }
+    
+    public CSGTreeElement clone() {
+        return new CSGTree(this.root.clone());
     }
     
     /**
