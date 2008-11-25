@@ -11,7 +11,7 @@ import java.util.ArrayList;
  *
  * @author s031407
  */
-public class OcCell {
+public class OcCell implements Comparable {
     OcCell[] child;
     Vertex[] p;
     ArrayList normals;
@@ -25,11 +25,34 @@ public class OcCell {
     public OcCell parent;
     public boolean hasChildren;
     
-    public void upParentChildDepth() {
-        childDepth++;
+    public boolean isSharp = false;
+    public boolean inObject = false;
+    
+    public void upParentChildDepth(int depth) {
+        childDepth = depth;
         if (parent != null) {
-            parent.upParentChildDepth();
+            parent.upParentChildDepth(depth);
         }
+    }
+    
+    public Vertex getCenter() {
+        return new Vertex(p[0].x + mDim[0]/2, p[0].y + mDim[1]/2, p[0].z + mDim[2]/2);
+    }
+    
+    public float getCenterVal() {
+        return (float) mTree.getFunctionValue(p[0].x + mDim[0]/2, p[0].y + mDim[1]/2, p[0].z + mDim[2]/2);
+    }
+    
+    public Vertex getCenterNormal() {
+        Vertex v = getCenter();
+        float d = 0.001f;
+        Vertex n = new Vertex();
+        n.x = (float) ((mTree.getFunctionValue(v.x + d, v.y, v.z) - mTree.getFunctionValue(v.x, v.y, v.z)) / d);
+        n.y = (float) ((mTree.getFunctionValue(v.x, v.y + d, v.z) - mTree.getFunctionValue(v.x, v.y, v.z)) / d);
+        n.z = (float) ((mTree.getFunctionValue(v.x, v.y, v.z + d) - mTree.getFunctionValue(v.x, v.y, v.z)) / d);
+        n.normalize();   
+            
+        return n;
     }
     
     public OcCell(float x, float y, float z, float[] dim, CSGTree tree, int depth, OcCell pvParent) {
@@ -62,6 +85,7 @@ public class OcCell {
         // Calculate values on all points
         for (int i = 0; i < 8; i++) {
             val[i] = (float) tree.getFunctionValue(p[i].x, p[i].y, p[i].z);
+            if (val[i] <= 0) inObject = true;
         }
         
         // Set vertices
@@ -82,44 +106,43 @@ public class OcCell {
             normals.add(n);
         }
         
+        float delta = 0.4f;
+
+        ArrayList cn = normals;
+            
+        for (int i = 0; i < cn.size(); i++) {
+            Vertex v = (Vertex) cn.get(i);
+            for (int j = 0; j < cn.size(); j++) {
+                Vertex w = (Vertex) cn.get(j);
+                if (v.equals(w)) {
+                    continue;
+                }
+
+                if (Math.acos(v.dot(w)) > delta) {
+                    isSharp = true;
+                    break;
+                }
+            }
+                
+            if (isSharp) break;
+        }
+        
         // Calculate new dimensions
         float ndim[] = new float[3];
         ndim[0] = dim[0] / 2f; ndim[1] = dim[1] / 2f; ndim[2] = dim[2] / 2f;
 
         boolean recurse = parent == null;
         
-        int maxDepth = 7;
+        int maxDepth = 4;
         
         // -> hack
-        if (depth < 5) {
-            recurse = parent == null;
-            for (Vertex v : p) {
-                if (tree.getFunctionValue(v.x, v.y, v.z) < 0) {
-                    recurse = true;
-                    break;
-                }
-            }
+        if (depth < 2) {
+            recurse = parent == null || inObject;
         }
-        else 
+        
+        if (!recurse)
         {
-            float delta = 0.3f;
-
-            for (int i = 0; i < normals.size(); i++) {
-                Vertex v = (Vertex) normals.get(i);
-                for (int j = 0; j < normals.size(); j++) {
-                    Vertex w = (Vertex) normals.get(j);
-                    if (v.equals(w)) {
-                        continue;
-                    }
-
-                    if (Math.acos(v.dot(w)) > delta) {
-                        recurse = true;
-                        break;
-                    }
-                }
-                
-                if (recurse) break;
-            }
+            recurse = parent.isSharp || isSharp;
         }
 
         if (recurse && (depth < maxDepth)) {
@@ -128,8 +151,8 @@ public class OcCell {
             int recurseDepth = 0;
             for (int i = 0; i < 8; i++) {
                 if (child[i].hasChildren) {
-                    recurseDepth = 1;
-
+                    recurseDepth = Math.max(recurseDepth, child[i].childDepth);
+//                    recurseDepth = 1;
 //                    OcCell c = child[i];
 //                    if ((dim[0] > 0.3) && (c.vertices.size() > 0)) {
 //                    while (c.hasChildren) {
@@ -137,7 +160,6 @@ public class OcCell {
 //                        c = c.child[0];
 //                    }
 //                    }
-                    break;
                 }
             }
             
@@ -147,18 +169,24 @@ public class OcCell {
                 for (OcCell c : child) {
                     if (c.hasChildren) continue;
                     
+                    if (c.childDepth == recurseDepth) continue;
+                    
                     for (Vertex v : c.p) {
                         if (tree.getFunctionValue(v.x, v.y, v.z) < 0) {
-                            c.recurse(recurseDepth);
+                            c.recurse(recurseDepth - c.mDepth - 1);
                             break;
                         }
                     }
                 }
             }
         }
+        else {
+            upParentChildDepth(depth);
+        }
     }
     
     public void recurse(int numRecursions) {
+        if(!hasChildren) {
             float x = p[0].x;
             float y = p[0].y;
             float z = p[0].z;
@@ -184,11 +212,24 @@ public class OcCell {
             child[5] = new OcCell(x + ndim[0], y + ndim[1], z, ndim, mTree, depth, this);
             child[6] = new OcCell(x + ndim[0], y + ndim[1], z + ndim[2], ndim, mTree, depth, this);
             child[7] = new OcCell(x, y + ndim[1], z + ndim[2], ndim, mTree, depth, this);
-            
-            if (numRecursions > 1) {
-                for (OcCell c : child) {
-                    c.recurse(numRecursions - 1);
-                }
+        }
+        
+        if ((numRecursions >= 1)/* && (inObject)*/) {
+            for (OcCell c : child) {
+                c.recurse(numRecursions - 1);
             }
+        }
     }
+
+    public int compareTo(Object c) {
+        Vertex c1 = this.getCenter();
+        Vertex c2 = ((OcCell) c).getCenter();
+        
+        if (c1.x < c2.x) {
+            return 1;
+        }
+        
+        else return -1;
+    }
+
 }

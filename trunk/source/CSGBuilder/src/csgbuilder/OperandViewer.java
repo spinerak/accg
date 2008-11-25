@@ -20,6 +20,8 @@ public class OperandViewer {
 	
 	// The GLCanvas used to render the mesh
 	private GLCanvas mCanvas;
+    
+    public boolean isPolygonising = false;
 	
 	private OperandViewerRenderer mRenderer;
 	CSGTreePolygoniser mPolygoniser;
@@ -52,6 +54,7 @@ public class OperandViewer {
 	
 	/* Getters/Setters */
 	public void setMesh(OperandMesh pMesh) {
+        isPolygonising = false;
 		mMesh = pMesh;
 	}
 
@@ -68,6 +71,9 @@ public class OperandViewer {
     }
     
     public void startPolygonisation() {
+        isPolygonising = true;
+        mRenderer.reset();
+        
         // Clear mesh
         mMesh = null;
         

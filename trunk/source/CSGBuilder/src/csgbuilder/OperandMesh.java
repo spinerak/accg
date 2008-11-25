@@ -69,7 +69,9 @@ public class OperandMesh {
     }
     
     public void render(GL gl, boolean CSGMode, float[] color) {
-		if (mVertexCount > 0) {
+
+        
+        if (mVertexCount > 0) {
             gl.glEnableClientState(GL.GL_VERTEX_ARRAY);  // Enable Vertex Arrays
 			gl.glVertexPointer(3, GL.GL_FLOAT, 0, mVertices); 
 
@@ -79,11 +81,11 @@ public class OperandMesh {
 
 			if (mRenderMethod == RenderMethod.WireFrame) {
                 gl.glDisable(GL.GL_LIGHTING);   // Enable Lighting
-                gl.glPolygonMode(GL.GL_FRONT, GL.GL_LINES);
+                gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
             }
             else {
                 gl.glEnable(GL.GL_LIGHTING);   // Enable Lighting
-                gl.glPolygonMode(GL.GL_FRONT, GL.GL_FILL);
+                gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_FILL);
             }
                         
 			// Draw all at once
@@ -100,6 +102,11 @@ public class OperandMesh {
 			gl.glDisableClientState(GL.GL_NORMAL_ARRAY);
             gl.glDisableClientState(GL.GL_VERTEX_ARRAY);
 		}
+        
+		if (SHOW_MC) {
+			// Debug marching cubes
+			drawMC(gl);
+		}
 
 		if (SHOW_NORMALS) {
 			// Draw normals
@@ -111,10 +118,7 @@ public class OperandMesh {
 			drawBB(gl);
 		}
 
-		if (SHOW_MC) {
-			// Debug marching cubes
-			drawMC(gl);
-		}
+
 	}
 
 	public int getVertexCount() {
@@ -149,7 +153,10 @@ public class OperandMesh {
 
 				
 		gl.glVertexPointer(3, GL.GL_FLOAT, 0, mDebugMCCells); 
-				
+
+        gl.glEnable(GL.GL_LIGHTING);   // Enable Lighting
+
+        gl.glPolygonMode(GL.GL_FRONT_AND_BACK, GL.GL_LINE);
 		gl.glColor4f(0.0f, 1.0f, 0.0f, 0.07f);
 		gl.glDrawArrays(GL.GL_QUADS, 0, mDebugMCCells.limit() / 3);
 				
@@ -209,7 +216,8 @@ public class OperandMesh {
         
         gl.glEnd();
     }
-	
+
+ 
 	public void setDebugMCCells(ArrayList<OcCell> pCells) {
                         mDebugMCCells = BufferUtil.newFloatBuffer(pCells.size() * 4 * 4 * 3);
                         for (OcCell cell : pCells) {
@@ -244,5 +252,39 @@ public class OperandMesh {
 						mDebugMCCells.flip();
 	}
 
+	public void setDebugDGCells(ArrayList<DualGridCell> pCells) {
+                        mDebugMCCells = BufferUtil.newFloatBuffer(pCells.size() * 4 * 4 * 3);
+                        for (DualGridCell cell : pCells) {
+                                // Bottom
+                                mDebugMCCells.put(new float[]{cell.p[0].x, cell.p[0].y, cell.p[0].z});
+                                mDebugMCCells.put(new float[]{cell.p[1].x, cell.p[1].y, cell.p[1].z});
+                                mDebugMCCells.put(new float[]{cell.p[2].x, cell.p[2].y, cell.p[2].z});
+                                mDebugMCCells.put(new float[]{cell.p[3].x, cell.p[3].y, cell.p[3].z});
+
+
+                                // Top
+                                mDebugMCCells.put(new float[]{cell.p[4].x, cell.p[4].y, cell.p[4].z});
+                                mDebugMCCells.put(new float[]{cell.p[5].x, cell.p[5].y, cell.p[5].z});
+                                mDebugMCCells.put(new float[]{cell.p[6].x, cell.p[6].y, cell.p[6].z});
+                                mDebugMCCells.put(new float[]{cell.p[7].x, cell.p[7].y, cell.p[7].z});
+
+
+                                // Front
+                                mDebugMCCells.put(new float[]{cell.p[0].x, cell.p[0].y, cell.p[0].z});
+                                mDebugMCCells.put(new float[]{cell.p[1].x, cell.p[1].y, cell.p[1].z});
+                                mDebugMCCells.put(new float[]{cell.p[5].x, cell.p[5].y, cell.p[5].z});
+                                mDebugMCCells.put(new float[]{cell.p[4].x, cell.p[4].y, cell.p[4].z});
+
+
+                                // Back
+                                mDebugMCCells.put(new float[]{cell.p[2].x, cell.p[2].y, cell.p[2].z});
+                                mDebugMCCells.put(new float[]{cell.p[3].x, cell.p[3].y, cell.p[3].z});
+                                mDebugMCCells.put(new float[]{cell.p[7].x, cell.p[7].y, cell.p[7].z});
+                                mDebugMCCells.put(new float[]{cell.p[6].x, cell.p[6].y, cell.p[6].z});
+                        }
+						
+						mDebugMCCells.flip();
+	}
+    
 }
 
