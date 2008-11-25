@@ -32,7 +32,7 @@ public class CSGBuilderView extends FrameView {
     public OperandViewer mBOperandViewer;
     
     private JFrame mainFrame = new JFrame("CSGBuilder");
-    private JFrame editorFrame = new JFrame("CSGBuilder - Editore");    
+    private JFrame editorFrame = new JFrame("CSGBuilder - Editor");    
     private JFrame viewerFrame = new JFrame("CSGBuilder - Viewer");   
     private JFrame propertiesFrame = new JFrame("CSGBuilder - Properties");
     private JFrame treeFrame = new JFrame("CSGBuilder - Tree");
@@ -198,6 +198,11 @@ public class CSGBuilderView extends FrameView {
 
         jMenuItem1.setText(resourceMap.getString("jMenuItem1.text")); // NOI18N
         jMenuItem1.setName("jMenuItem1"); // NOI18N
+        jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem1ActionPerformed(evt);
+            }
+        });
         jMenu1.add(jMenuItem1);
 
         jMenuBar1.add(jMenu1);
@@ -208,29 +213,53 @@ public class CSGBuilderView extends FrameView {
 
         jMenu3.setText(resourceMap.getString("jMenu3.text")); // NOI18N
         jMenu3.setName("jMenu3"); // NOI18N
+        jMenu3.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenu3ActionPerformed(evt);
+            }
+        });
 
         jCheckBoxMenuItem1.setSelected(true);
         jCheckBoxMenuItem1.setText(resourceMap.getString("jCheckBoxMenuItem1.text")); // NOI18N
         jCheckBoxMenuItem1.setName("jCheckBoxMenuItem1"); // NOI18N
+        jCheckBoxMenuItem1.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jCheckBoxMenuItem1ItemStateChanged(evt);
+            }
+        });
         jMenu3.add(jCheckBoxMenuItem1);
 
         jCheckBoxMenuItem2.setSelected(true);
         jCheckBoxMenuItem2.setText(resourceMap.getString("jCheckBoxMenuItem2.text")); // NOI18N
         jCheckBoxMenuItem2.setName("jCheckBoxMenuItem2"); // NOI18N
+        jCheckBoxMenuItem2.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jCheckBoxMenuItem2ItemStateChanged(evt);
+            }
+        });
         jMenu3.add(jCheckBoxMenuItem2);
 
         jCheckBoxMenuItem3.setSelected(true);
         jCheckBoxMenuItem3.setText(resourceMap.getString("jCheckBoxMenuItem3.text")); // NOI18N
         jCheckBoxMenuItem3.setName("jCheckBoxMenuItem3"); // NOI18N
+        jCheckBoxMenuItem3.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jCheckBoxMenuItem3ItemStateChanged(evt);
+            }
+        });
         jMenu3.add(jCheckBoxMenuItem3);
 
         jCheckBoxMenuItem4.setSelected(true);
         jCheckBoxMenuItem4.setText(resourceMap.getString("jCheckBoxMenuItem4.text")); // NOI18N
         jCheckBoxMenuItem4.setName("jCheckBoxMenuItem4"); // NOI18N
+        jCheckBoxMenuItem4.addItemListener(new java.awt.event.ItemListener() {
+            public void itemStateChanged(java.awt.event.ItemEvent evt) {
+                jCheckBoxMenuItem4ItemStateChanged(evt);
+            }
+        });
         jMenu3.add(jCheckBoxMenuItem4);
 
         jMenuBar1.add(jMenu3);
-
     }// </editor-fold>//GEN-END:initComponents
 
 private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
@@ -263,6 +292,58 @@ private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRS
         ioe.printStackTrace();
     }
 }//GEN-LAST:event_jButton1ActionPerformed
+
+private void jMenuItem1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem1ActionPerformed
+    System.exit(0);
+}//GEN-LAST:event_jMenuItem1ActionPerformed
+
+private void jMenu3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenu3ActionPerformed
+
+}//GEN-LAST:event_jMenu3ActionPerformed
+
+private void jCheckBoxMenuItem1ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItem1ItemStateChanged
+    javax.swing.JCheckBoxMenuItem src = (javax.swing.JCheckBoxMenuItem)evt.getSource();
+        
+    if (src.isSelected()) {
+        editorFrame.setVisible(true);
+    }
+    else {
+        editorFrame.setVisible(false);
+    }
+}//GEN-LAST:event_jCheckBoxMenuItem1ItemStateChanged
+
+private void jCheckBoxMenuItem2ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItem2ItemStateChanged
+    javax.swing.JCheckBoxMenuItem src = (javax.swing.JCheckBoxMenuItem)evt.getSource();
+        
+    if (src.isSelected()) {
+        viewerFrame.setVisible(true);
+    }
+    else {
+        viewerFrame.setVisible(false);
+    }
+}//GEN-LAST:event_jCheckBoxMenuItem2ItemStateChanged
+
+private void jCheckBoxMenuItem3ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItem3ItemStateChanged
+    javax.swing.JCheckBoxMenuItem src = (javax.swing.JCheckBoxMenuItem)evt.getSource();
+        
+    if (src.isSelected()) {
+        treeFrame.setVisible(true);
+    }
+    else {
+        treeFrame.setVisible(false);
+    }
+}//GEN-LAST:event_jCheckBoxMenuItem3ItemStateChanged
+
+private void jCheckBoxMenuItem4ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItem4ItemStateChanged
+    javax.swing.JCheckBoxMenuItem src = (javax.swing.JCheckBoxMenuItem)evt.getSource();
+        
+    if (src.isSelected()) {
+        propertiesFrame.setVisible(true);
+    }
+    else {
+        propertiesFrame.setVisible(false);
+    }
+}//GEN-LAST:event_jCheckBoxMenuItem4ItemStateChanged
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
