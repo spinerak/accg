@@ -133,7 +133,7 @@ public class OcCell implements Comparable {
 
         boolean recurse = parent == null;
         
-        int maxDepth = 6;
+        int maxDepth = 7;
         
         // -> hack
         if (depth < 4) {

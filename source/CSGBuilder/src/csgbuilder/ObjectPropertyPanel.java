@@ -417,7 +417,7 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Object")); // NOI18N
         jPanel4.setName("jPanel4"); // NOI18N
 
-        objectComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Cuboid", "Ellipsoid" }));
+        objectComboBox.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Ellipsoid", "Cuboid", "Star", "Diamond" }));
         objectComboBox.setName("objectComboBox"); // NOI18N
         objectComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -483,11 +483,17 @@ private void objectPropertyHandler(java.awt.event.ActionEvent evt) {//GEN-FIRST:
         javax.swing.JComboBox source = (javax.swing.JComboBox)evt.getSource();
         
         if (source.getSelectedItem().toString().equals("Cuboid")) {
-            setCSGObject(new CSGTree(new CSGCuboid(new double[] {0,0,0}, new double[] {0.5,0.5,0.5}, new double[] {0,0,0})));
+            setCSGObject(new CSGTree(new CSGSuperQuadric(new double[] {0,0,0}, new double[] {0.5,0.5,0.5}, new double[] {0,0,0}, new double[] {9.0,9.0,9.0})));
         }
         else if (source.getSelectedItem().toString().equals("Ellipsoid")) {
-            setCSGObject(new CSGTree(new CSGEllipsoid(new double[] {0,0,0}, new double[] {0.5,0.5,0.5}, new double[] {0,0,0})));
+            setCSGObject(new CSGTree(new CSGSuperQuadric(new double[] {0,0,0}, new double[] {0.5,0.5,0.5}, new double[] {0,0,0}, new double[] {2.0,2.0,2.0})));
         }
+        else if (source.getSelectedItem().toString().equals("Star")) {
+            setCSGObject(new CSGTree(new CSGSuperQuadric(new double[] {0,0,0}, new double[] {0.5,0.5,0.5}, new double[] {0,0,0}, new double[] {0.5,0.5,0.5})));
+        }
+        else if (source.getSelectedItem().toString().equals("Diamond")) {
+            setCSGObject(new CSGTree(new CSGSuperQuadric(new double[] {0,0,0}, new double[] {0.5,0.5,0.5}, new double[] {0,0,0}, new double[] {1.5,1.5,1.5})));
+        }        
         else {
             setCSGObject(loadedTrees.get(source.getSelectedItem().toString()));
         }

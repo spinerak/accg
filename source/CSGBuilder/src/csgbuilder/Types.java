@@ -101,13 +101,14 @@ public class Types {
          */
                 
         public BoundingBox () {
-			for (int i = 0; i < 8; i++) {
-				p[i] = new Vertex();
-			}
+	    for (int i = 0; i < 8; i++) {
+		p[i] = new Vertex();
+	    }
         }
        
         public boolean intersects(BoundingBox b) {
-            // TODO
-            return true;
+	    return (p[0].x < b.p[6].x) && (p[6].x > b.p[0].x) &&
+                   (p[0].x < b.p[6].y) && (p[6].y > b.p[0].y) &&
+	           (p[0].x < b.p[6].z) && (p[6].z > b.p[0].z);
         }
     }

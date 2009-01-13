@@ -1,0 +1,208 @@
+\documentclass[a4paper,10pt,twoside]{report}
+\usepackage{a4wide,url,longtable,lscape,verbatim,amssymb,graphicx,multirow,fancyhdr,lastpage,algorithm2e}
+
+% --- Informal Requirements Commands ---
+\newcounter{req_count}
+\setcounter{req_count}{1}
+
+
+\newcommand{\course}{Additional Component Computer Graphics (2IV05)}
+\newcommand{\student}{\footnotesize Page \thepage~of \pageref{LastPage}}
+\newcommand{\subject}{Final report}
+
+\fancypagestyle{plain}{%
+\fancyhf{} %
+\fancyfoot[C]{\student} %
+\fancyhead[LE, RO]{\subject} %
+\fancyhead[LO, RE]{\course} %
+}
+
+\pagestyle{fancy}{%
+\fancyhf{} %
+\fancyfoot[C]{\student} %
+\fancyhead[LE, RO]{\subject} %
+\fancyhead[LO, RE]{\course} %
+
+% Used commands
+\newcommand{\Bound}{\mbox{Bound}}
+
+% Nice algorithm styles
+\linesnumbered
+\dontprintsemicolon
+\SetLine
+
+% No paragraph indent, it's ugly
+\setlength\parindent{0em}
+
+%opening
+\title{2IV05 - Additional Component Computer Graphics \\ Final Report}
+\author{Bart van Arnhem (0557184) \\ Maarten Manders (0573419)}
+
+\begin{document}
+
+\maketitle
+
+\chapter{Introduction}
+This report describes the work that we have done for the Additional Component Computer Graphics course (2IV05). We have written a program called \textit{CSGBuilder} which allows a user to create complex three-dimensional objects using only a small number of simple primitives, which are basically simple objects.\\
+
+We have used a technique, called Constructive Solid Geometry, or CSG in short, to create our models. This technique uses mathematical functions to represent primitives and boolean operators to construct extended objects using these primitives.\\
+
+For the rendering of our objects we used the adaptive marching cubes algorithm. This algorithm divides the space around the CSG objects in a number of cubes and constructs a mesh that approaches the form of the object. We have used the adaptive form of this algorithm, because this increases the precision of the rendered objects.\\
+
+The rest of this document will describe the techniques that were mentioned above in more detail. Also the way we used the techniques will be explained. Besides this, the architecture and user interface of our program are explained.\\
+
+We have used the Java\textcopyright\ programming language in combination with Swing and the Java OpenGL\texttrademark\ API (JOGL) to write our program. To increase the responsiveness of our program we used the JOGL AWT GLCanvas instead of the Swing GLJPanel, because the drawing on the AWT component is faster.
+
+\tableofcontents
+
+\chapter{Representing Objects}
+
+\section{CSG Tree}
+    To represent the objects that are modeled with our program, the Constructive Solid Geometry (CSG) technique is used. This technique uses a number of simple objects, called primitives, that are combined in to more complex objects by using boolean operators. To represent the CSG objects the CSG trees that are described in \cite{Wiegand96} are used. Figure~\ref{figure:csg_tree} shows an example of a simple CSG tree.\\
+
+    \begin{figure}[h]
+        \begin{center}
+            \includegraphics[scale=.2]{./images/csgtree.png}
+        \end{center}
+        \caption{An example of a CSG tree (source: wikipedia\cite{img:wiki_csg_tree}).}
+        \label{figure:csg_tree}
+    \end{figure}
+    
+    In a CSG tree the boolean operators are the nodes in a binary tree and the primitives are the leaves of the tree. The primitives are represented by mathematical functions in $\mathbb{R}^3$. The operators combine the primitives in a object by using boolean functions on the results of the primitive functions. How this is done will be explained in the next sections.\\
+
+\subsection{Primitives}
+    A primitive in a CSG tree is a function $A:\mathbb{R}^3 \rightarrow \mathbb{R}$. The form of an object is constructed by drawing the points $(x,y,z)$ for which $A(x,y,z)=0$. Our program has a small number of primitives, these are described in Table~\ref{table:primitives}. In this table $p_x$, $p_y$ and $p_z$ denote the coordinates of the position of the center of the primitive and $r_x$, $r_y$ and $r_z$ denote the size of the primitive in respectively the $x$, $y$ and $z$ direction.\\
+    
+    \begin{table}[h]
+        \begin{longtable}{|p{.1\linewidth}|p{.45\linewidth}|p{.45\linewidth}|}
+            \hline
+            \textbf{Primitive} & \textbf{Description} & \textbf{Formula}\\
+            \hline
+            \hline
+             Ellipsoid &
+             Spheres or cigar formed shapes &
+             $f(x,y,z)=(\frac{p_x + x}{r_x})^2+(\frac{p_x + x}{r_x})^2+(\frac{p_x + x}{r_x})^2 - 1$\\
+            \hline
+             Cuboid &
+             Rectangles or bars with rounded corners &
+             $f(x,y,z)=(\frac{p_x + x}{r_x})^4+(\frac{p_x + x}{r_x})^4+(\frac{p_x + x}{r_x})^4 - 1$\\
+            \hline
+        \end{longtable}
+        \caption{The primitives of CSGBuilder}
+        \label{table:primitives}
+    \end{table}
+    
+    These primitives can be rotated with arbitrary angels around all axes by multiplying a rotation matrix $R$, which is shown in Figure~\ref{figure:rotation_matrix}, with the vector $\overrightarrow{v}=(x,y,z)^T$, so the rotated point $\overrightarrow{w}=R\overrightarrow{v}$. Applying a primitive function $A$ on $\overrightarrow{w}^T$ causes the primitive to be rotated with angles $\alpha_x$, $\alpha_y$ and $\alpha_z$ around respectively the $x$, $y$ and $z$ axes.\\
+
+    \begin{figure}[h]
+        \[
+            \left(
+                \begin{array}{lll}
+                    \cos(\alpha_y)\cos(\alpha_z) &
+                    \cos(\alpha_y)\sin(\alpha_z) &
+                    -\sin(\alpha_y) \\
+                    
+                    \sin(\alpha_x)\sin(\alpha_y)\cos(\alpha_z) - \cos(\alpha_x)\sin(\alpha_z) &
+                    \sin(\alpha_x)\sin(\alpha_y)\sin(\alpha_z) + \cos(\alpha_x)\cos(\alpha_z) &
+                    \sin(\alpha_x)\cos(\alpha_y) \\
+                    
+                    \cos(\alpha_x)\sin(\alpha_y)\cos(\alpha_z) + \sin(\alpha_x)\sin(\alpha_z) &
+                    \cos(\alpha_x)\sin(\alpha_y)\sin(\alpha_z) - \sin(\alpha_x)\cos(\alpha_z) &
+                    \cos(\alpha_x)\cos(\alpha_y) \\
+                \end{array}
+            \right)
+        \]
+        \caption{The rotation matrix $R$}
+        \label{figure:rotation_matrix}
+    \end{figure}
+
+\subsection{Operators}
+    There are three operations that can be applied to a CSG tree:
+    \begin{itemize}
+        \item[] \hspace{-2.5em}\textbf{Union: }$A \cup B \Rightarrow \forall[x,y,z \in \mathbb{R} :: \min(A(x, y, z), B(x,y,z))]$,
+        \item[] \hspace{-2.5em}\textbf{Intersection: }$A \cap B \Rightarrow \forall[x,y,z \in \mathbb{R} :: \max(A(x, y, z), B(x,y,z))]$ and
+        \item[] \hspace{-2.5em}\textbf{Difference: }$A - B \Rightarrow \forall[x,y,z \in \mathbb{R} :: \max(A(x, y, z), -B(x, y, z))]$
+    \end{itemize}
+    Here $A, B:\mathbb{R}^3 \rightarrow \mathbb{R}$ are functions (possibly CSG trees) of which a CSG tree is constructed.
+    
+\subsection{Normalizing CSG trees}
+    To increase the rendering speed, CSG trees can be normalized to a \textit{sum of products} form. This means that that all intersection and difference operators have a left subtree which contains no union operators and a right subtree that consists of a primitive. To create a normalized CSG tree, the nine operations that are described in \cite{Wiegand96} are used. These operations are recalled in Figure~\ref{table:normalize}.\\
+    \begin{table}[h]
+        \begin{longtable}{llll}
+            1. & $X - (Y \cup Z)$    & $\rightarrow$ & $(X - Y) - Z$\\
+            2. & $X \cap (Y \cup Z)$ & $\rightarrow$ & $(X \cap Y) \cup (X \cap Z)$\\
+            3. & $X - (Y \cap Z)$    & $\rightarrow$ & $(X - Y) \cup (X - Z)$\\
+            4. & $X \cap (Y \cap Z)$ & $\rightarrow$ & $(X \cap Y) \cap Z$\\
+            5. & $X - (Y - Z)$       & $\rightarrow$ & $(X - Y) \cup (X \cap Z)$\\
+            6. & $X \cap (Y - Z)$    & $\rightarrow$ & $(X \cap Y) - Z$\\
+            7. & $(X - Y) \cap Z$    & $\rightarrow$ & $(X \cap Z) - Y$\\
+            8. & $(X \cup Y) - Z$    & $\rightarrow$ & $(X - Z) \cup (Y - Z)$\\
+            9. & $(X \cup Y) \cap Z$ & $\rightarrow$ & $(X \cap Z) \cup (Y \cap Z)$\\
+        \end{longtable}
+        \caption{Operations to normalize a CSG tree.}
+        \label{table:normalize}
+    \end{table}
+    
+    After these operations, the CSG tree might be pruned according to the operations in Table~\ref{table:prune}.\\
+    \begin{table}[h]
+        \begin{longtable}{lll}
+            1. & $A \cap B \rightarrow \emptyset$ & if $\Bound(A)$ does not intersect $\Bound(B)$\\
+            2. & $A - B \rightarrow A$            & if $\Bound(A)$ does not intersect $\Bound(B)$\\
+        \end{longtable}
+        \caption{Operations to prune a normalized CSG tree.}
+        \label{table:prune}
+    \end{table}
+    
+    Here, $\Bound(A)$ and $\Bound(B)$ are calculated as described in Table~\ref{table:bounding_box}\\
+    \begin{table}[h]
+        \begin{longtable}{llll}
+            1. & $\Bound(A \cup B)$ & $=$ $\Bound(\Bound(A) \cup \Bound(B))$\\
+            2. & $\Bound(A \cap B)$ & $=$ $\Bound(\Bound(A) \cap \Bound(B))$\\
+            3. & $\Bound(A - B)$    & $=$ $\Bound(A)$\\
+        \end{longtable}
+        \caption{The computation of a bounding box of a CSG tree.}
+        \label{table:bounding_box}
+    \end{table}
+    
+    This leads to a normalization algorithm as shown in Figure~\ref{figure:algorithm}\\
+    \begin{figure}[h]
+            \textbf{Algorithm} $\textsc{Normalize}(T: CSGTree)$\\
+            \noindent
+            \begin{algorithm}[H]
+                \If{$T$ is a primitive}{
+                    \Return\;
+                }
+                \BlankLine
+                \Repeat{($T\mbox{.op is a union}) \lor ((T\mbox{.right is a primitive}) \land (T\mbox{.left is not a union}))$}{
+                    \Repeat{$\neg changed$}{
+                        $changed \gets \textsc{False}$\;
+                        \If{$T$ matches a rule from Figure~\ref{table:normalize}} {
+                            Apply the first matching rule\;
+                            $changed \gets \textsc{True}$\;
+                        }
+                    }
+                    \textsc{Normalize}$(T\mbox{.left})$\;
+                    \textsc{Prune}$(T)$\;
+                }
+                \BlankLine
+                \textsc{Normalize}$(T\mbox{.right})$\;
+            \end{algorithm}
+        \caption{The algorithm that generates a normalized CSG tree}
+        \label{figure:algorithm}
+    \end{figure}
+    
+\chapter{Rendering Objects}
+\section{Adaptive Marching Cubes}
+\bibliographystyle{amsplain}
+\begin{thebibliography}{99}
+\bibitem{Wiegand96} 
+    T.~F.~Wiegand.\\
+    Interactive Rendering of CSG Models.\\
+    The Eurographics Association, 1996.
+    
+\bibitem{img:wiki_csg_tree}
+    Unknown author.\\
+    Csg tree.png.\\
+    http://en.wikipedia.org/wiki/File:Csg\_tree.png.\\
+\end{thebibliography}
+\end{document}
