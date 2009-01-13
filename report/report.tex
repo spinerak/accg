@@ -34,6 +34,9 @@
 % No paragraph indent, it's ugly
 \setlength\parindent{0em}
 
+% Make sure no text goes beyond the page
+\setlength{\textheight}{60em}
+
 %opening
 \title{2IV05 - Additional Component Computer Graphics \\ Final Report}
 \author{Bart van Arnhem (0557184) \\ Maarten Manders (0573419)}
@@ -55,6 +58,54 @@ We have used the Java\textcopyright\ programming language in combination with Sw
 
 \tableofcontents
 
+\chapter{Requirements}
+This chapter is divided in two sections, in which different aspects of our system are specified. The ``Functionality'' section describes the functionality of CSGBuilder. The ``Interaction and presentation'' section describes the ways how the users of our software can interact with CSGBuilder.
+
+\section{Functionality}
+This section describes the functionality of the program. There are two kinds of functionality that will be added. ``Core functionality'' is that part of the software that must be implemented in order to make it work properly. ''Extra functionality'' is that part of the software that makes it more appealing. If time permits, all the functionality will be implemented, otherwise parts of the extra functionality will be dropped.\\
+
+The core functionality consists of: \\
+\vspace{-10pt}
+\begin{enumerate}
+	\item Object editing window
+	\item Object selector window
+	\item Object loading
+	\item Object saving
+	\item Shape Union
+	\item Shape intersection
+	\item Shape difference
+	\item Zooming
+	\item Rotation
+\end{enumerate}
+\bigskip
+The extra functionality consists of: \\
+\vspace{-10pt}
+\begin{enumerate}
+	\item Texturing
+	\item Adding temporary shapes
+	\item Preview
+	\item Lighting
+\end{enumerate}
+
+\subsection{Possible extra functionality (if there is time)}
+Possibility to specify a ``weight'', meaning only a certain amount of material is added or removed from the geometric object.
+
+\section{Interaction and presentation}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width = 0.8\textwidth]{../resources/gui_mockup/1}
+\caption{\emph{Mockup of the graphical user interface}} \label{gui_mockup}
+\end{figure}
+
+Figure \ref{gui_mockup} displays a mockup of the graphical user interface. The right and left frame contain respectively the ``building block'' and the ``result'' models. Using the mouse both models can be zoomed an rotated in an intuitive way (like in 3D Studio Max).\\
+
+Clicking with the left mouse button in the left frame will result in the model loaded in the right frame being added to the result model at the clicked position. Using the right mouse button the model can be removed from the result model. \\
+
+Both models can be loaded from a file using the ``Load model'' buttons. The result model can also be saved to a file. \\
+
+To give the user an idea of where the material is going to be added or removed a semi transparent version of the ``building block'' model is rendered at the mouse cursor.\\
+
 \chapter{Representing Objects}
 
 \section{CSG Tree}
@@ -67,12 +118,12 @@ We have used the Java\textcopyright\ programming language in combination with Sw
         \caption{An example of a CSG tree (source: wikipedia\cite{img:wiki_csg_tree}).}
         \label{figure:csg_tree}
     \end{figure}
-    
+
     In a CSG tree the boolean operators are the nodes in a binary tree and the primitives are the leaves of the tree. The primitives are represented by mathematical functions in $\mathbb{R}^3$. The operators combine the primitives in a object by using boolean functions on the results of the primitive functions. How this is done will be explained in the next sections.\\
 
 \subsection{Primitives}
     A primitive in a CSG tree is a function $A:\mathbb{R}^3 \rightarrow \mathbb{R}$. The form of an object is constructed by drawing the points $(x,y,z)$ for which $A(x,y,z)=0$. Our program has a small number of primitives, these are described in Table~\ref{table:primitives}. In this table $p_x$, $p_y$ and $p_z$ denote the coordinates of the position of the center of the primitive and $r_x$, $r_y$ and $r_z$ denote the size of the primitive in respectively the $x$, $y$ and $z$ direction.\\
-    
+
     \begin{table}[h]
         \begin{longtable}{|p{.1\linewidth}|p{.45\linewidth}|p{.45\linewidth}|}
             \hline
@@ -91,7 +142,7 @@ We have used the Java\textcopyright\ programming language in combination with Sw
         \caption{The primitives of CSGBuilder}
         \label{table:primitives}
     \end{table}
-    
+
     These primitives can be rotated with arbitrary angels around all axes by multiplying a rotation matrix $R$, which is shown in Figure~\ref{figure:rotation_matrix}, with the vector $\overrightarrow{v}=(x,y,z)^T$, so the rotated point $\overrightarrow{w}=R\overrightarrow{v}$. Applying a primitive function $A$ on $\overrightarrow{w}^T$ causes the primitive to be rotated with angles $\alpha_x$, $\alpha_y$ and $\alpha_z$ around respectively the $x$, $y$ and $z$ axes.\\
 
     \begin{figure}[h]
@@ -101,11 +152,11 @@ We have used the Java\textcopyright\ programming language in combination with Sw
                     \cos(\alpha_y)\cos(\alpha_z) &
                     \cos(\alpha_y)\sin(\alpha_z) &
                     -\sin(\alpha_y) \\
-                    
+
                     \sin(\alpha_x)\sin(\alpha_y)\cos(\alpha_z) - \cos(\alpha_x)\sin(\alpha_z) &
                     \sin(\alpha_x)\sin(\alpha_y)\sin(\alpha_z) + \cos(\alpha_x)\cos(\alpha_z) &
                     \sin(\alpha_x)\cos(\alpha_y) \\
-                    
+
                     \cos(\alpha_x)\sin(\alpha_y)\cos(\alpha_z) + \sin(\alpha_x)\sin(\alpha_z) &
                     \cos(\alpha_x)\sin(\alpha_y)\sin(\alpha_z) - \sin(\alpha_x)\cos(\alpha_z) &
                     \cos(\alpha_x)\cos(\alpha_y) \\
@@ -117,16 +168,31 @@ We have used the Java\textcopyright\ programming language in combination with Sw
     \end{figure}
 
 \subsection{Operators}
-    There are three operations that can be applied to a CSG tree:
-    \begin{itemize}
-        \item[] \hspace{-2.5em}\textbf{Union: }$A \cup B \Rightarrow \forall[x,y,z \in \mathbb{R} :: \min(A(x, y, z), B(x,y,z))]$,
-        \item[] \hspace{-2.5em}\textbf{Intersection: }$A \cap B \Rightarrow \forall[x,y,z \in \mathbb{R} :: \max(A(x, y, z), B(x,y,z))]$ and
-        \item[] \hspace{-2.5em}\textbf{Difference: }$A - B \Rightarrow \forall[x,y,z \in \mathbb{R} :: \max(A(x, y, z), -B(x, y, z))]$
-    \end{itemize}
-    Here $A, B:\mathbb{R}^3 \rightarrow \mathbb{R}$ are functions (possibly CSG trees) of which a CSG tree is constructed.
-    
+    There are three operations that can be used to construct a CSG tree. These are the union($\cup$), intersection($\cap$) and difference($-$) set operations. These set operations have to be mapped to the mathematical functions of which CSG trees are constructed, this can be done using the $\min$ and $\max$ functions, as can be seen in Figure~\ref{figure:operations}. In the figure $A, B:\mathbb{R}^3 \rightarrow \mathbb{R}$ are functions (possibly CSG trees) of which a CSG tree is constructed.\\
+
+    \begin{figure}[h]
+            \begin{longtable}{lll}
+                \textbf{Union: } &
+                $A \cup B$ &
+                $\forall[x,y,z \in \mathbb{R} :: \min(A(x, y, z), B(x,y,z))]$ \\
+
+                \textbf{Intersection: } &
+                $A \cap B$ &
+                $\forall[x,y,z \in \mathbb{R} :: \max(A(x, y, z), B(x,y,z))]$ \\
+
+                \textbf{Difference: } &
+                $A - B$ &
+                $\forall[x,y,z \in \mathbb{R} :: \max(A(x, y, z), -B(x, y, z))]$ \\
+            \end{longtable}
+        \caption{The operations to construct CSG trees.}
+        \label{figure:operations}
+    \end{figure}
+
+    By combining the primitives with the operators, it is possible to create complex objects. When these objects consist of many primitives and operators the rendering of the object tends to be slow. It is possible increase the rendering speed by creating a normalize CSG tree. A way in which CSG trees can be normalized is described in the next section.\\
+
 \subsection{Normalizing CSG trees}
-    To increase the rendering speed, CSG trees can be normalized to a \textit{sum of products} form. This means that that all intersection and difference operators have a left subtree which contains no union operators and a right subtree that consists of a primitive. To create a normalized CSG tree, the nine operations that are described in \cite{Wiegand96} are used. These operations are recalled in Figure~\ref{table:normalize}.\\
+    As described in \cite{Wiegand96}, it is possible to increase the rendering speed, by normalizing CSG trees to a \textit{sum of products} form. This means that that all intersection and difference operators have a left subtree which contains no union operators and a right subtree that consists of a primitive. To create a normalized CSG tree, the nine operations that are described in \cite{Wiegand96} are used. These operations are recalled in Figure~\ref{table:normalize}.\\
+
     \begin{table}[h]
         \begin{longtable}{llll}
             1. & $X - (Y \cup Z)$    & $\rightarrow$ & $(X - Y) - Z$\\
@@ -142,8 +208,9 @@ We have used the Java\textcopyright\ programming language in combination with Sw
         \caption{Operations to normalize a CSG tree.}
         \label{table:normalize}
     \end{table}
-    
-    After these operations, the CSG tree might be pruned according to the operations in Table~\ref{table:prune}.\\
+
+    When the normalization is completed, the CSG tree might contain nodes which could be rendered even faster. The normalized CSG tree could be pruned according to the operations that are stated in Table~\ref{table:prune}. The pruning of the tree leads to less calculations, so the time that is needed to render the object is decreased.\\
+
     \begin{table}[h]
         \begin{longtable}{lll}
             1. & $A \cap B \rightarrow \emptyset$ & if $\Bound(A)$ does not intersect $\Bound(B)$\\
@@ -152,8 +219,9 @@ We have used the Java\textcopyright\ programming language in combination with Sw
         \caption{Operations to prune a normalized CSG tree.}
         \label{table:prune}
     \end{table}
-    
-    Here, $\Bound(A)$ and $\Bound(B)$ are calculated as described in Table~\ref{table:bounding_box}\\
+
+    In order to decide whether a node in the tree should be pruned, the cases in which the pruning takes place should be recognized. This can be done by constructing and calculating the bounding boxes of nodes in the CSG tree. The bounding box $\Bound$ of a primitive is simply the smallest cube in which the primitive can be placed. To determine the bounding box of operations in the CSG tree the equations in Table~\ref{table:bounding_box} can be used.\\
+
     \begin{table}[h]
         \begin{longtable}{llll}
             1. & $\Bound(A \cup B)$ & $=$ $\Bound(\Bound(A) \cup \Bound(B))$\\
@@ -163,9 +231,10 @@ We have used the Java\textcopyright\ programming language in combination with Sw
         \caption{The computation of a bounding box of a CSG tree.}
         \label{table:bounding_box}
     \end{table}
+
+    Applying the normalization and pruning operations on the nodes of a tree leads to the normalization algorithm that is described in  Figure~\ref{figure:algorithm}. This algorithm is based on the normalization algorithm in \cite{Wiegand96}.\\
     
-    This leads to a normalization algorithm as shown in Figure~\ref{figure:algorithm}\\
-    \begin{figure}[h]
+    \begin{figure}[ht]
             \textbf{Algorithm} $\textsc{Normalize}(T: CSGTree)$\\
             \noindent
             \begin{algorithm}[H]
