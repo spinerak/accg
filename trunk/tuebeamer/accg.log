@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.1415926-1.40.9 (MiKTeX 2.7) (preloaded format=pdflatex 2008.11.23)  24 NOV 2008 11:57
+This is pdfTeX, Version 3.1415926-1.40.9 (MiKTeX 2.7) (preloaded format=pdflatex 2008.11.23)  26 NOV 2008 09:31
 entering extended mode
 **D:/My*Documents/jaar*5/2IV05*-*Advanced*Component*Computer*Graphics/project/t
 uebeamer/accg.tex
@@ -1122,22 +1122,36 @@ File: tuelogo.pdf Graphic file (type pdf)
  <use tuelogo.pdf> [5
 
  <D:/My Documents/jaar 5/2IV05 - Advanced Component Computer Graphics/project/t
-uebeamer/accgimg/Csg_tree.png>]
+uebeamer/accgimg/Csg_tree.png>] <./accgimg/Surface_normal.png, id=93, 500.87125
+pt x 241.90375pt>
+File: ./accgimg/Surface_normal.png Graphic file (type png)
+
+<use ./accgimg/Surface_normal.png>
 File: tuelogo.pdf Graphic file (type pdf)
  <use tuelogo.pdf> [6
 
-]
+ <D:/My Documents/jaar 5/2IV05 - Advanced Component Computer Graphics/project/t
+uebeamer/accgimg/Surface_normal.png (PNG copy)>]
+<./accgimg/amccrack.png, id=98, 250.9375pt x 209.78375pt>
+File: ./accgimg/amccrack.png Graphic file (type png)
+
+<use ./accgimg/amccrack.png>
 File: tuelogo.pdf Graphic file (type pdf)
  <use tuelogo.pdf> [7
 
-]
+ <D:/My Documents/jaar 5/2IV05 - Advanced Component Computer Graphics/project/t
+uebeamer/accgimg/amccrack.png (PNG copy)>]
 File: tuelogo.pdf Graphic file (type pdf)
  <use tuelogo.pdf> [8
 
 ]
 File: tuelogo.pdf Graphic file (type pdf)
+ <use tuelogo.pdf> [9
 
-<use tuelogo.pdf> [9
+]
+File: tuelogo.pdf Graphic file (type pdf)
+ <use tuelogo.pdf>
+[10
 
 ]
 \tf@nav=\write5
@@ -1149,24 +1163,24 @@ LaTeX Font Warning: Size substitutions with differences
 LaTeX Font Warning: Some font shapes were not available, defaults substituted.
  ) 
 Here is how much of TeX's memory you used:
- 14748 strings out of 95304
- 249408 string characters out of 1183031
+ 14743 strings out of 95304
+ 249251 string characters out of 1183031
  370703 words of memory out of 1500000
- 17525 multiletter control sequences out of 110000
- 13513 words of font info for 31 fonts, out of 1200000 for 2000
+ 17516 multiletter control sequences out of 110000
+ 13515 words of font info for 31 fonts, out of 1200000 for 2000
  14 hyphenation exceptions out of 8191
  43i,13n,67p,508b,589s stack positions out of 5000i,500n,10000p,200000b,5000s
  <C:\Documents and Settings\All Users\Application Data\MiKTeX\2.7\fonts\pk\lj
-four\jknappen\ec\dpi600\ecrm1000.pk> <C:\Documents and Settings\All Users\Appli
+four\jknappen\ec\dpi600\ecrm0900.pk> <C:\Documents and Settings\All Users\Appli
 cation Data\MiKTeX\2.7\fonts\pk\ljfour\jknappen\ec\dpi600\ecrm1440.pk> <C:\Docu
 ments and Settings\All Users\Application Data\MiKTeX\2.7\fonts\pk\ljfour\jknapp
 en\ec\dpi600\ecrm1095.pk> <C:\Documents and Settings\All Users\Application Data
 \MiKTeX\2.7\fonts\pk\ljfour\jknappen\ec\dpi600\ecrm2488.pk> <C:\Documents and S
 ettings\All Users\Application Data\MiKTeX\2.7\fonts\pk\ljfour\jknappen\ec\dpi60
 0\ecrm0600.pk><C:/Program Files/MiKTeX 2.7/fonts/type1/bluesky/ams/msam7.pfb>
-Output written on accg.pdf (9 pages, 201807 bytes).
+Output written on accg.pdf (10 pages, 238298 bytes).
 PDF statistics:
- 283 PDF objects out of 1000 (max. 8388607)
- 26 named destinations out of 1000 (max. 131072)
- 124 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 294 PDF objects out of 1000 (max. 8388607)
+ 28 named destinations out of 1000 (max. 131072)
+ 134 words of extra memory for PDF output out of 10000 (max. 10000000)
 

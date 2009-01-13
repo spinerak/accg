@@ -437,16 +437,16 @@ class CSGCuboid extends CSGObject {
 }
 
 class CSGSuperQuadric extends CSGObject {
-    private double[] exponents;
+    protected double[] exponents;
 
     public double getFunctionValue(double x, double y, double z) {
-        Vertex v = getRotatedVertex(new Vertex((pos[0] + x) / size[0],
-                                               (pos[1] + y) / size[1],
-                                               (pos[2] + z) / size[2]));
+        Vertex v = getRotatedVertex(new Vertex(Math.abs((pos[0] + x) / size[0]),
+                                               Math.abs((pos[1] + y) / size[1]),
+                                               Math.abs((pos[2] + z) / size[2])));
         
         return Math.pow(v.x, exponents[0]) + 
-               Math.pow(v.y, exponents[0]) +
-               Math.pow(v.z, exponents[0]) - 1;
+               Math.pow(v.y, exponents[1]) +
+               Math.pow(v.z, exponents[2]) - 1;
     } 
     
     public void setExponents(double[] exponents) {
@@ -469,11 +469,65 @@ class CSGSuperQuadric extends CSGObject {
     }
     
     public String toString() {
-        return "fail";
+        return "CSGSUPERQUADRIC(" + 
+                pos[0] + "," +
+                pos[1] + "," +
+                pos[2] + "," + 
+                size[0] + "," + 
+                size[1] + "," + 
+                size[2] + "," +
+                rot[0] + "," +
+                rot[1] + "," + 
+                rot[2] + "," +
+                exponents[0] + "," +
+                exponents[1] + "," +
+                exponents[2] + ")";
     }
     
     @Override
     public CSGTreeElement clone() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return new CSGSuperQuadric(pos, size, rot, exponents);
+    }
+}
+    
+class CSGSuperToroid extends CSGSuperQuadric {
+    private double a;
+    private double b;
+
+    public BoundingBox getBoundingBox() {
+        BoundingBox s = super.getBoundingBox();
+        BoundingBox r = new BoundingBox();
+        
+        r.p[0] = new Vertex(-10.0, -10.0, -10.0);
+        r.p[1] = new Vertex( 10.0, -10.0, -10.0);
+        r.p[2] = new Vertex( 10.0,  10.0, -10.0);
+        r.p[3] = new Vertex(-10.0,  10.0, -10.0);
+        r.p[4] = new Vertex( 10.0, -10.0,  10.0);
+        r.p[5] = new Vertex(-10.0, -10.0,  10.0);
+        r.p[6] = new Vertex( 10.0,  10.0,  10.0);
+        r.p[7] = new Vertex(-10.0,  10.0,  10.0);
+        
+        return r;
+    }
+    
+    public CSGSuperToroid(double[] pos, double[] size, double[] rot,
+                           double[] exponents, double a, double b) {
+        super(pos, size, rot, exponents);
+        this.a = a;
+        this.b = b;
+    }           
+
+    public double getFunctionValue(double x, double y, double z) {
+        Vertex v = getRotatedVertex(new Vertex(Math.abs((pos[0] + x) / size[0]),
+                                               Math.abs((pos[1] + y) / size[1]),
+                                               Math.abs((pos[2] + z) / size[2])));
+                                               
+        //z2 + (sqrt(x2 + y2) - a)2 - b2 = 0 
+        return Math.pow(v.z, exponents[2]) + Math.pow(Math.sqrt(v.x*v.x + v.y*v.y) - a, exponents[0]) - Math.pow(b,exponents[1]);
+    }
+    
+    @Override
+    public CSGTreeElement clone() {
+        return new CSGSuperToroid(pos, size, rot, exponents, a, b);
     }
 }

@@ -1,7 +1,5 @@
 package csgbuilder;
 
-import java.io.Serializable;
-
 /**
  *
  * @author s040379
@@ -16,19 +14,16 @@ public class CSGTree extends CSGTreeElement {
     public void union(CSGTreeElement object) {
         root = new CSGTreeUnion(root, object);
         normalize(root);
-        prune();
     }
     
     public void intersect(CSGTreeElement object) {
         root = new CSGTreeIntersection(root, object);
         normalize(root);
-        prune();        
     }
     
     public void difference(CSGTreeElement object) {
         root = new CSGTreeDifference(root, object);
         normalize(root);
-        prune();        
     }
     
     public boolean isResizable() {
@@ -86,79 +81,102 @@ public class CSGTree extends CSGTreeElement {
      */
     private void normalize(CSGTreeElement element) {  
         /**/
-        return;
-        
-        /*/
-        // TODO: implement cases (1)..(9)
-        
-        boolean changed;
-        
-        do {
-            changed = false;
-            
-            if (element instanceof CSGTreeOperation) {
-                CSGTreeOperation node = (CSGTreeOperation)element;
-                normalize(node.left);
-                normalize(node.right);
-            }                
-
-            if (element instanceof CSGTreeDifference) {
-                // (1) (3) (5) (8)
-                CSGTreeOperation node = (CSGTreeOperation)element;
-
-                if (node.right instanceof CSGTreeUnion) {
-                    // (1)
-                    CSGTreeOperation right = (CSGTreeOperation)node.right;
-                    changed = true;
-                }
-                else if (node.right instanceof CSGTreeIntersection) {
-                    // (3)
-                    CSGTreeOperation right = (CSGTreeOperation)node.right;
-                    changed = true;
-                }
-                else if (node.right instanceof CSGTreeDifference) {
-                    // (5)
-                    CSGTreeOperation right = (CSGTreeOperation)node.right;
-                    changed = true;
-                }
-                else if (node.left instanceof CSGTreeUnion) {
-                    // (8)
-                    CSGTreeOperation left = (CSGTreeOperation)node.left;
-                    changed = true;
-                }
-            }
-            else if (element instanceof CSGTreeIntersection) {
-                // (2) (4) (6) (7) (9)
-                CSGTreeOperation node = (CSGTreeOperation)element;
-
-                if (node.right instanceof CSGTreeUnion) {
-                    // (2)
-                    CSGTreeOperation right = (CSGTreeOperation)node.right;
-                    changed = true;             
-                }
-                else if (node.right instanceof CSGTreeIntersection) {
-                    // (4)
-                    CSGTreeOperation right = (CSGTreeOperation)node.right;
-                    changed = true;
-                }
-                else if (node.right instanceof CSGTreeDifference) {
-                    // (6)
-                    CSGTreeOperation right = (CSGTreeOperation)node.right;
-                    changed = true;
-                }
-                else if (node.left instanceof CSGTreeDifference) {
-                    // (7)
-                    CSGTreeOperation left = (CSGTreeOperation)node.left;
-                    changed = true;
-                }
-                else if (node.left instanceof CSGTreeUnion) {
-                    // (9)
-                    CSGTreeOperation left = (CSGTreeOperation)node.left;
-                    changed = true;
-                }
-            }
-        } while (changed);
-        /**/
+        if (!(element instanceof CSGTreeOperation)) {
+	    // return if element is a primitive.
+	    return;
+	}
+	
+	CSGTreeOperation node = (CSGTreeOperation)element;
+	
+	do {
+	    boolean changed;
+	    
+	    do {
+		changed = false;
+		
+		if (node.right instanceof CSGTreeUnion) {
+		    if (node instanceof CSGTreeDifference) {
+			// 1. X - (Y \/ Z) -> (X - Y) - Z
+			CSGTreeDifference newLeft  = new CSGTreeDifference(node.left, ((CSGTreeOperation)node.right).left);
+			CSGTreeElement    newRight = ((CSGTreeOperation)node.right).right;
+			node = new CSGTreeDifference(newLeft, newRight);
+			changed = true;			
+		    } 
+		    else if (node instanceof CSGTreeIntersection) {
+			// 2. X /\ (Y \/ Z) -> (X /\ Y) \/ (X /\ Z)
+			CSGTreeIntersection newLeft  = new CSGTreeIntersection(node.left, ((CSGTreeOperation)node.right).left);
+			CSGTreeIntersection newRight = new CSGTreeIntersection(node.left, ((CSGTreeOperation)node.right).right);
+			node = new CSGTreeUnion(newLeft, newRight);
+			changed = true;
+		    }
+		}		
+		else if (node.right instanceof CSGTreeIntersection) {
+		    if (node instanceof CSGTreeDifference) {
+			// 3. X - (Y /\ Z) -> (X - Y) \/ (X - Z)
+			CSGTreeDifference newLeft  = new CSGTreeDifference(node.left, ((CSGTreeOperation)node.right).left);
+			CSGTreeDifference newRight = new CSGTreeDifference(node.left, ((CSGTreeOperation)node.right).right);
+			node = new CSGTreeUnion(newLeft, newRight);
+			changed = true;
+		    } 
+		    else if (node instanceof CSGTreeIntersection) {
+			// 4. X /\ (Y /\ Z) -> (X /\ Y) /\ Z
+			CSGTreeIntersection newLeft  = new CSGTreeIntersection(node.left, ((CSGTreeOperation)node.right).left);
+			CSGTreeElement      newRight = ((CSGTreeOperation)node.right).right;
+			node = new CSGTreeIntersection(newLeft, newRight);
+			changed = true;
+		    }
+		}
+		else if (node.right instanceof CSGTreeDifference) {
+		    if (node instanceof CSGTreeDifference) {
+			// 5. X - (Y - Z) -> (X - Y) \/ (X /\ Z)
+			CSGTreeDifference   newLeft  = new CSGTreeDifference(node.left, ((CSGTreeOperation)node.right).left);
+			CSGTreeIntersection newRight = new CSGTreeIntersection(node.left, ((CSGTreeOperation)node.right).right);
+			node = new CSGTreeUnion(newLeft, newRight);
+			changed = true;
+		    } 
+		    else if (node instanceof CSGTreeIntersection) {
+			// 6. X /\ (Y - Z) -> (X /\ Y) - Z
+			CSGTreeIntersection newLeft  = new CSGTreeIntersection(node.left, ((CSGTreeOperation)node.right).left);
+			CSGTreeElement      newRight = ((CSGTreeOperation)node.right).right;
+			node = new CSGTreeDifference(newLeft, newRight);
+			changed = true;
+		    }		    
+		}
+		else if (node.left instanceof CSGTreeDifference) {
+		    if (node instanceof CSGTreeIntersection) {
+			// 7. (X - Y) /\ Z -> (X /\ Z) - Y
+			CSGTreeIntersection newLeft  = new CSGTreeIntersection(node.left, ((CSGTreeOperation)node.right).left);
+			CSGTreeElement      newRight = ((CSGTreeIntersection)node.right).right;
+			node = new CSGTreeDifference(newLeft, newRight);
+			changed = true;
+		    }
+		}
+		else if (node.left instanceof CSGTreeIntersection) {
+		    if (node instanceof CSGTreeDifference) {
+			// 8. (X \/ Y) - Z -> (X - Z) \/ (Y - Z)
+			CSGTreeDifference newLeft  = new CSGTreeDifference(node.left, ((CSGTreeOperation)node.right).right);
+			CSGTreeDifference newRight = new CSGTreeDifference(((CSGTreeOperation)node.right).left, ((CSGTreeOperation)node.right).right);
+			node = new CSGTreeUnion(newLeft, newRight);
+			changed = true;
+		    }
+		    else if (node instanceof CSGTreeIntersection) {
+			// 9. (X \/ Y) /\ Z -> (X /\ Z) \/(Y /\ Z)
+			CSGTreeIntersection newLeft  = new CSGTreeIntersection(node.left,((CSGTreeOperation)node.right).right);
+			CSGTreeIntersection newRight = new CSGTreeIntersection(((CSGTreeOperation)node.right).left,((CSGTreeOperation)node.right).right);
+			node = new CSGTreeUnion(newLeft, newRight);
+			changed = true;
+		    }
+		    
+		    prune(node);
+		}
+	    }
+	    while (changed);
+	    
+	    normalize(node.left);
+	}
+	while(!(node instanceof CSGTreeUnion) &&
+	       (!(node.right instanceof CSGTreeOperation) ||
+	         (node.left  instanceof CSGTreeUnion)));
     }
     
     /**
@@ -167,8 +185,25 @@ public class CSGTree extends CSGTreeElement {
      * (2) A - B  ->  A if !A.intersects(B)
      * See: T. F. Wiegand, Interactive Rendering of CSG Models.
      */
-    private void prune() {
-        // TODO
+    private void prune(CSGTreeElement element) {
+	if (!(element instanceof CSGTreeOperation)) {
+	    // Return if element is a primitive.
+	    return;
+	}
+	
+	CSGTreeOperation node = (CSGTreeOperation)element;
+	
+	if (node instanceof CSGTreeIntersection) {
+	    if (!node.left.getBoundingBox().intersects(node.right.getBoundingBox())) {
+		// TODO: null is incorrect, change!
+		// element = null;
+	    }
+	}
+	else if (node instanceof CSGTreeDifference) {
+	    if (!node.left.getBoundingBox().intersects(node.right.getBoundingBox())) {
+		element = node.left;
+	    }
+	}
     }
     
     @Override public String toString() {

@@ -32,10 +32,10 @@ public class CSGBuilderView extends FrameView {
     public OperandViewer mBOperandViewer;
     
     private JFrame mainFrame = new JFrame("CSGBuilder");
-    private JFrame editorFrame = new JFrame("CSGBuilder - Editor");    
-    private JFrame viewerFrame = new JFrame("CSGBuilder - Viewer");   
-    private JFrame propertiesFrame = new JFrame("CSGBuilder - Properties");
-    private JFrame treeFrame = new JFrame("CSGBuilder - Tree");
+    private JInternalFrame editorFrame = new JInternalFrame("Editor", true, false, true, true);
+    private JInternalFrame viewerFrame = new JInternalFrame("Viewer", true, false, true, true);
+    private JInternalFrame propertiesFrame = new JInternalFrame("Properties", true, false, false, true);
+    private JInternalFrame treeFrame = new JInternalFrame("Tree", true, false, false, true);
     
     public CSGBuilderView(SingleFrameApplication app) {
         super(app);
@@ -50,39 +50,36 @@ public class CSGBuilderView extends FrameView {
         
         AOperandRenderer lvRenderer = new AOperandRenderer();
         mAOperandViewer = new OperandViewer(lvRenderer,
-                new AOperandMIA(lvRenderer, this));
-        
-        canvas1 = mAOperandViewer.getCanvas();
-        editorFrame.add(canvas1);
-        
+                new AOperandMIA(lvRenderer, this));      
 		
 	// Create a CSG Tree
         lvTree = new CSGTree(new CSGEllipsoid(new double[]{0.5,0.0,0.0}, new double[]{1.0,1.0,1.0}));
         //lvTree.difference(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{0.7,0.7,0.7}));
 			
 	// Get the mesh for this tree
-    //mAOperandViewer.setTree(lvTree);
-    //mAOperandViewer.startPolygonisation();
+        //mAOperandViewer.setTree(lvTree);
+        //mAOperandViewer.startPolygonisation();
 		
         // Start
 	mAOperandViewer.start();
 		
 		
-    OperandViewerRenderer lvRenderer2 = new OperandViewerRenderer();
-    mBOperandViewer = new OperandViewer(lvRenderer2, new OperandViewerMIA(lvRenderer2));
+        OperandViewerRenderer lvRenderer2 = new OperandViewerRenderer();
+        mBOperandViewer = new OperandViewer(lvRenderer2, new OperandViewerMIA(lvRenderer2));
         
         //CSGTree lvBOpTree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{0.5,0.5,0.5}));
         CSGTree lvBOpTree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{0.5,0.5,0.5}, new double[]{Math.PI/4, Math.PI/4, Math.PI/4}));
-        
         viewerFrame.add(mBOperandViewer.getCanvas());
         propertiesFrame.add(new ObjectPropertyPanel(lvBOpTree, mBOperandViewer));
 
         
 //	mBOperandViewer.setTree(lvBOpTree);
-//    mBOperandViewer.startPolygonisation();
+//      mBOperandViewer.startPolygonisation();
     
 	mBOperandViewer.start();
-		
+        
+        GLCanvas canvas1 = mAOperandViewer.getCanvas();        
+        editorFrame.add(canvas1);		
         canvas1.addMouseListener(new java.awt.event.MouseAdapter(){
             @Override public void mouseClicked(java.awt.event.MouseEvent e) {
                 switch (e.getButton()) {
@@ -96,43 +93,54 @@ public class CSGBuilderView extends FrameView {
         int screenWidth = java.awt.Toolkit.getDefaultToolkit().getScreenSize().width;
         int screenHeight = java.awt.Toolkit.getDefaultToolkit().getScreenSize().height;        
         
-        mainFrame.pack();
-        mainFrame.setVisible(true);
-        mainFrame.setBounds(0, 0, screenWidth, mainFrame.getHeight());        
+//        mainFrame.setBounds(0, 0, screenWidth, mainFrame.getHeight());        
         mainFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        mainFrame.setResizable(false);
-        mainFrame.setAlwaysOnTop(true);
         
         int top = mainFrame.getHeight();
         int height = screenHeight - top;
         
-        JScrollPane treePane = new JScrollPane(new JTree(lvTree.CSGTree2TreeNode()));
+        JScrollPane treePane = new JScrollPane(new JTree(mBOperandViewer.getTree().CSGTree2TreeNode()));
         treeFrame.add(treePane);
         
         treeFrame.pack();
         propertiesFrame.pack();
-        treeFrame.setBounds(0, top, treeFrame.getWidth(), height);
-        propertiesFrame.setBounds(screenWidth - propertiesFrame.getWidth(), top, propertiesFrame.getWidth(), height);
+        editorFrame.pack();
+        viewerFrame.pack();
+//        treeFrame.setBounds(0, top, treeFrame.getWidth(), height);
+//        propertiesFrame.setBounds(screenWidth - propertiesFrame.getWidth(), top, propertiesFrame.getWidth(), height);
+//        
+//        int width = (screenWidth - treeFrame.getWidth() - propertiesFrame.getWidth()) / 2;
         
-        int width = (screenWidth - treeFrame.getWidth() - propertiesFrame.getWidth()) / 2;
+//        editorFrame.setBounds(0, 0, 400, 400);
+//        viewerFrame.setBounds(100, 100, 400, 400);
         
-        editorFrame.setBounds(treeFrame.getWidth(),top,width,height);
-        viewerFrame.setBounds(treeFrame.getWidth()+width,top,width,height);
+//        mainFrame.setBounds(0,0,screenWidth,screenHeight);
         
-        treeFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        editorFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        viewerFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-        propertiesFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+//        treeFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+//        editorFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+//        viewerFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+//        propertiesFrame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
-        treeFrame.setAlwaysOnTop(true);
-        editorFrame.setAlwaysOnTop(true);
-        viewerFrame.setAlwaysOnTop(true);
-        propertiesFrame.setAlwaysOnTop(true);
+//        treeFrame.setAlwaysOnTop(true);
+//        editorFrame.setAlwaysOnTop(true);
+//        viewerFrame.setAlwaysOnTop(true);
+//        propertiesFrame.setAlwaysOnTop(true);
+        
+        JDesktopPane desktop = new JDesktopPane();
+        desktop.add(treeFrame);
+        desktop.add(editorFrame);
+        desktop.add(viewerFrame);
+        desktop.add(propertiesFrame);
+        desktop.setBackground(java.awt.Color.WHITE);
         
         treeFrame.setVisible(true);
         editorFrame.setVisible(true);
         viewerFrame.setVisible(true);
         propertiesFrame.setVisible(true);
+        
+        mainFrame.setContentPane(desktop);
+        mainFrame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+        mainFrame.setVisible(true);
     }
     
     /** This method is called from within the constructor to
@@ -261,7 +269,7 @@ public class CSGBuilderView extends FrameView {
 
         jMenuBar1.add(jMenu3);
     }// </editor-fold>//GEN-END:initComponents
-
+    
 private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
     int returnVal = jFileChooser1.showSaveDialog(this.mainFrame);
     
@@ -303,46 +311,38 @@ private void jMenu3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:
 
 private void jCheckBoxMenuItem1ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItem1ItemStateChanged
     javax.swing.JCheckBoxMenuItem src = (javax.swing.JCheckBoxMenuItem)evt.getSource();
-        
-    if (src.isSelected()) {
-        editorFrame.setVisible(true);
+         
+    try {
+        editorFrame.setIcon(!src.getState());
     }
-    else {
-        editorFrame.setVisible(false);
-    }
+    catch (java.beans.PropertyVetoException e) {}
 }//GEN-LAST:event_jCheckBoxMenuItem1ItemStateChanged
 
 private void jCheckBoxMenuItem2ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItem2ItemStateChanged
     javax.swing.JCheckBoxMenuItem src = (javax.swing.JCheckBoxMenuItem)evt.getSource();
-        
-    if (src.isSelected()) {
-        viewerFrame.setVisible(true);
+     
+    try {
+        viewerFrame.setIcon(!src.getState());
     }
-    else {
-        viewerFrame.setVisible(false);
-    }
+    catch (java.beans.PropertyVetoException e) {}
 }//GEN-LAST:event_jCheckBoxMenuItem2ItemStateChanged
 
 private void jCheckBoxMenuItem3ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItem3ItemStateChanged
     javax.swing.JCheckBoxMenuItem src = (javax.swing.JCheckBoxMenuItem)evt.getSource();
-        
-    if (src.isSelected()) {
-        treeFrame.setVisible(true);
+     
+    try {
+        treeFrame.setIcon(!src.getState());
     }
-    else {
-        treeFrame.setVisible(false);
-    }
+    catch (java.beans.PropertyVetoException e) {}
 }//GEN-LAST:event_jCheckBoxMenuItem3ItemStateChanged
 
 private void jCheckBoxMenuItem4ItemStateChanged(java.awt.event.ItemEvent evt) {//GEN-FIRST:event_jCheckBoxMenuItem4ItemStateChanged
     javax.swing.JCheckBoxMenuItem src = (javax.swing.JCheckBoxMenuItem)evt.getSource();
-        
-    if (src.isSelected()) {
-        propertiesFrame.setVisible(true);
+     
+    try {
+        propertiesFrame.setIcon(!src.getState());
     }
-    else {
-        propertiesFrame.setVisible(false);
-    }
+    catch (java.beans.PropertyVetoException e) {}
 }//GEN-LAST:event_jCheckBoxMenuItem4ItemStateChanged
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
@@ -359,6 +359,4 @@ private void jCheckBoxMenuItem4ItemStateChanged(java.awt.event.ItemEvent evt) {/
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
     // End of variables declaration//GEN-END:variables
-
-    private GLCanvas canvas1;
 }
