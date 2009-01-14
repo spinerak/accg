@@ -107,6 +107,7 @@ Both models can be loaded from a file using the ``Load model'' buttons. The resu
 To give the user an idea of where the material is going to be added or removed a semi transparent version of the ``building block'' model is rendered at the mouse cursor.\\
 
 \chapter{Representing Objects}
+\label{chapt:repobj}
 
 \section{CSG Tree}
     To represent the objects that are modeled with our program, the Constructive Solid Geometry (CSG) technique is used. This technique uses a number of simple objects, called primitives, that are combined in to more complex objects by using boolean operators. To represent the CSG objects the CSG trees that are described in \cite{Wiegand96} are used. Figure~\ref{figure:csg_tree} shows an example of a simple CSG tree.\\
@@ -233,7 +234,7 @@ To give the user an idea of where the material is going to be added or removed a
     \end{table}
 
     Applying the normalization and pruning operations on the nodes of a tree leads to the normalization algorithm that is described in  Figure~\ref{figure:algorithm}. This algorithm is based on the normalization algorithm in \cite{Wiegand96}.\\
-    
+
     \begin{figure}[ht]
             \textbf{Algorithm} $\textsc{Normalize}(T: CSGTree)$\\
             \noindent
@@ -259,9 +260,59 @@ To give the user an idea of where the material is going to be added or removed a
         \caption{The algorithm that generates a normalized CSG tree}
         \label{figure:algorithm}
     \end{figure}
-    
+
 \chapter{Rendering Objects}
+
+As described in previous chapter (chapter \ref{chapt:repobj}) our objects are internally stored as CSG tree's, essentially a combination of implicit volumes resulting in a more complex object.
+
+We are rendering these objects using the marching cubes algorithm. Given an implicit volume, the marching cubes algorithm will return a mesh that approximates the volume. It does this by dividing the space into a number of cubes and then visit each cube individually which of the corners are inside or outside of the volume. This depends on the value of the implicit function at that point. Using this it can determine where triangles should be placed. This is described in more detail in the following sections.
+
 \section{Adaptive Marching Cubes}
+
+The standard marching cubes algorithm will divide the 3d space into a number of cubes all of the same dimension. This works for most objects, but as the features of the objects get sharper (for example sharp edges) we need smaller sized cubes (which means more) to get an acceptable level of detail on the rendered object. Of course the more cubes, the slower the algorithm will be.
+
+Because still most of the object will be relatively flat compared to the sharp features it would be a better idea to only have finer grained cubes where needed, thus at places where the sharp features of the objects are. With this extension we get an adaptive form of the marching cubes algorithm.
+
+\subsection{Octree}
+
+An octree is essentially a tree data structure where every node has eight child nodes (if any). In our case a node is a cube and it children are the cube divided into eight equally sized smaller cubes (see figure \ref{figure:octree}).
+
+    \begin{figure}[h]
+        \begin{center}
+            \includegraphics[scale=0.4]{./images/octree}
+        \end{center}
+        \caption{}
+        \label{figure:octree}
+    \end{figure}
+    
+This is exactly what we need to divide our 3d space into a number of cubes, and have finer grained cubes in area's where the object has sharp features.
+
+\subsection{Construction of the octree}
+
+Initially we start by taking the bounding box of the object that has to be triangulated and set it's bounding box as the root of the octree. The bounding box can be is already calculated for us by the CSG tree. To get the algorithm started the first two recursions are always done. One recursion means that a cube is divided into eight sub cubes. So the 3d space is always divided into at least $8 \cdot 8 = 64$ cubes.
+
+The next step is to visit each leaf node, and check if the part of the volume that is inside the cube for this node has any sharp features, if so another recursion step is done. This sharpness check is done by triangulating the cube (by marching the cube once) and collecting the vertices. If all normals for these vertices point approximately in the same direction, it means the surface can be considered "flat" and we do not need to recurse.
+
+% en nu nog wiskundig
+
+    \begin{figure}[h]
+        \begin{center}
+            \includegraphics[scale=0.4]{./images/Surface_normal}
+        \end{center}
+        \caption{}
+        \label{figure:surface_normal}
+    \end{figure}
+
+TODO uitleggen hoe sharpness check precies werkt: normals/dot product etc
+
+\subsection{The crack problem}
+
+
+\subsection{The algorithm}
+The algorithm stards 
+
+
+\subsection{The crack problem}
 
 \chapter{Architecture}
 
@@ -271,14 +322,14 @@ To give the user an idea of where the material is going to be added or removed a
 
 \bibliographystyle{amsplain}
 \begin{thebibliography}{99}
-\bibitem{Wiegand96} 
+\bibitem{Wiegand96}
     T.~F.~Wiegand.\\
     Interactive Rendering of CSG Models.\\
     The Eurographics Association, 1996.
-    
+
 \bibitem{img:wiki_csg_tree}
     Unknown author.\\
     Csg tree.png.\\
     http://en.wikipedia.org/wiki/File:Csg\_tree.png.\\
 \end{thebibliography}
-\end{document}
+\end{document} 
