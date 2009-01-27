@@ -1,4 +1,4 @@
-\documentclass[a4paper,10pt,twoside]{report}
+\documentclass[a4paper,10pt,twocolumn]{article}
 \usepackage{a4wide,url,longtable,lscape,verbatim,amssymb,graphicx,multirow,fancyhdr,lastpage,algorithm2e}
 
 % --- Informal Requirements Commands ---
@@ -45,7 +45,10 @@
 
 \maketitle
 
-\chapter{Introduction}
+\onecolumn
+\tableofcontents
+\twocolumn
+\section{Introduction}
 This report describes the work that we have done for the Additional Component Computer Graphics course (2IV05). We have written a program called \textit{CSGBuilder} which allows a user to create complex three-dimensional objects using only a small number of simple primitives, which are basically simple objects.\\
 
 We have used a technique, called Constructive Solid Geometry, or CSG in short, to create our models. This technique uses mathematical functions to represent primitives and boolean operators to construct extended objects using these primitives.\\
@@ -56,17 +59,16 @@ The rest of this document will describe the techniques that were mentioned above
 
 We have used the Java\textcopyright\ programming language in combination with Swing and the Java OpenGL\texttrademark\ API (JOGL) to write our program. To increase the responsiveness of our program we used the JOGL AWT GLCanvas instead of the Swing GLJPanel, because the drawing on the AWT component is faster.
 
-\tableofcontents
+\section{Requirements}
+This chapter is divided in two sections, in which different aspects of our system are specified as originally provided in our proposal. The ``Functionality'' section describes the functionality of CSGBuilder. The ``Interaction and presentation'' section describes the ways how the users of our software can interact with CSGBuilder.
 
-\chapter{Requirements}
-This chapter is divided in two sections, in which different aspects of our system are specified. The ``Functionality'' section describes the functionality of CSGBuilder. The ``Interaction and presentation'' section describes the ways how the users of our software can interact with CSGBuilder.
-
-\section{Functionality}
+\subsection{Functionality}
 This section describes the functionality of the program. There are two kinds of functionality that will be added. ``Core functionality'' is that part of the software that must be implemented in order to make it work properly. ''Extra functionality'' is that part of the software that makes it more appealing. If time permits, all the functionality will be implemented, otherwise parts of the extra functionality will be dropped.\\
 
 The core functionality consists of: \\
 \vspace{-10pt}
 \begin{enumerate}
+    \setlength{\itemsep}{-0.3em}
 	\item Object editing window
 	\item Object selector window
 	\item Object loading
@@ -81,20 +83,21 @@ The core functionality consists of: \\
 The extra functionality consists of: \\
 \vspace{-10pt}
 \begin{enumerate}
+    \setlength{\itemsep}{-0.3em}
 	\item Texturing
 	\item Adding temporary shapes
 	\item Preview
 	\item Lighting
 \end{enumerate}
 
-\subsection{Possible extra functionality (if there is time)}
+\subsubsection{Possible extra functionality (if there is time)}
 Possibility to specify a ``weight'', meaning only a certain amount of material is added or removed from the geometric object.
 
-\section{Interaction and presentation}
+\subsection{Interaction and presentation}
 
 \begin{figure}[h]
 \centering
-\includegraphics[width = 0.8\textwidth]{../resources/gui_mockup/1}
+\includegraphics[width = 0.48\textwidth]{../resources/gui_mockup/1}
 \caption{\emph{Mockup of the graphical user interface}} \label{gui_mockup}
 \end{figure}
 
@@ -105,11 +108,11 @@ Clicking with the left mouse button in the left frame will result in the model l
 Both models can be loaded from a file using the ``Load model'' buttons. The result model can also be saved to a file. \\
 
 To give the user an idea of where the material is going to be added or removed a semi transparent version of the ``building block'' model is rendered at the mouse cursor.\\
-
-\chapter{Representing Objects}
+\nopagebreak
+\section{Representing Objects}
 \label{chapt:repobj}
 
-\section{CSG Tree}
+\subsection{CSG Tree}
     To represent the objects that are modeled with our program, the Constructive Solid Geometry (CSG) technique is used. This technique uses a number of simple objects, called primitives, that are combined in to more complex objects by using boolean operators. To represent the CSG objects the CSG trees that are described in \cite{Wiegand96} are used. Figure~\ref{figure:csg_tree} shows an example of a simple CSG tree.\\
 
     \begin{figure}[h]
@@ -122,31 +125,37 @@ To give the user an idea of where the material is going to be added or removed a
 
     In a CSG tree the boolean operators are the nodes in a binary tree and the primitives are the leaves of the tree. The primitives are represented by mathematical functions in $\mathbb{R}^3$. The operators combine the primitives in a object by using boolean functions on the results of the primitive functions. How this is done will be explained in the next sections.\\
 
-\subsection{Primitives}
+\subsubsection{Primitives}
     A primitive in a CSG tree is a function $A:\mathbb{R}^3 \rightarrow \mathbb{R}$. The form of an object is constructed by drawing the points $(x,y,z)$ for which $A(x,y,z)=0$. Our program has a small number of primitives, these are described in Table~\ref{table:primitives}. In this table $p_x$, $p_y$ and $p_z$ denote the coordinates of the position of the center of the primitive and $r_x$, $r_y$ and $r_z$ denote the size of the primitive in respectively the $x$, $y$ and $z$ direction.\\
 
-    \begin{table}[h]
-        \begin{longtable}{|p{.1\linewidth}|p{.45\linewidth}|p{.45\linewidth}|}
+    \begin{table*}[t!]
+        \begin{tabular}{|p{.1\linewidth}|p{.45\linewidth}|p{.45\linewidth}|}
             \hline
             \textbf{Primitive} & \textbf{Description} & \textbf{Formula}\\
             \hline
             \hline
+             \vspace{0.1em}
              Ellipsoid &
+             \vspace{0.1em}
              Spheres or cigar formed shapes &
-             $f(x,y,z)=(\frac{p_x + x}{r_x})^2+(\frac{p_x + x}{r_x})^2+(\frac{p_x + x}{r_x})^2 - 1$\\
+             \vspace{0.1em}
+             $f(x,y,z)=(\frac{p_x + x}{r_x})^2+(\frac{p_x + x}{r_x})^2+(\frac{p_x + x}{r_x})^2 - 1$\\[1.2em]
             \hline
+             \vspace{0.1em}
              Cuboid &
+             \vspace{0.1em}
              Rectangles or bars with rounded corners &
-             $f(x,y,z)=(\frac{p_x + x}{r_x})^4+(\frac{p_x + x}{r_x})^4+(\frac{p_x + x}{r_x})^4 - 1$\\
+             \vspace{0.1em}
+             $f(x,y,z)=(\frac{p_x + x}{r_x})^4+(\frac{p_x + x}{r_x})^4+(\frac{p_x + x}{r_x})^4 - 1$\\[1.2em]
             \hline
-        \end{longtable}
+        \end{tabular}
         \caption{The primitives of CSGBuilder}
         \label{table:primitives}
-    \end{table}
+    \end{table*}
 
     These primitives can be rotated with arbitrary angels around all axes by multiplying a rotation matrix $R$, which is shown in Figure~\ref{figure:rotation_matrix}, with the vector $\overrightarrow{v}=(x,y,z)^T$, so the rotated point $\overrightarrow{w}=R\overrightarrow{v}$. Applying a primitive function $A$ on $\overrightarrow{w}^T$ causes the primitive to be rotated with angles $\alpha_x$, $\alpha_y$ and $\alpha_z$ around respectively the $x$, $y$ and $z$ axes.\\
 
-    \begin{figure}[h]
+    \begin{figure*}[!t]
         \[
             \left(
                 \begin{array}{lll}
@@ -166,36 +175,37 @@ To give the user an idea of where the material is going to be added or removed a
         \]
         \caption{The rotation matrix $R$}
         \label{figure:rotation_matrix}
-    \end{figure}
+    \end{figure*}
 
-\subsection{Operators}
+\subsubsection{Operators}
     There are three operations that can be used to construct a CSG tree. These are the union($\cup$), intersection($\cap$) and difference($-$) set operations. These set operations have to be mapped to the mathematical functions of which CSG trees are constructed, this can be done using the $\min$ and $\max$ functions, as can be seen in Figure~\ref{figure:operations}. In the figure $A, B:\mathbb{R}^3 \rightarrow \mathbb{R}$ are functions (possibly CSG trees) of which a CSG tree is constructed.\\
 
     \begin{figure}[h]
-            \begin{longtable}{lll}
-                \textbf{Union: } &
+            \hspace{-1em}
+            \begin{tabular}{p{3em} p{16.5em}}
+                \textbf{Union: } & \\[-0.8em]
                 $A \cup B$ &
-                $\forall[x,y,z \in \mathbb{R} :: \min(A(x, y, z), B(x,y,z))]$ \\
+                $\forall[x,y,z \in \mathbb{R} :: \min(A(x, y, z), B(x,y,z))]$ \\[1em]
 
-                \textbf{Intersection: } &
+                \textbf{Intersection: } & \\[-0.8em]
                 $A \cap B$ &
-                $\forall[x,y,z \in \mathbb{R} :: \max(A(x, y, z), B(x,y,z))]$ \\
+                $\forall[x,y,z \in \mathbb{R} :: \max(A(x, y, z), B(x,y,z))]$ \\[1em]
 
-                \textbf{Difference: } &
+                \textbf{Difference: } & \\[-0.8em]
                 $A - B$ &
-                $\forall[x,y,z \in \mathbb{R} :: \max(A(x, y, z), -B(x, y, z))]$ \\
-            \end{longtable}
+                $\forall[x,y,z \in \mathbb{R} :: \max(A(x, y, z), -B(x, y, z))]$ \\[1em]
+            \end{tabular}
         \caption{The operations to construct CSG trees.}
         \label{figure:operations}
     \end{figure}
 
     By combining the primitives with the operators, it is possible to create complex objects. When these objects consist of many primitives and operators the rendering of the object tends to be slow. It is possible increase the rendering speed by creating a normalize CSG tree. A way in which CSG trees can be normalized is described in the next section.\\
 
-\subsection{Normalizing CSG trees}
+\subsubsection{Normalizing CSG trees}
     As described in \cite{Wiegand96}, it is possible to increase the rendering speed, by normalizing CSG trees to a \textit{sum of products} form. This means that that all intersection and difference operators have a left subtree which contains no union operators and a right subtree that consists of a primitive. To create a normalized CSG tree, the nine operations that are described in \cite{Wiegand96} are used. These operations are recalled in Figure~\ref{table:normalize}.\\
 
     \begin{table}[h]
-        \begin{longtable}{llll}
+        \begin{tabular}{llll}
             1. & $X - (Y \cup Z)$    & $\rightarrow$ & $(X - Y) - Z$\\
             2. & $X \cap (Y \cup Z)$ & $\rightarrow$ & $(X \cap Y) \cup (X \cap Z)$\\
             3. & $X - (Y \cap Z)$    & $\rightarrow$ & $(X - Y) \cup (X - Z)$\\
@@ -205,7 +215,7 @@ To give the user an idea of where the material is going to be added or removed a
             7. & $(X - Y) \cap Z$    & $\rightarrow$ & $(X \cap Z) - Y$\\
             8. & $(X \cup Y) - Z$    & $\rightarrow$ & $(X - Z) \cup (Y - Z)$\\
             9. & $(X \cup Y) \cap Z$ & $\rightarrow$ & $(X \cap Z) \cup (Y \cap Z)$\\
-        \end{longtable}
+        \end{tabular}
         \caption{Operations to normalize a CSG tree.}
         \label{table:normalize}
     \end{table}
@@ -213,10 +223,11 @@ To give the user an idea of where the material is going to be added or removed a
     When the normalization is completed, the CSG tree might contain nodes which could be rendered even faster. The normalized CSG tree could be pruned according to the operations that are stated in Table~\ref{table:prune}. The pruning of the tree leads to less calculations, so the time that is needed to render the object is decreased.\\
 
     \begin{table}[h]
-        \begin{longtable}{lll}
+        \hspace{-0.8em}
+        \begin{tabular}{p{0.01\textwidth} p{0.12\textwidth} p{0.31\textwidth} }
             1. & $A \cap B \rightarrow \emptyset$ & if $\Bound(A)$ does not intersect $\Bound(B)$\\
             2. & $A - B \rightarrow A$            & if $\Bound(A)$ does not intersect $\Bound(B)$\\
-        \end{longtable}
+        \end{tabular}
         \caption{Operations to prune a normalized CSG tree.}
         \label{table:prune}
     \end{table}
@@ -224,11 +235,12 @@ To give the user an idea of where the material is going to be added or removed a
     In order to decide whether a node in the tree should be pruned, the cases in which the pruning takes place should be recognized. This can be done by constructing and calculating the bounding boxes of nodes in the CSG tree. The bounding box $\Bound$ of a primitive is simply the smallest cube in which the primitive can be placed. To determine the bounding box of operations in the CSG tree the equations in Table~\ref{table:bounding_box} can be used.\\
 
     \begin{table}[h]
-        \begin{longtable}{llll}
-            1. & $\Bound(A \cup B)$ & $=$ $\Bound(\Bound(A) \cup \Bound(B))$\\
-            2. & $\Bound(A \cap B)$ & $=$ $\Bound(\Bound(A) \cap \Bound(B))$\\
-            3. & $\Bound(A - B)$    & $=$ $\Bound(A)$\\
-        \end{longtable}
+        \hspace{-0.8em}
+        \begin{tabular}{p{0.01\textwidth} p{0.15\textwidth} p{0.01\textwidth} p{0.23\textwidth}}
+            1. & $\Bound(A \cup B)$ & $=$ & $\Bound(\Bound(A) \cup \Bound(B))$\\
+            2. & $\Bound(A \cap B)$ & $=$ & $\Bound(\Bound(A) \cap \Bound(B))$\\
+            3. & $\Bound(A - B)$    & $=$ & $\Bound(A)$\\
+        \end{tabular}
         \caption{The computation of a bounding box of a CSG tree.}
         \label{table:bounding_box}
     \end{table}
@@ -261,33 +273,33 @@ To give the user an idea of where the material is going to be added or removed a
         \label{figure:algorithm}
     \end{figure}
 
-\chapter{Rendering Objects}
+\section{Rendering Objects}
 
 As described in previous chapter (chapter \ref{chapt:repobj}) our objects are internally stored as CSG tree's, essentially a combination of implicit volumes resulting in a more complex object.
 
 We are rendering these objects using the marching cubes algorithm. Given an implicit volume, the marching cubes algorithm will return a mesh that approximates the volume. It does this by dividing the space into a number of cubes and then visit each cube individually which of the corners are inside or outside of the volume. This depends on the value of the implicit function at that point. Using this it can determine where triangles should be placed. This is described in more detail in the following sections.
 
-\section{Adaptive Marching Cubes}
+\subsection{Adaptive Marching Cubes}
 
 The standard marching cubes algorithm will divide the 3d space into a number of cubes all of the same dimension. This works for most objects, but as the features of the objects get sharper (for example sharp edges) we need smaller sized cubes (which means more) to get an acceptable level of detail on the rendered object. Of course the more cubes, the slower the algorithm will be.
 
 Because still most of the object will be relatively flat compared to the sharp features it would be a better idea to only have finer grained cubes where needed, thus at places where the sharp features of the objects are. With this extension we get an adaptive form of the marching cubes algorithm.
 
-\subsection{Octree}
+\subsubsection{Octree}
 
 An octree is essentially a tree data structure where every node has eight child nodes (if any). In our case a node is a cube and it children are the cube divided into eight equally sized smaller cubes (see figure \ref{figure:octree}).
 
     \begin{figure}[h]
         \begin{center}
-            \includegraphics[scale=0.8]{./images/octree}
+            \includegraphics[scale=0.4]{./images/octree_block}
         \end{center}
-        \caption{}
+        \caption{Bounding box subdivision example}
         \label{figure:octree}
     \end{figure}
 
 This is exactly what we need to divide our 3d space into a number of cubes, and have finer grained cubes in area's where the object has sharp features.
 
-\subsection{Construction of the octree}
+\subsubsection{Construction of the octree}
 \label{sect:genoctree}
 Initially we start by taking the bounding box of the object that has to be triangulated and set it's bounding box as the root of the octree. The bounding box can be is already calculated for us by the CSG tree. To get the algorithm started the first two recursions are always done. One recursion means that a cube is divided into eight sub cubes. So the 3d space is always divided into at least $8 \cdot 8 = 64$ cubes.
 
@@ -299,24 +311,24 @@ The next step is to visit each leaf node, and check if the part of the volume th
         \begin{center}
             \includegraphics[scale=0.4]{./images/Surface_normal}
         \end{center}
-        \caption{}
+        \caption{Example surface normals (source$^1$)}
         \label{figure:surface_normal}
     \end{figure}
-
 TODO uitleggen hoe sharpness check precies werkt: normals/dot product etc
 
-\subsection{The algorithm}
+\subsubsection{The algorithm}
+\footnotetext[1]{http://en.wikipedia.org/wiki/Surface\_normal}
 
-The octree, generated as described in section \ref{sect:genoctree}, is used as the input for the algorithm. For every leaf node, the algorithm will march the cube assigned to that leaf node. 
+The octree, generated as described in section \ref{sect:genoctree}, is used as the input for the algorithm. For every leaf node, the algorithm will march the cube assigned to that leaf node.
 
     \begin{figure}[h]
         \begin{center}
             \includegraphics[scale=0.6]{./images/cube_config}
         \end{center}
-        \caption{The cube on the left shows the edge configuration, the cube on the right the vertex configuration.}
+        \caption{Cube A shows the edge configuration, cube B the vertex configuration.}
         \label{figure:cube_config}
     \end{figure}
-    
+
 Each of the eight corner points of the cube can be either inside or outside of the implicit volume, this can be determined by the value returned by the CSG tree for these points. If the value is lower than the ISO value it means the point is inside the volume, else it's outside. So in total, because ever point can be either inside or outside of the volume, there are $2^8 = 256$ different cases.
 
 The algorithm used two predefined lookup tables:
@@ -328,11 +340,11 @@ The algorithm used two predefined lookup tables:
 
 The index to these lookup tables is calculated by setting the $i^{th}$ most significant bit to one if the $i^{th}$ corner vertex is inside the volume, else it's set to zero. Now using this index the algorithm can look at the \textbf{Edge table} and find all edges that are cut by the volume. For each edge that is indeed cut by the volume it will approximate the exact intersection point on the edge by using linear interpolation between the two endpoint of the edge:
 
-\begin{equation}
-    p_e.x = p_i.x + r \cdot (p_o.x - p_i.x)
-    p_e.y = p_i.y + r \cdot (p_o.y - p_i.y)
-    p_e.z = p_i.z + r \cdot (p_o.z - p_i.z)
-\end{equation}
+\begin{eqnarray}
+    p_e.x & = & p_i.x + r \cdot (p_o.x - p_i.x) \\
+    p_e.y & = & p_i.y + r \cdot (p_o.y - p_i.y) \\
+    p_e.z & = & p_i.z + r \cdot (p_o.z - p_i.z)
+\end{eqnarray}
 
 Where $p_e$, $p_i$ and $p_o$ are the approximated intersection point, the corner point inside the volume and the corner point outside of the volume respectively. $r$ is the interpolation ratio given by:
 
@@ -344,9 +356,10 @@ Where $i$ is the ISO level (usually 0) and $v_{p_o}$ and $v_{p_i}$ are the value
 
 Next step in the algorithm is to walk through the list of triangle vertices defined in the \textbf{Triangle table}. These are already ordered to form a triangle so we can just take the approximated intersection point for this edge, which is calculated in previous step, and add this as a vertex.
 
-\subsection{The crack problem}
+\subsubsection{The crack problem}
+\label{sect:crack_problem}
 
-Cracks in the mesh can occur when neighboring cubes in the octree are not of the same resolution. When doing the interpolation step, or in non-flat areas the generated triangles in neighboring cubes will not exactly fit eachother, causing visible cracks in the mesh. See figure \ref{fig:amccracks} for an example.
+Cracks in the mesh can occur when neighboring cubes in the octree are not of the same resolution. When doing the interpolation step, or in non-flat areas the generated triangles in neighboring cubes will not exactly fit each other, causing visible cracks in the mesh. See figure \ref{fig:amccracks} for an example.
 
     \begin{figure}[h]
         \begin{center}
@@ -358,13 +371,14 @@ Cracks in the mesh can occur when neighboring cubes in the octree are not of the
 
 TODO hoe gesolved..
 
-\chapter{Architecture}
+\section{Architecture}
+
+\section{Evaluation}
+
+Although the marching cubes algorithm does work, it is not as fast as we had imagined. Originally we had planned to spend some time improving the performance. As described in section \ref{sect:crack_problem} due to the adaptive variant of the marching cubes algorithm cracks occur in the rendered object. We tried to fix this using a technique described in \cite{DMC}, but only got this partly working due to time constraints.
 
 
-
-\chapter{Evaluation}
-
-\chapter{Conclusion}
+\section{Conclusion}
 
 \bibliographystyle{amsplain}
 \begin{thebibliography}{99}
@@ -372,6 +386,10 @@ TODO hoe gesolved..
     T.~F.~Wiegand.\\
     Interactive Rendering of CSG Models.\\
     The Eurographics Association, 1996.
+
+\bibitem{DMC}
+    S. Schaefer, J. Warren. \\
+    Dual Marching Cubes: Primal Contouring of Dual Grids. \\
 
 \bibitem{img:wiki_csg_tree}
     Unknown author.\\
