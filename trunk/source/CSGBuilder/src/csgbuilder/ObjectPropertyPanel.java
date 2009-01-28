@@ -40,7 +40,7 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
         heightSpinner.setEnabled(tree.isResizable());
         lengthSpinner.setEnabled(tree.isResizable());
         
- //       resetValues();
+       resetValues();
     }
     
     public void setViewer(OperandViewer viewer) {
@@ -170,8 +170,6 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
     @SuppressWarnings("unchecked")
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
-
-        jFileChooser1 = new javax.swing.JFileChooser();
         jPanel1 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
@@ -196,8 +194,6 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
         jPanel4 = new javax.swing.JPanel();
         objectComboBox = new javax.swing.JComboBox();
         jButton1 = new javax.swing.JButton();
-
-        jFileChooser1.setName("jFileChooser1"); // NOI18N
 
         org.jdesktop.application.ResourceMap resourceMap = org.jdesktop.application.Application.getInstance(csgbuilder.CSGBuilderApp.class).getContext().getResourceMap(ObjectPropertyPanel.class);
         setBorder(javax.swing.BorderFactory.createTitledBorder(resourceMap.getString("Form.border.title"))); // NOI18N
@@ -527,7 +523,7 @@ private void spinnerPropertyChanged(javax.swing.event.ChangeEvent evt) {//GEN-FI
 }//GEN-LAST:event_spinnerPropertyChanged
 
 private void loadObject(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadObject
-    int returnVal = jFileChooser1.showOpenDialog(this);
+    int returnVal = CSGSaveLoadDialog.showOpenDialog(new javax.swing.JFrame());
     
     if(returnVal != javax.swing.JFileChooser.APPROVE_OPTION) {
         javax.swing.JOptionPane.showMessageDialog(this,
@@ -543,8 +539,8 @@ private void loadObject(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadO
     CSGTree csgTree;
         
     try {
-        String filepath = jFileChooser1.getSelectedFile().getAbsolutePath();
-        String filename = jFileChooser1.getSelectedFile().getName();
+        String filepath = CSGSaveLoadDialog.getSelectedFile().getAbsolutePath();
+        String filename = CSGSaveLoadDialog.getSelectedFile().getName();
         fis = new java.io.FileInputStream(filepath);
         in  = new java.io.ObjectInputStream(fis);
         csgTree = (CSGTree)in.readObject();
@@ -572,7 +568,6 @@ private void loadObject(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_loadO
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JSpinner heightSpinner;
     private javax.swing.JButton jButton1;
-    private javax.swing.JFileChooser jFileChooser1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

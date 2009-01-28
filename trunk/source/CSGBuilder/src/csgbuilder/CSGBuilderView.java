@@ -18,6 +18,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.media.opengl.*;
 import javax.swing.JFileChooser;
+import javax.swing.filechooser.*;
 import javax.swing.*;
 
 /**
@@ -159,6 +160,7 @@ public class CSGBuilderView extends FrameView {
         jMenu1 = new javax.swing.JMenu();
         jMenuItem1 = new javax.swing.JMenuItem();
         jMenu2 = new javax.swing.JMenu();
+        jMenuItem2 = new javax.swing.JMenuItem();
         jMenu3 = new javax.swing.JMenu();
         jCheckBoxMenuItem1 = new javax.swing.JCheckBoxMenuItem();
         jCheckBoxMenuItem2 = new javax.swing.JCheckBoxMenuItem();
@@ -217,6 +219,16 @@ public class CSGBuilderView extends FrameView {
 
         jMenu2.setText(resourceMap.getString("jMenu2.text")); // NOI18N
         jMenu2.setName("jMenu2"); // NOI18N
+
+        jMenuItem2.setText(resourceMap.getString("jMenuItem2.text")); // NOI18N
+        jMenuItem2.setName("jMenuItem2"); // NOI18N
+        jMenuItem2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jMenuItem2ActionPerformed(evt);
+            }
+        });
+        jMenu2.add(jMenuItem2);
+
         jMenuBar1.add(jMenu2);
 
         jMenu3.setText(resourceMap.getString("jMenu3.text")); // NOI18N
@@ -345,6 +357,37 @@ private void jCheckBoxMenuItem4ItemStateChanged(java.awt.event.ItemEvent evt) {/
     catch (java.beans.PropertyVetoException e) {}
 }//GEN-LAST:event_jCheckBoxMenuItem4ItemStateChanged
 
+private void jMenuItem2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jMenuItem2ActionPerformed
+    if (mAOperandViewer.getTree() ==  null) {
+	javax.swing.JOptionPane.showMessageDialog(new JFrame(),
+            "There is no object to save.",
+            "Error",
+            javax.swing.JOptionPane.ERROR_MESSAGE);	
+	return;
+    }
+    
+    if (CSGSaveLoadDialog.showSaveDialog(mainFrame) == JFileChooser.APPROVE_OPTION) {
+	java.io.File file = CSGSaveLoadDialog.getSelectedFile();
+	java.io.FileOutputStream fos = null;
+	java.io.ObjectOutputStream out = null;
+	
+	try
+	{
+	    fos = new java.io.FileOutputStream(file);
+	    out = new java.io.ObjectOutputStream(fos);	    
+	    out.writeObject(mAOperandViewer.getTree());
+	    
+	    out.close();
+	}
+	catch(IOException ex)
+	{
+	    ex.printStackTrace();
+	}
+    }
+    
+    System.out.println("Saved");
+}//GEN-LAST:event_jMenuItem2ActionPerformed
+
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JCheckBoxMenuItem jCheckBoxMenuItem1;
@@ -358,5 +401,6 @@ private void jCheckBoxMenuItem4ItemStateChanged(java.awt.event.ItemEvent evt) {/
     private javax.swing.JMenu jMenu3;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuItem jMenuItem1;
+    private javax.swing.JMenuItem jMenuItem2;
     // End of variables declaration//GEN-END:variables
 }

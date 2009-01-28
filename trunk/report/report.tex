@@ -93,7 +93,7 @@ The extra functionality consists of: \\
 	\item Lighting
 \end{enumerate}
 
-\subsubsection{Possible extra functionality (if there is time)}
+\subsubsection{Possible extra functionality}
 Possibility to specify a ``weight'', meaning only a certain amount of material is added or removed from the geometric object.
 
 \subsection{Interaction and presentation}
@@ -234,12 +234,11 @@ To give the user an idea of where the material is going to be added or removed a
     In order to decide whether a node in the tree should be pruned, the cases in which the pruning takes place should be recognized. This can be done by constructing and calculating the bounding boxes of nodes in the CSG tree. The bounding box $\Bound$ of a primitive is simply the smallest cube in which the primitive can be placed. To determine the bounding box of operations in the CSG tree the equations in Table~\ref{table:bounding_box} can be used.\\
 
     \begin{table}[h]
-        \hspace{-0.8em}
-        \begin{tabular}{p{0.01\textwidth} p{0.15\textwidth} p{0.01\textwidth} p{0.23\textwidth}}
-            1. & $\Bound(A \cup B)$ & $=$ & $\Bound(\Bound(A) \cup \Bound(B))$\\
-            2. & $\Bound(A \cap B)$ & $=$ & $\Bound(\Bound(A) \cap \Bound(B))$\\
-            3. & $\Bound(A - B)$    & $=$ & $\Bound(A)$\\
-        \end{tabular}
+        {\fontsize{8.7}{10}\selectfont
+            1. $\Bound(A \cup B) = \Bound(\Bound(A) \cup \Bound(B))$\\
+            2. $\Bound(A \cap B) = \Bound(\Bound(A) \cap \Bound(B))$\\
+            3. $\Bound(A - B)    = \Bound(A)$\\
+        }
         \caption{The computation of a bounding box of a CSG tree}
         \label{table:bounding_box}
     \end{table}
@@ -371,12 +370,23 @@ Cracks in the mesh can occur when neighboring cubes in the octree are not of the
 TODO hoe gesolved..
 
 \section{Architecture}
-The most important parts of the architecture of CSGBuilder are shown in Figure~\ref{figure:architecture}.
-\begin{figure}[h]
+\begin{figure*}[!t]
     \includegraphics[width=\textwidth]{./images/architecture}
     \caption{The architecture of CSGBuilder}
     \label{figure:architecture}
-\end{figure}
+\end{figure*}
+
+The most important parts of the architecture of CSGBuilder are shown in Figure~\ref{figure:architecture}. The figure is a simplified view of the architecture, but the most important classes and the most important fields and methods of these classes are included.\\
+
+The classes in the figure can roughly be divided into two groups. A group which contains and manages the internal tree structure of objects, and a group which handles the rendering of objects.\\
+
+The first group consists of the \texttt{CSGObject} class and its subclasses. The second group consists of \texttt{OperandViewer} class, the \texttt{CSGTreePolygoniser} class, the \texttt{OperandViewerRenderer}. The \texttt{CSGBuilderView} class is not part of these groups, because it implements the user interface of \textit{CSGBuilder}. The classes are described in more detail below.
+
+\begin{list}{\labelitemi}{\leftmargin=0em}
+    \item[] \textbf{CSGObject} This class defines an interface for all the nodes of a CSG tree. So, common operations that can be done on these nodes are defined here. The most important operations on a \texttt{CSGObject} are rotating the object around a point, resizing the object, moving the object to another position, calculate the value of an object given $x, y$ and $z$ coordinates and computing the bounding box of an object.\\
+        
+        The \texttt{CSGTree} class is an important descendant of \texttt{CSGObject}. This class blaat vanalles
+\end{list}
 
 \section{Evaluation}
 

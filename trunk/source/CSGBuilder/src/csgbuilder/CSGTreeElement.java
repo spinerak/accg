@@ -137,13 +137,22 @@ class CSGTreeUnion extends CSGTreeOperation {
         return root;
     }
     
+    @Override public boolean isMovable() {
+	return left.isMovable() && right.isMovable();
+    }
+    
+    @Override public void move(double[] pos) {
+	left.move(pos);
+	right.move(pos);
+    }
+    
     @Override public String toString() {
         return "UNION(" + left.toString() + "," + right.toString() + ")";
     }
 
     @Override
     public CSGTreeElement clone() {
-        throw new UnsupportedOperationException("Not supported yet.");
+        return new CSGTreeUnion(left.clone(), right.clone());
     }
 }
 
@@ -210,7 +219,7 @@ class CSGTreeIntersection extends CSGTreeOperation {
 
     @Override
     public CSGTreeElement clone() {
-        throw new UnsupportedOperationException("Not supported yet.");
+	return new CSGTreeIntersection(left.clone(), right.clone());
     }
 }
 class CSGTreeDifference extends CSGTreeOperation {
@@ -240,8 +249,8 @@ class CSGTreeDifference extends CSGTreeOperation {
     }
     
     @Override
-    public CSGTreeElement clone() {
-        throw new UnsupportedOperationException("Not supported yet.");
+    public CSGTreeElement clone() {	
+        return new CSGTreeDifference(left.clone(), right.clone());
     }    
 }
 
@@ -523,7 +532,8 @@ class CSGSuperToroid extends CSGSuperQuadric {
                                                Math.abs((pos[2] + z) / size[2])));
                                                
         //z2 + (sqrt(x2 + y2) - a)2 - b2 = 0 
-        return Math.pow(v.z, exponents[2]) + Math.pow(Math.sqrt(v.x*v.x + v.y*v.y) - a, exponents[0]) - Math.pow(b,exponents[1]);
+        return Math.pow(v.z, exponents[2]) + 
+	       Math.pow(Math.sqrt(v.x*v.x + v.y*v.y) - a, exponents[0]) - Math.pow(b,exponents[1]);
     }
     
     @Override

@@ -31,7 +31,7 @@ public class OperandViewerMIA extends MouseInputAdapter implements KeyListener {
     
     public void mouseClicked(MouseEvent e) {
         if (SwingUtilities.isRightMouseButton(e)) {
-            mRenderer.reset();
+	    mRenderer.reset();
         }
     }
 
