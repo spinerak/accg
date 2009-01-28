@@ -35,6 +35,7 @@
 
 % No paragraph indent, it's ugly
 \setlength\parindent{0em}
+\setlength\parskip{0.8em}
 
 % Make sure no text goes beyond the page
 \setlength{\textheight}{60em}
@@ -52,21 +53,27 @@
 \setcounter{page}{1}
 \twocolumn
 \section{Introduction}
-This report describes the work that we have done for the Additional Component Computer Graphics course (2IV05). We have written a program called \textit{CSGBuilder} which allows a user to create complex three-dimensional objects using only a small number of simple primitives, which are basically simple objects.\\
+This report describes the work that we have done for the Additional Component Computer Graphics course (2IV05). We have written a program called \textit{CSGBuilder} which allows a user to create complex three-dimensional objects using only a small number of simple primitives, which are basically simple objects.
 
-We have used a technique, called Constructive Solid Geometry, or CSG in short, to create our models. This technique uses mathematical functions to represent primitives and boolean operators to construct extended objects using these primitives.\\
+We have used a technique, called Constructive Solid Geometry, or CSG in short, to create our models. This technique uses mathematical functions to represent primitives and boolean operators to construct extended objects using these primitives.
 
-For the rendering of our objects we used the adaptive marching cubes algorithm. This algorithm divides the space around the CSG objects in a number of cubes and constructs a mesh that approaches the form of the object. We have used the adaptive form of this algorithm, because this increases the precision of the rendered objects.\\
+For the rendering of our objects we used the adaptive marching cubes algorithm. This algorithm divides the space around the CSG objects in a number of cubes and constructs a mesh that approaches the form of the object. We have used the adaptive form of this algorithm, because this increases the precision of the rendered objects.
 
-The rest of this document will describe the techniques that were mentioned above in more detail. Also the way we used the techniques will be explained. Besides this, the architecture and user interface of our program are explained.\\
+The rest of this document will describe the techniques that were mentioned above in more detail. Also the way we used the techniques will be explained. Besides this, the architecture and user interface of our program are explained.
 
 We have used the Java\textcopyright\ programming language in combination with Swing and the Java OpenGL\texttrademark\ API (JOGL) to write our program. To increase the responsiveness of our program we used the JOGL AWT GLCanvas instead of the Swing GLJPanel, because the drawing on the AWT component is faster.
 
 \section{Requirements}
+\begin{figure*}[t!]
+\centering
+\includegraphics[width = 0.9\textwidth]{images/gui}
+\caption{Actual GUI of current application}
+\label{figure:gui}
+\end{figure*}
 This chapter is divided in two sections, in which different aspects of our system are specified as originally provided in our proposal. The ``Functionality'' section describes the functionality of CSGBuilder. The ``Interaction and presentation'' section describes the ways how the users of our software can interact with CSGBuilder.
 
 \subsection{Functionality}
-This section describes the functionality of the program. There are two kinds of functionality that will be added. ``Core functionality'' is that part of the software that must be implemented in order to make it work properly. ''Extra functionality'' is that part of the software that makes it more appealing. If time permits, all the functionality will be implemented, otherwise parts of the extra functionality will be dropped.\\
+This section describes the functionality of the program. There are two kinds of functionality that will be added. ``Core functionality'' is that part of the software that must be implemented in order to make it work properly. ''Extra functionality'' is that part of the software that makes it more appealing. If time permits, all the functionality will be implemented, otherwise parts of the extra functionality will be dropped.
 
 The core functionality consists of: \\
 \vspace{-10pt}
@@ -98,25 +105,26 @@ Possibility to specify a ``weight'', meaning only a certain amount of material i
 
 \subsection{Interaction and presentation}
 
-\begin{figure}[h]
-\centering
-\includegraphics[width = 0.48\textwidth]{../resources/gui_mockup/1}
-\caption{Mockup of the graphical user interface} \label{gui_mockup}
-\end{figure}
+%\begin{figure}[h]
+%\centering
+%\includegraphics[width = 0.48\textwidth]{../resources/gui_mockup/1}
+%\caption{\emph{Mockup of the graphical user interface}} \label{gui_mockup}
+%\end{figure}
 
-Figure \ref{gui_mockup} displays a mockup of the graphical user interface. The right and left frame contain respectively the ``building block'' and the ``result'' models. Using the mouse both models can be zoomed an rotated in an intuitive way (like in 3D Studio Max).\\
 
-Clicking with the left mouse button in the left frame will result in the model loaded in the right frame being added to the result model at the clicked position. Using the right mouse button the model can be removed from the result model. \\
+Figure \ref{figure:gui} displays a the graphical user interface of the application. Two main parts of the are the two windows displaying rendered objects. Displayed are the constructed object on the left and the building block object on the right. As described more complex object can be created by adding or removing the building block object from the constructed object.
 
-Both models can be loaded from a file using the ``Load model'' buttons. The result model can also be saved to a file. \\
+Changing the view port on both windows can be done intuitively by dragging the mouse to rotate, or using the mouse wheel to zoom in or out of the object. By holding down the CTRL key while dragging the mouse the object can be translated. Resetting the view port to it's original state can be done by clicking somewhere inside the view port using the right mouse button.
 
-To give the user an idea of where the material is going to be added or removed a semi transparent version of the ``building block'' model is rendered at the mouse cursor.\\
-\nopagebreak
+When holding down the ALT or SHIFT key, the building block object appears in green in the same window as the constructed object (as displayed in Figure \ref{figure:gui}). The green object indicates where the building object is going to be added to, or removed from the constructed object. Actual adding of the object can be done by holding down the SHIFT key and clicking the left mouse button, holding down the ALT key and clicking will remove the object from the constructed object.
+
+On the right there is a panel which allows the users to adjust certain parameters of the building block object like position ($x, y, z$), dimension (width, height, length) and the rotation (x, y, z axis). Adjusting this parameters will cause the building block object to be re-rendered and will also influence the position at which the object is removed/added from the constructed object. Also the panel has a \textit{Load} button which allows the user to load any previously constructed object and use it as a building block. Constructed objects can be saved by selecting \textit{Save} from the \textit{File} menu.
+
 \section{Representing Objects}
 \label{chapt:repobj}
 
 \subsection{CSG Tree}
-    To represent the objects that are modeled with our program, the Constructive Solid Geometry (CSG) technique is used. This technique uses a number of simple objects, called primitives, that are combined in to more complex objects by using boolean operators. To represent the CSG objects the CSG trees that are described in \cite{Wiegand96} are used. Figure~\ref{figure:csg_tree} shows an example of a simple CSG tree.\\
+    To represent the objects that are modeled with our program, the Constructive Solid Geometry (CSG) technique is used. This technique uses a number of simple objects, called primitives, that are combined in to more complex objects by using boolean operators. To represent the CSG objects the CSG trees that are described in \cite{Wiegand96} are used. Figure~\ref{figure:csg_tree} shows an example of a simple CSG tree.
 
     \begin{figure}[h]
         \begin{center}
@@ -126,13 +134,13 @@ To give the user an idea of where the material is going to be added or removed a
         \label{figure:csg_tree}
     \end{figure}
 
-    In a CSG tree the boolean operators are the nodes in a binary tree and the primitives are the leaves of the tree. The primitives are represented by mathematical functions in $\mathbb{R}^3$. The operators combine the primitives in a object by using boolean functions on the results of the primitive functions. How this is done will be explained in the next sections.\\
+    In a CSG tree the boolean operators are the nodes in a binary tree and the primitives are the leaves of the tree. The primitives are represented by mathematical functions in $\mathbb{R}^3$. The operators combine the primitives in a object by using boolean functions on the results of the primitive functions. How this is done will be explained in the next sections.
 
 \subsubsection{Primitives}
-    A primitive in a CSG tree is a function $A:\mathbb{R}^3 \rightarrow \mathbb{R}$. The form of an object is constructed by drawing the points $(x,y,z)$ for which $A(x,y,z)=0$. Our program has a small number of primitives, these are described in Table~\ref{table:primitives}. In this table $p_x$, $p_y$ and $p_z$ denote the coordinates of the position of the center of the primitive and $r_x$, $r_y$ and $r_z$ denote the size of the primitive in respectively the $x$, $y$ and $z$ direction.\\
+    A primitive in a CSG tree is a function $A:\mathbb{R}^3 \rightarrow \mathbb{R}$. The form of an object is constructed by drawing the points $(x,y,z)$ for which $A(x,y,z)=0$. Our program has a small number of primitives, these are described in Table~\ref{table:primitives}. In this table $p_x$, $p_y$ and $p_z$ denote the coordinates of the position of the center of the primitive and $r_x$, $r_y$ and $r_z$ denote the size of the primitive in respectively the $x$, $y$ and $z$ direction.
 
     \begin{table*}[t!]
-        \begin{tabular}{|p{.1\linewidth}|p{.45\linewidth}|p{.45\linewidth}|}
+        \begin{tabular}{|p{.1\linewidth}|p{.40\linewidth}|p{.40\linewidth}|}
             \hline
             \textbf{Primitive} & \textbf{Description} & \textbf{Formula}\\
             \hline
@@ -156,7 +164,7 @@ To give the user an idea of where the material is going to be added or removed a
         \label{table:primitives}
     \end{table*}
 
-    These primitives can be rotated with arbitrary angels around all axes by multiplying a rotation matrix $R$, which is shown in Figure~\ref{figure:rotation_matrix}, with the vector $\overrightarrow{v}=(x,y,z)^T$, so the rotated point $\overrightarrow{w}=R\overrightarrow{v}$. Applying a primitive function $A$ on $\overrightarrow{w}^T$ causes the primitive to be rotated with angles $\alpha_x$, $\alpha_y$ and $\alpha_z$ around respectively the $x$, $y$ and $z$ axes.\\
+    These primitives can be rotated with arbitrary angels around all axes by multiplying a rotation matrix $R$, which is shown in Figure~\ref{figure:rotation_matrix}, with the vector $\overrightarrow{v}=(x,y,z)^T$, so the rotated point $\overrightarrow{w}=R\overrightarrow{v}$. Applying a primitive function $A$ on $\overrightarrow{w}^T$ causes the primitive to be rotated with angles $\alpha_x$, $\alpha_y$ and $\alpha_z$ around respectively the $x$, $y$ and $z$ axes.
 
     \begin{figure*}[!t]
         \[
@@ -181,7 +189,7 @@ To give the user an idea of where the material is going to be added or removed a
     \end{figure*}
 
 \subsubsection{Operators}
-    There are three operations that can be used to construct a CSG tree. These are the union($\cup$), intersection($\cap$) and difference($-$) set operations. These set operations have to be mapped to the mathematical functions of which CSG trees are constructed, this can be done using the $\min$ and $\max$ functions, as can be seen in Figure~\ref{figure:operations}. In the figure $A, B:\mathbb{R}^3 \rightarrow \mathbb{R}$ are functions (possibly CSG trees) of which a CSG tree is constructed.\\
+    There are three operations that can be used to construct a CSG tree. These are the union($\cup$), intersection($\cap$) and difference($-$) set operations. These set operations have to be mapped to the mathematical functions of which CSG trees are constructed, this can be done using the $\min$ and $\max$ functions, as can be seen in Figure~\ref{figure:operations}. In the figure $A, B:\mathbb{R}^3 \rightarrow \mathbb{R}$ are functions (possibly CSG trees) of which a CSG tree is constructed.
 
     \begin{figure}[h]
         {\fontsize{8.7}{10}\selectfont
@@ -198,10 +206,10 @@ To give the user an idea of where the material is going to be added or removed a
         \label{figure:operations}
     \end{figure}
 
-    By combining the primitives with the operators, it is possible to create complex objects. When these objects consist of many primitives and operators the rendering of the object tends to be slow. It is possible increase the rendering speed by creating a normalize CSG tree. A way in which CSG trees can be normalized is described in the next section.\\
+    By combining the primitives with the operators, it is possible to create complex objects. When these objects consist of many primitives and operators the rendering of the object tends to be slow. It is possible increase the rendering speed by creating a normalize CSG tree. A way in which CSG trees can be normalized is described in the next section.
 
 \subsubsection{Normalizing CSG trees}
-    As described in \cite{Wiegand96}, it is possible to increase the rendering speed, by normalizing CSG trees to a \textit{sum of products} form. This means that that all intersection and difference operators have a left subtree which contains no union operators and a right subtree that consists of a primitive. To create a normalized CSG tree, the nine operations that are described in \cite{Wiegand96} are used. These operations are recalled in Figure~\ref{table:normalize}.\\
+    As described in \cite{Wiegand96}, it is possible to increase the rendering speed, by normalizing CSG trees to a \textit{sum of products} form. This means that that all intersection and difference operators have a left subtree which contains no union operators and a right subtree that consists of a primitive. To create a normalized CSG tree, the nine operations that are described in \cite{Wiegand96} are used. These operations are recalled in Figure~\ref{table:normalize}.
 
     \begin{table}[h]
         \begin{tabular}{llll}
@@ -219,7 +227,7 @@ To give the user an idea of where the material is going to be added or removed a
         \label{table:normalize}
     \end{table}
 
-    When the normalization is completed, the CSG tree might contain nodes which could be rendered even faster. The normalized CSG tree could be pruned according to the operations that are stated in Table~\ref{table:prune}. The pruning of the tree leads to less calculations, so the time that is needed to render the object is decreased.\\
+    When the normalization is completed, the CSG tree might contain nodes which could be rendered even faster. The normalized CSG tree could be pruned according to the operations that are stated in Table~\ref{table:prune}. The pruning of the tree leads to less calculations, so the time that is needed to render the object is decreased.
 
     \begin{table}[h]
         \hspace{-0.8em}
@@ -231,7 +239,7 @@ To give the user an idea of where the material is going to be added or removed a
         \label{table:prune}
     \end{table}
 
-    In order to decide whether a node in the tree should be pruned, the cases in which the pruning takes place should be recognized. This can be done by constructing and calculating the bounding boxes of nodes in the CSG tree. The bounding box $\Bound$ of a primitive is simply the smallest cube in which the primitive can be placed. To determine the bounding box of operations in the CSG tree the equations in Table~\ref{table:bounding_box} can be used.\\
+    In order to decide whether a node in the tree should be pruned, the cases in which the pruning takes place should be recognized. This can be done by constructing and calculating the bounding boxes of nodes in the CSG tree. The bounding box $\Bound$ of a primitive is simply the smallest cube in which the primitive can be placed. To determine the bounding box of operations in the CSG tree the equations in Table~\ref{table:bounding_box} can be used.
 
     \begin{table}[h]
         {\fontsize{8.7}{10}\selectfont
@@ -243,7 +251,7 @@ To give the user an idea of where the material is going to be added or removed a
         \label{table:bounding_box}
     \end{table}
 
-    Applying the normalization and pruning operations on the nodes of a tree leads to the normalization algorithm that is described in  Figure~\ref{figure:algorithm}. This algorithm is based on the normalization algorithm in \cite{Wiegand96}.\\
+    Applying the normalization and pruning operations on the nodes of a tree leads to the normalization algorithm that is described in  Figure~\ref{figure:algorithm}. This algorithm is based on the normalization algorithm in \cite{Wiegand96}.
 
     \begin{figure}[ht]
             \textbf{Algorithm} $\textsc{Normalize}(T: CSGTree)$\\
@@ -303,8 +311,6 @@ Initially we start by taking the bounding box of the object that has to be trian
 
 The next step is to visit each leaf node, and check if the part of the volume that is inside the cube for this node has any sharp features, if so another recursion step is done. This sharpness check is done by triangulating the cube (by marching the cube once) and collecting the vertices. If all normals for these vertices point approximately in the same direction, it means the surface can be considered "flat" and we do not need to recurse.
 
-% en nu nog wiskundig
-
     \begin{figure}[h]
         \begin{center}
             \includegraphics[scale=0.4]{./images/Surface_normal}
@@ -312,7 +318,42 @@ The next step is to visit each leaf node, and check if the part of the volume th
         \caption{Example surface normals (source$^1$)}
         \label{figure:surface_normal}
     \end{figure}
-TODO uitleggen hoe sharpness check precies werkt: normals/dot product etc
+
+To determine if the volume inside a cube has sharp features we use the following algorithm with input $N$ is the vertices collected from the triangles inside the cube:
+
+    \begin{figure}[ht]
+            \textbf{Algorithm} $\textsc{IsSharp}(N: Vertices)$\\
+            \noindent
+            \begin{algorithm}[H]
+                \CommentSty{// N is a list of vertices}\;
+                \For{every pair $v, w \in N$ where $v \neq w$}{
+                    \If{$arccos(dot\_product(v, w)) > \delta$} {
+                        \Return{\textbf{true}}\;
+                    }
+                }
+                \BlankLine
+                \Return{\textbf{true}}\;
+            \end{algorithm}
+        \caption{Algorithm to detect if the volume inside a cube has sharp features}
+        \label{figure:algorithm}
+    \end{figure}
+
+Essentially this algorithm returns true if the angle between any two vertices is larger than $\delta$. Given the definition of the dot product (see Figure \ref{figure:dot_product}). We can calculate the angle between $v$ and $w$ using the inverse cosine in the following way:
+
+\begin{equation}
+    \theta = arccos(\displaystyle\frac{v \bullet w}{|v||w|})
+\end{equation}
+
+Because the vertices are normalized $|v||w|$ will always be $1$, so we can simplify this to $\theta = arccos(v \bullet w)$.
+
+    \begin{figure}[h!]
+        \begin{center}
+            \includegraphics[scale=0.8]{./images/dotproduct}
+        \end{center}
+        \caption{Dot product $v \bullet w = |v||w|cos(\theta)$}
+        \label{figure:dot_product}
+    \end{figure}
+
 
 \subsubsection{The algorithm}
 \footnotetext[1]{http://en.wikipedia.org/wiki/Surface\_normal}
@@ -367,8 +408,6 @@ Cracks in the mesh can occur when neighboring cubes in the octree are not of the
         \label{figure:amccracks}
     \end{figure}
 
-TODO hoe gesolved..
-
 \section{Architecture}
 \begin{figure*}[!t]
     \includegraphics[width=\textwidth]{./images/architecture}
@@ -376,22 +415,22 @@ TODO hoe gesolved..
     \label{figure:architecture}
 \end{figure*}
 
-The most important parts of the architecture of CSGBuilder are shown in Figure~\ref{figure:architecture}. The figure is a simplified view of the architecture, but the most important classes and the most important fields and methods of these classes are included.\\
+The most important parts of the architecture of CSGBuilder are shown in Figure~\ref{figure:architecture}. The figure is a simplified view of the architecture, but the most important classes and the most important fields and methods of these classes are included.
 
-The classes in the figure can roughly be divided into two groups. A group which contains and manages the internal tree structure of objects, and a group which handles the rendering of objects.\\
+The classes in the figure can roughly be divided into two groups. A group which contains and manages the internal tree structure of objects, and a group which handles the rendering of objects.
 
 The first group consists of the \texttt{CSGObject} class and its subclasses. The second group consists of \texttt{OperandViewer} class, the \texttt{CSGTreePolygoniser} class, the \texttt{OperandViewerRenderer}. The \texttt{CSGBuilderView} class is not part of these groups, because it implements the user interface of \textit{CSGBuilder}. The classes are described in more detail below.
 
 \begin{list}{\labelitemi}{\leftmargin=0em}
-    \item[] \textbf{CSGObject} This class defines an interface for all the nodes of a CSG tree. So, common operations that can be done on these nodes are defined here. The most important operations on a \texttt{CSGObject} are rotating the object around a point, resizing the object, moving the object to another position, calculate the value of an object given $x, y$ and $z$ coordinates and computing the bounding box of an object.\\
-        
+    \item[] \textbf{CSGObject} This class defines an interface for all the nodes of a CSG tree. So, common operations that can be done on these nodes are defined here. The most important operations on a \texttt{CSGObject} are rotating the object around a point, resizing the object, moving the object to another position, calculate the value of an object given $x, y$ and $z$ coordinates and computing the bounding box of an object.
+
         The \texttt{CSGTree} class is an important descendant of \texttt{CSGObject}. This class blaat vanalles
 \end{list}
 
 \section{Evaluation}
+\ref{sect:evaluation}
 
 Although the marching cubes algorithm does work, it is not as fast as we had imagined. Originally we had planned to spend some time improving the performance. As described in section \ref{sect:crack_problem} due to the adaptive variant of the marching cubes algorithm cracks occur in the rendered object. We tried to fix this using a technique described in \cite{DMC}, but only got this partly working due to time constraints.
-
 
 \section{Conclusion}
 
