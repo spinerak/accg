@@ -1,5 +1,7 @@
 \documentclass[a4paper,10pt,twocolumn]{article}
-\usepackage{a4wide,url,longtable,lscape,verbatim,amssymb,graphicx,multirow,fancyhdr,lastpage,algorithm2e}
+\usepackage{a4wide,url,longtable,lscape,verbatim,amsmath,amssymb,graphicx,multirow,fancyhdr,lastpage,algorithm2e}
+\usepackage[font=small,format=plain,labelfont=bf,up,textfont=it,up]{caption}
+
 
 % --- Informal Requirements Commands ---
 \newcounter{req_count}
@@ -42,11 +44,12 @@
 \author{Bart van Arnhem (0557184) \\ Maarten Manders (0573419)}
 
 \begin{document}
-
 \maketitle
+\thispagestyle{empty}
 
 \onecolumn
 \tableofcontents
+\setcounter{page}{1}
 \twocolumn
 \section{Introduction}
 This report describes the work that we have done for the Additional Component Computer Graphics course (2IV05). We have written a program called \textit{CSGBuilder} which allows a user to create complex three-dimensional objects using only a small number of simple primitives, which are basically simple objects.\\
@@ -98,7 +101,7 @@ Possibility to specify a ``weight'', meaning only a certain amount of material i
 \begin{figure}[h]
 \centering
 \includegraphics[width = 0.48\textwidth]{../resources/gui_mockup/1}
-\caption{\emph{Mockup of the graphical user interface}} \label{gui_mockup}
+\caption{Mockup of the graphical user interface} \label{gui_mockup}
 \end{figure}
 
 Figure \ref{gui_mockup} displays a mockup of the graphical user interface. The right and left frame contain respectively the ``building block'' and the ``result'' models. Using the mouse both models can be zoomed an rotated in an intuitive way (like in 3D Studio Max).\\
@@ -119,7 +122,7 @@ To give the user an idea of where the material is going to be added or removed a
         \begin{center}
             \includegraphics[scale=.2]{./images/csgtree.png}
         \end{center}
-        \caption{An example of a CSG tree (source: wikipedia\cite{img:wiki_csg_tree}).}
+        \caption{An example of a CSG tree (source: wikipedia\cite{img:wiki_csg_tree})}
         \label{figure:csg_tree}
     \end{figure}
 
@@ -181,21 +184,17 @@ To give the user an idea of where the material is going to be added or removed a
     There are three operations that can be used to construct a CSG tree. These are the union($\cup$), intersection($\cap$) and difference($-$) set operations. These set operations have to be mapped to the mathematical functions of which CSG trees are constructed, this can be done using the $\min$ and $\max$ functions, as can be seen in Figure~\ref{figure:operations}. In the figure $A, B:\mathbb{R}^3 \rightarrow \mathbb{R}$ are functions (possibly CSG trees) of which a CSG tree is constructed.\\
 
     \begin{figure}[h]
-            \hspace{-1em}
-            \begin{tabular}{p{3em} p{16.5em}}
-                \textbf{Union: } & \\[-0.8em]
-                $A \cup B$ &
-                $\forall[x,y,z \in \mathbb{R} :: \min(A(x, y, z), B(x,y,z))]$ \\[1em]
+        {\fontsize{8.7}{10}\selectfont
+        \textbf{Union:}\\
+        $A \cup B: \forall[x,y,z \in \mathbb{R} :: \min(A(x, y, z), B(x, y, z))]$ \\
 
-                \textbf{Intersection: } & \\[-0.8em]
-                $A \cap B$ &
-                $\forall[x,y,z \in \mathbb{R} :: \max(A(x, y, z), B(x,y,z))]$ \\[1em]
+        \textbf{Intersection:}\\
+        $A \cap B: \forall[x,y,z \in \mathbb{R} :: \max(A(x, y, z), B(x, y, z))]$ \\
 
-                \textbf{Difference: } & \\[-0.8em]
-                $A - B$ &
-                $\forall[x,y,z \in \mathbb{R} :: \max(A(x, y, z), -B(x, y, z))]$ \\[1em]
-            \end{tabular}
-        \caption{The operations to construct CSG trees.}
+        \textbf{Difference:}\\
+        $A - B: \forall[x,y,z \in \mathbb{R} :: \max(A(x, y, z), -B(x, y, z))]$
+        }
+        \caption{The operations to construct CSG trees}
         \label{figure:operations}
     \end{figure}
 
@@ -216,7 +215,7 @@ To give the user an idea of where the material is going to be added or removed a
             8. & $(X \cup Y) - Z$    & $\rightarrow$ & $(X - Z) \cup (Y - Z)$\\
             9. & $(X \cup Y) \cap Z$ & $\rightarrow$ & $(X \cap Z) \cup (Y \cap Z)$\\
         \end{tabular}
-        \caption{Operations to normalize a CSG tree.}
+        \caption{Operations to normalize a CSG tree}
         \label{table:normalize}
     \end{table}
 
@@ -228,7 +227,7 @@ To give the user an idea of where the material is going to be added or removed a
             1. & $A \cap B \rightarrow \emptyset$ & if $\Bound(A)$ does not intersect $\Bound(B)$\\
             2. & $A - B \rightarrow A$            & if $\Bound(A)$ does not intersect $\Bound(B)$\\
         \end{tabular}
-        \caption{Operations to prune a normalized CSG tree.}
+        \caption{Operations to prune a normalized CSG tree}
         \label{table:prune}
     \end{table}
 
@@ -241,7 +240,7 @@ To give the user an idea of where the material is going to be added or removed a
             2. & $\Bound(A \cap B)$ & $=$ & $\Bound(\Bound(A) \cap \Bound(B))$\\
             3. & $\Bound(A - B)$    & $=$ & $\Bound(A)$\\
         \end{tabular}
-        \caption{The computation of a bounding box of a CSG tree.}
+        \caption{The computation of a bounding box of a CSG tree}
         \label{table:bounding_box}
     \end{table}
 
@@ -325,7 +324,7 @@ The octree, generated as described in section \ref{sect:genoctree}, is used as t
         \begin{center}
             \includegraphics[scale=0.6]{./images/cube_config}
         \end{center}
-        \caption{Cube A shows the edge configuration, cube B the vertex configuration.}
+        \caption{Cube A shows the edge configuration, cube B the vertex configuration}
         \label{figure:cube_config}
     \end{figure}
 
@@ -365,13 +364,19 @@ Cracks in the mesh can occur when neighboring cubes in the octree are not of the
         \begin{center}
             \includegraphics[scale=0.8]{./images/amccrack}
         \end{center}
-        \caption{Example of a crack in the mesh caused by different resolution cubes.}
+        \caption{Example of a crack in the mesh caused by different resolution cubes}
         \label{figure:amccracks}
     \end{figure}
 
 TODO hoe gesolved..
 
 \section{Architecture}
+The most important parts of the architecture of CSGBuilder are shown in Figure~\ref{figure:architecture}.
+\begin{figure}[h]
+    \includegraphics[width=\textwidth]{./images/architecture}
+    \caption{The architecture of CSGBuilder}
+    \label{figure:architecture}
+\end{figure}
 
 \section{Evaluation}
 
@@ -396,4 +401,4 @@ Although the marching cubes algorithm does work, it is not as fast as we had ima
     Csg tree.png.\\
     http://en.wikipedia.org/wiki/File:Csg\_tree.png.\\
 \end{thebibliography}
-\end{document} 
+\end{document}
