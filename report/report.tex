@@ -123,24 +123,9 @@ On the right there is a panel which allows the users to adjust certain parameter
 \section{Representing Objects}
 \label{chapt:repobj}
 
-\subsection{CSG Tree}
-    To represent the objects that are modeled with our program, the Constructive Solid Geometry (CSG) technique is used. This technique uses a number of simple objects, called primitives, that are combined in to more complex objects by using boolean operators. To represent the CSG objects the CSG trees that are described in \cite{Wiegand96} are used. Figure~\ref{figure:csg_tree} shows an example of a simple CSG tree.
-
-    \begin{figure}[h]
-        \begin{center}
-            \includegraphics[scale=.2]{./images/csgtree.png}
-        \end{center}
-        \caption{An example of a CSG tree (source: wikipedia\cite{img:wiki_csg_tree})}
-        \label{figure:csg_tree}
-    \end{figure}
-
-    In a CSG tree the boolean operators are the nodes in a binary tree and the primitives are the leaves of the tree. The primitives are represented by mathematical functions in $\mathbb{R}^3$. The operators combine the primitives in a object by using boolean functions on the results of the primitive functions. How this is done will be explained in the next sections.
-
-\subsubsection{Primitives}
-    A primitive in a CSG tree is a function $A:\mathbb{R}^3 \rightarrow \mathbb{R}$. The form of an object is constructed by drawing the points $(x,y,z)$ for which $A(x,y,z)=0$. Our program has a small number of primitives, these are described in Table~\ref{table:primitives}. In this table $p_x$, $p_y$ and $p_z$ denote the coordinates of the position of the center of the primitive and $r_x$, $r_y$ and $r_z$ denote the size of the primitive in respectively the $x$, $y$ and $z$ direction.
 
     \begin{table*}[t!]
-        \begin{tabular}{|p{.1\linewidth}|p{.40\linewidth}|p{.40\linewidth}|}
+        \begin{tabular}{|p{.1\linewidth}|p{.41\linewidth}|p{.40\linewidth}|}
             \hline
             \textbf{Primitive} & \textbf{Description} & \textbf{Formula}\\
             \hline
@@ -163,10 +148,28 @@ On the right there is a panel which allows the users to adjust certain parameter
         \caption{The primitives of CSGBuilder}
         \label{table:primitives}
     \end{table*}
+    
+    
+\subsection{CSG Tree}
+    To represent the objects that are modeled with our program, the Constructive Solid Geometry (CSG) technique is used. This technique uses a number of simple objects, called primitives, that are combined in to more complex objects by using boolean operators. To represent the CSG objects the CSG trees that are described in \cite{Wiegand96} are used. Figure~\ref{figure:csg_tree} shows an example of a simple CSG tree.
+
+    \begin{figure}[h]
+        \begin{center}
+            \includegraphics[scale=.2]{./images/csgtree.png}
+        \end{center}
+        \caption{An example of a CSG tree (source: wikipedia\cite{img:wiki_csg_tree})}
+        \label{figure:csg_tree}
+    \end{figure}
+
+    In a CSG tree the boolean operators are the nodes in a binary tree and the primitives are the leaves of the tree. The primitives are represented by mathematical functions in $\mathbb{R}^3$. The operators combine the primitives in a object by using boolean functions on the results of the primitive functions. How this is done will be explained in the next sections.
+
+\subsubsection{Primitives}
+    A primitive in a CSG tree is a function $A:\mathbb{R}^3 \rightarrow \mathbb{R}$. The form of an object is constructed by drawing the points $(x,y,z)$ for which $A(x,y,z)=0$. Our program has a small number of primitives, these are described in Table~\ref{table:primitives}. In this table $p_x$, $p_y$ and $p_z$ denote the coordinates of the position of the center of the primitive and $r_x$, $r_y$ and $r_z$ denote the size of the primitive in respectively the $x$, $y$ and $z$ direction.
 
     These primitives can be rotated with arbitrary angels around all axes by multiplying a rotation matrix $R$, which is shown in Figure~\ref{figure:rotation_matrix}, with the vector $\overrightarrow{v}=(x,y,z)^T$, so the rotated point $\overrightarrow{w}=R\overrightarrow{v}$. Applying a primitive function $A$ on $\overrightarrow{w}^T$ causes the primitive to be rotated with angles $\alpha_x$, $\alpha_y$ and $\alpha_z$ around respectively the $x$, $y$ and $z$ axes.
 
     \begin{figure*}[!t]
+    {\fontsize{8}{10}\selectfont
         \[
             \left(
                 \begin{array}{lll}
@@ -183,7 +186,7 @@ On the right there is a panel which allows the users to adjust certain parameter
                     \cos(\alpha_x)\cos(\alpha_y) \\
                 \end{array}
             \right)
-        \]
+        \]}
         \caption{The rotation matrix $R$}
         \label{figure:rotation_matrix}
     \end{figure*}
