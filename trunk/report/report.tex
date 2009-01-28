@@ -342,6 +342,7 @@ To determine if the volume inside a cube has sharp features we use the following
     \end{figure}
 
 Essentially this algorithm returns true if the angle between any two vertices is larger than $\delta$. Given the definition of the dot product (see Figure \ref{figure:dot_product}). We can calculate the angle between $v$ and $w$ using the inverse cosine in the following way:
+\footnotetext[1]{http://en.wikipedia.org/wiki/Surface\_normal}
 
 \begin{equation}
     \theta = arccos(\displaystyle\frac{v \bullet w}{|v||w|})
@@ -359,7 +360,6 @@ Because the vertices are normalized $|v||w|$ will always be $1$, so we can simpl
 
 
 \subsubsection{The algorithm}
-\footnotetext[1]{http://en.wikipedia.org/wiki/Surface\_normal}
 
 The octree, generated as described in section \ref{sect:genoctree}, is used as the input for the algorithm. For every leaf node, the algorithm will march the cube assigned to that leaf node.
 
@@ -433,7 +433,15 @@ The first group consists of the \texttt{CSGObject} class and its subclasses. The
 \section{Evaluation}
 \ref{sect:evaluation}
 
-Although the marching cubes algorithm does work, it is not as fast as we had imagined. Originally we had planned to spend some time improving the performance. As described in section \ref{sect:crack_problem} due to the adaptive variant of the marching cubes algorithm cracks occur in the rendered object. We tried to fix this using a technique described in \cite{DMC}, but only got this partly working due to time constraints.
+Due to time constraints we ended up dropping the following functionality:
+
+\begin{itemize}
+    \item[] \textbf{Performance} Originally we had planned to spend some time improving the performance, especially the marching cubes and the CSG tree algorithms. This means the final application is not as fast as we had imagined.
+    \item[] \textbf{Crack problem} As described in section \ref{sect:crack_problem} our adaptive variant of the marching cubes algorithm suffers from the crack problem. We found a paper \cite{DMC} describing a technique to solve this using a dual grid, but we only got this partly working.
+    \item[] \textbf{Object position/orientation} Currently changing the position and orientation at which the building block is removed from or added to the constructed object is only possible by changing the parameters for the building block object. Originally we had in mind that this could be done by zooming/rotating the object using the mouse.
+    \item[] \textbf{Texturing} Texturing of the objects is not implemented.
+\end{itemize}
+
 
 \section{Conclusion}
 
