@@ -157,13 +157,15 @@ On the right there is a panel which allows the users to adjust certain parameter
         \begin{center}
             \includegraphics[scale=.2]{./images/csgtree.png}
         \end{center}
-        \caption{An example of a CSG tree (source: wikipedia\cite{img:wiki_csg_tree})}
+        \caption{An example of a CSG tree (source: wikipedia$^1$)}
         \label{figure:csg_tree}
     \end{figure}
 
     In a CSG tree the boolean operators are the nodes in a binary tree and the primitives are the leaves of the tree. The primitives are represented by mathematical functions in $\mathbb{R}^3$. The operators combine the primitives in a object by using boolean functions on the results of the primitive functions. How this is done will be explained in the next sections.
 
 \subsubsection{Primitives}
+    \footnotetext[1]{http://en.wikipedia.org/wiki/File:Csg\_tree.png}
+
     A primitive in a CSG tree is a function $A:\mathbb{R}^3 \rightarrow \mathbb{R}$. The form of an object is constructed by drawing the points $(x,y,z)$ for which $A(x,y,z)=0$. Our program has a small number of primitives, these are described in Table~\ref{table:primitives}. In this table $p_x$, $p_y$ and $p_z$ denote the coordinates of the position of the center of the primitive and $r_x$, $r_y$ and $r_z$ denote the size of the primitive in respectively the $x$, $y$ and $z$ direction. $e_x$, $e_y$ and $e_z$ denote exponents which define the shape of an object.
 
     These primitives can be rotated with arbitrary angels around all axes by multiplying a rotation matrix $R$, which is shown in Figure~\ref{figure:rotation_matrix}, with the vector $\overrightarrow{v}=(x,y,z)^T$, so the rotated point $\overrightarrow{w}=R\overrightarrow{v}$. Applying a primitive function $A$ on $\overrightarrow{w}^T$ causes the primitive to be rotated with angles $\alpha_x$, $\alpha_y$ and $\alpha_z$ around respectively the $x$, $y$ and $z$ axes.
@@ -318,7 +320,7 @@ The next step is to visit each leaf node, and check if the part of the volume th
         \begin{center}
             \includegraphics[scale=0.4]{./images/Surface_normal}
         \end{center}
-        \caption{Example surface normals (source$^1$)}
+        \caption{Example surface normals (source: wikipedia$^1$)}
         \label{figure:surface_normal}
     \end{figure}
 
@@ -345,16 +347,16 @@ Essentially this algorithm returns true if the angle between any two vertices is
 \footnotetext[1]{http://en.wikipedia.org/wiki/Surface\_normal}
 
 \begin{equation}
-    \theta = arccos(\displaystyle\frac{v \bullet w}{|v||w|})
+    \theta = arccos(\displaystyle\frac{v \cdot w}{|v||w|})
 \end{equation}
 
-Because the vertices are normalized $|v||w|$ will always be $1$, so we can simplify this to $\theta = arccos(v \bullet w)$.
+Because the vertices are normalized $|v||w|$ will always be $1$, so we can simplify this to $\theta = arccos(v \cdot w)$.
 
     \begin{figure}[h!]
         \begin{center}
             \includegraphics[scale=0.8]{./images/dotproduct}
         \end{center}
-        \caption{Dot product $v \bullet w = |v||w|cos(\theta)$}
+        \caption{Dot product $v \cdot w = |v||w|cos(\theta)$}
         \label{figure:dot_product}
     \end{figure}
 
@@ -462,9 +464,5 @@ Due to time constraints we ended up dropping the following functionality:
     S. Schaefer, J. Warren. \\
     Dual Marching Cubes: Primal Contouring of Dual Grids. \\
 
-\bibitem{img:wiki_csg_tree}
-    Unknown author.\\
-    Csg tree.png.\\
-    http://en.wikipedia.org/wiki/File:Csg\_tree.png.\\
 \end{thebibliography}
 \end{document}
