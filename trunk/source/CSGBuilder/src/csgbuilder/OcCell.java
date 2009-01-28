@@ -133,10 +133,10 @@ public class OcCell implements Comparable {
 
         boolean recurse = parent == null;
         
-        int maxDepth = 7;
+        int maxDepth = 4;
         
         // -> hack
-        if (depth < 4) {
+        if (depth < 3) {
             recurse = parent == null || inObject;
         }
         
@@ -163,22 +163,22 @@ public class OcCell implements Comparable {
                 }
             }
             
-            // -> hack
-            // If one of the children has children and the current child has content -> recurse
-            if (recurseDepth > 0) {
-                for (OcCell c : child) {
-                    if (c.hasChildren) continue;
-                    
-                    if (c.childDepth == recurseDepth) continue;
-                    
-                    for (Vertex v : c.p) {
-                        if (tree.getFunctionValue(v.x, v.y, v.z) < 0) {
-                            c.recurse(recurseDepth - c.mDepth);
-                            break;
-                        }
-                    }
-                }
-            }
+//            // -> hack
+//            // If one of the children has children and the current child has content -> recurse
+//            if (recurseDepth > 0) {
+//                for (OcCell c : child) {
+//                    if (c.hasChildren) continue;
+//                    
+//                    if (c.childDepth == recurseDepth) continue;
+//                    
+//                    for (Vertex v : c.p) {
+//                        if (tree.getFunctionValue(v.x, v.y, v.z) < 0) {
+//                            c.recurse(recurseDepth - c.mDepth);
+//                            break;
+//                        }
+//                    }
+//                }
+//            }
         }
         else {
             upParentChildDepth(depth);

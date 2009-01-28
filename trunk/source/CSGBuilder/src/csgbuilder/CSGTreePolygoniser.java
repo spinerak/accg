@@ -142,6 +142,7 @@ public class CSGTreePolygoniser extends Thread {
             
             for (int j = 0; j < c.vertices.size(); j++) {
                 Vertex v = (Vertex) c.vertices.get(j);
+                
                 Vertex n = new Vertex();
                 n.x = (float) ((tree.getFunctionValue(v.x + d, v.y, v.z) - tree.getFunctionValue(v.x, v.y, v.z)) / d);
                 n.y = (float) ((tree.getFunctionValue(v.x, v.y + d, v.z) - tree.getFunctionValue(v.x, v.y, v.z)) / d);
@@ -591,7 +592,14 @@ public class CSGTreePolygoniser extends Thread {
        /* Create the triangle */
        for (i=0;triTable[cubeindex][i]!=-1;i++) {
 		   //vertices.add(vertlist[triTable[cubeindex][i]]);
-		   vertices.add(vertlist[triTable[cubeindex][i]]);
+           Vertex v = vertlist[triTable[cubeindex][i]];
+           if (v != null) {
+    		   vertices.add(v);
+           }
+           else
+           {
+               System.out.println("Tried to add null vertex? " + triTable[cubeindex][i]);
+           }
 	   }
     }
 
