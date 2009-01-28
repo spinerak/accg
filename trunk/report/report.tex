@@ -1,4 +1,4 @@
-\documentclass[a4paper,10pt,twocolumn]{article}
+\documentclass[a4wide,10pt,twocolumn]{article}
 \usepackage{a4wide,url,longtable,lscape,verbatim,amsmath,amssymb,graphicx,multirow,fancyhdr,lastpage,algorithm2e}
 \usepackage[font=small,format=plain,labelfont=bf,up,textfont=it,up]{caption}
 
@@ -53,7 +53,7 @@
 \setcounter{page}{1}
 \twocolumn
 \section{Introduction}
-This report describes the work that we have done for the Additional Component Computer Graphics course (2IV05). We have written a program called \textit{CSGBuilder} which allows a user to create complex three-dimensional objects using only a small number of simple primitives, which are basically simple objects.
+This report describes the work that we have done for the Additional Component Computer Graphics course (2IV05). We have written a program called \emph{CSGBuilder} which allows a user to create complex three-dimensional objects using only a small number of simple primitives, which are basically simple objects.
 
 We have used a technique, called Constructive Solid Geometry, or CSG in short, to create our models. This technique uses mathematical functions to represent primitives and boolean operators to construct extended objects using these primitives.
 
@@ -70,7 +70,7 @@ We have used the Java\textcopyright\ programming language in combination with Sw
 \caption{Actual GUI of current application}
 \label{figure:gui}
 \end{figure*}
-This chapter is divided in two sections, in which different aspects of our system are specified as originally provided in our proposal. The ``Functionality'' section describes the functionality of CSGBuilder. The ``Interaction and presentation'' section describes the ways how the users of our software can interact with CSGBuilder.
+This chapter is divided in two sections, in which different aspects of our system are specified as originally provided in our proposal. The ``Functionality'' section describes the functionality of \emph{CSGBuilder}. The ``Interaction and presentation'' section describes the ways how the users of our software can interact with \emph{CSGBuilder}.
 
 \subsection{Functionality}
 This section describes the functionality of the program. There are two kinds of functionality that will be added. ``Core functionality'' is that part of the software that must be implemented in order to make it work properly. ''Extra functionality'' is that part of the software that makes it more appealing. If time permits, all the functionality will be implemented, otherwise parts of the extra functionality will be dropped.
@@ -148,8 +148,8 @@ On the right there is a panel which allows the users to adjust certain parameter
         \caption{The primitives of CSGBuilder}
         \label{table:primitives}
     \end{table*}
-    
-    
+
+
 \subsection{CSG Tree}
     To represent the objects that are modeled with our program, the Constructive Solid Geometry (CSG) technique is used. This technique uses a number of simple objects, called primitives, that are combined in to more complex objects by using boolean operators. To represent the CSG objects the CSG trees that are described in \cite{Wiegand96} are used. Figure~\ref{figure:csg_tree} shows an example of a simple CSG tree.
 
@@ -164,7 +164,7 @@ On the right there is a panel which allows the users to adjust certain parameter
     In a CSG tree the boolean operators are the nodes in a binary tree and the primitives are the leaves of the tree. The primitives are represented by mathematical functions in $\mathbb{R}^3$. The operators combine the primitives in a object by using boolean functions on the results of the primitive functions. How this is done will be explained in the next sections.
 
 \subsubsection{Primitives}
-    A primitive in a CSG tree is a function $A:\mathbb{R}^3 \rightarrow \mathbb{R}$. The form of an object is constructed by drawing the points $(x,y,z)$ for which $A(x,y,z)=0$. Our program has a small number of primitives, these are described in Table~\ref{table:primitives}. In this table $p_x$, $p_y$ and $p_z$ denote the coordinates of the position of the center of the primitive and $r_x$, $r_y$ and $r_z$ denote the size of the primitive in respectively the $x$, $y$ and $z$ direction.
+    A primitive in a CSG tree is a function $A:\mathbb{R}^3 \rightarrow \mathbb{R}$. The form of an object is constructed by drawing the points $(x,y,z)$ for which $A(x,y,z)=0$. Our program has a small number of primitives, these are described in Table~\ref{table:primitives}. In this table $p_x$, $p_y$ and $p_z$ denote the coordinates of the position of the center of the primitive and $r_x$, $r_y$ and $r_z$ denote the size of the primitive in respectively the $x$, $y$ and $z$ direction. $e_x$, $e_y$ and $e_z$ denote exponents which define the shape of an object.
 
     These primitives can be rotated with arbitrary angels around all axes by multiplying a rotation matrix $R$, which is shown in Figure~\ref{figure:rotation_matrix}, with the vector $\overrightarrow{v}=(x,y,z)^T$, so the rotated point $\overrightarrow{w}=R\overrightarrow{v}$. Applying a primitive function $A$ on $\overrightarrow{w}^T$ causes the primitive to be rotated with angles $\alpha_x$, $\alpha_y$ and $\alpha_z$ around respectively the $x$, $y$ and $z$ axes.
 
@@ -418,20 +418,25 @@ Cracks in the mesh can occur when neighboring cubes in the octree are not of the
     \label{figure:architecture}
 \end{figure*}
 
-The most important parts of the architecture of CSGBuilder are shown in Figure~\ref{figure:architecture}. The figure is a simplified view of the architecture, but the most important classes and the most important fields and methods of these classes are included.
+The most important parts of the architecture of \emph{CSGBuilder} are shown in Figure~\ref{figure:architecture}. The figure is a simplified view of the architecture, but the most important classes and the most important fields and methods of these classes are included.
 
 The classes in the figure can roughly be divided into two groups. A group which contains and manages the internal tree structure of objects, and a group which handles the rendering of objects.
 
-The first group consists of the \texttt{CSGObject} class and its subclasses. The second group consists of \texttt{OperandViewer} class, the \texttt{CSGTreePolygoniser} class, the \texttt{OperandViewerRenderer}. The \texttt{CSGBuilderView} class is not part of these groups, because it implements the user interface of \textit{CSGBuilder}. The classes are described in more detail below.
+The first group consists of the \texttt{CSGObject} class and its subclasses. The second group consists of \texttt{OperandViewer} class, the \texttt{CSGTreePolygoniser} class, the \texttt{OperandViewerRenderer}. The \texttt{CSGBuilderView} class is not part of these groups, because it implements the user interface of \emph{CSGBuilder}. The classes are described in more detail below.
 
 \begin{list}{\labelitemi}{\leftmargin=0em}
     \item[] \textbf{CSGObject} This class defines an interface for all the nodes of a CSG tree. So, common operations that can be done on these nodes are defined here. The most important operations on a \texttt{CSGObject} are rotating the object around a point, resizing the object, moving the object to another position, calculate the value of an object given $x, y$ and $z$ coordinates and computing the bounding box of an object.
-
-        The \texttt{CSGTree} class is an important descendant of \texttt{CSGObject}. This class blaat vanalles
+    \item[] \textbf{CSGTree} This class is an important descendant of \texttt{CSGObject}. This class implements operations on CSG trees such as the union, the intersection and the difference of a CSG tree and a CSGObject. Also, the normalization and pruning of the CSG tree is implemented in this class.
+    \item[] \textbf{CSGTreeOperation} This class is the parent class of the \texttt{CSGTReeUnion}, \texttt{CSGTreeIntersection} and \texttt{CSGTreeDifference}. The most important part of this class are that a binary tree structure with a left and a right child are defined in this class. The behavior of the union, intersection and difference are defined in their corresponding classes.
+    \item[] \textbf{CSGObject} This class defines basic properties for primitives. Its descendants \texttt{CSGCuboid} and \texttt{CSGEllipsoid} define specific behavior for the primitives in a CSG tree.
+    \item[] \textbf{CSGTreePolygonizer} This class offers functionality to generate a mesh from a CSG tree.
+    \item[] \textbf{OperandViewer} This class implements the panel on which a CSG tree is drawn. Here, some basic input functionality such as what happens at a mouse click is defined.
+    \item[] \textbf{OperandViewerRenderer} This class implements all the rendering functions using OpenGL.
+    \item[] \textbf{CSGBuilderView} As described before, this class implements the main functionality of the user interface of \emph{CSGBuilder}.
 \end{list}
 
 \section{Evaluation}
-\ref{sect:evaluation}
+\label{sect:evaluation}
 
 Due to time constraints we ended up dropping the following functionality:
 
@@ -444,6 +449,7 @@ Due to time constraints we ended up dropping the following functionality:
 
 
 \section{Conclusion}
+\label{sect:conclusion}
 
 \bibliographystyle{amsplain}
 \begin{thebibliography}{99}
