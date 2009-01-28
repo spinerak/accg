@@ -19,9 +19,9 @@ public class ObjectPropertyPanel extends javax.swing.JPanel {
     
     /** Creates new form ObjectPropertyPanel */
     public ObjectPropertyPanel(CSGTree tree, OperandViewer viewer) {
+        setViewer(viewer);      
         initComponents();
         setCSGObject(tree);
-        setViewer(viewer);      
         resetValues();
     }
     
