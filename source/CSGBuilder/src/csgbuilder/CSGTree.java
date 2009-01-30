@@ -175,7 +175,7 @@ public class CSGTree extends CSGTreeElement {
 	    normalize(node.left);
 	}
 	while(!(node instanceof CSGTreeUnion) &&
-	       (!(node.right instanceof CSGTreeOperation) ||
+	       (!(node.right instanceof CSGTreeElement) ||
 	         (node.left  instanceof CSGTreeUnion)));
     }
     
