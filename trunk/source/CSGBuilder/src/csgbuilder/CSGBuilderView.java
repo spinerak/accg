@@ -42,6 +42,13 @@ public class CSGBuilderView extends FrameView {
         super(app);
 
         initComponents();
+        treeFrame.setPreferredSize(new java.awt.Dimension(100, 500));
+        editorFrame.setPreferredSize(new java.awt.Dimension(500, 500));
+        editorFrame.setBounds(100, 0, 300, 400);
+        viewerFrame.setPreferredSize(new java.awt.Dimension(500, 500));
+        viewerFrame.setBounds(600, 0, 300, 400);
+        propertiesFrame.setPreferredSize(new java.awt.Dimension(200, 500));
+        propertiesFrame.setBounds(1100, 0, 100, 100);
 
         mainFrame.setJMenuBar(jMenuBar1);
         
