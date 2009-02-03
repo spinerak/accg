@@ -83,6 +83,12 @@ public class AOperandMIA extends OperandViewerMIA {
             }
         }
         
+	if (mView.mAOperandViewer.getTree() != null) {
+	    javax.swing.tree.TreeNode root = mView.mAOperandViewer.getTree().CSGTree2TreeNode();
+	    javax.swing.tree.DefaultTreeModel model = new javax.swing.tree.DefaultTreeModel(root);
+	    CSGBuilderView.tree.setModel(model);
+	}
+	
         super.mouseClicked(e);
     }
 }
