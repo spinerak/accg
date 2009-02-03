@@ -22,7 +22,11 @@ public class Types {
             z = pz;
         }
         
-        
+        public Vertex(double[] p) {
+            x = (float)p[0];
+            y = (float)p[1];
+            z = (float)p[2];
+        }
 
 		public Vertex(double px, double py, double pz) {
             x = (float)px;

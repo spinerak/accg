@@ -85,6 +85,7 @@ public class CSGBuilderView extends FrameView {
         
         //CSGTree lvBOpTree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{0.5,0.5,0.5}));
         CSGTree lvBOpTree = new CSGTree(new CSGEllipsoid(new double[]{0.0,0.0,0.0}, new double[]{0.5,0.5,0.5}, new double[]{Math.PI/4, Math.PI/4, Math.PI/4}));
+        //lvBOpTree.difference(new CSGEllipsoid(new double[]{-0.2,0.0,0.0}, new double[]{0.5,0.5,0.5}));
         viewerFrame.add(mBOperandViewer.getCanvas());
         propertiesFrame.add(new ObjectPropertyPanel(lvBOpTree, mBOperandViewer));
 
