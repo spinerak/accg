@@ -97,15 +97,15 @@ public class CSGBuilderView extends FrameView {
         
         GLCanvas canvas1 = mAOperandViewer.getCanvas();        
         editorFrame.add(canvas1);		
-        canvas1.addMouseListener(new java.awt.event.MouseAdapter(){
-            @Override public void mouseClicked(java.awt.event.MouseEvent e) {
-                switch (e.getButton()) {
-                    case java.awt.event.MouseEvent.BUTTON3:
-                        jDialog1.setVisible(true);
-                        break;
-                }
-            }
-        });
+//        canvas1.addMouseListener(new java.awt.event.MouseAdapter(){
+//            @Override public void mouseClicked(java.awt.event.MouseEvent e) {
+//                switch (e.getButton()) {
+//                    case java.awt.event.MouseEvent.BUTTON3:
+//                        jDialog1.setVisible(true);
+//                        break;
+//                }
+//            }
+//        });
         
         int screenWidth = java.awt.Toolkit.getDefaultToolkit().getScreenSize().width;
         int screenHeight = java.awt.Toolkit.getDefaultToolkit().getScreenSize().height;        

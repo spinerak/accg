@@ -260,7 +260,7 @@ public class OcCell implements Comparable {
     
     public Vertex getNormal(Vertex v) {
             Vertex n = new Vertex();
-            float d = 0.001f;
+            float d = 0.00001f;
             n.x = (float) ((mTree.getFunctionValue(v.x + d, v.y, v.z) - mTree.getFunctionValue(v.x, v.y, v.z)) / d);
             n.y = (float) ((mTree.getFunctionValue(v.x, v.y + d, v.z) - mTree.getFunctionValue(v.x, v.y, v.z)) / d);
             n.z = (float) ((mTree.getFunctionValue(v.x, v.y, v.z + d) - mTree.getFunctionValue(v.x, v.y, v.z)) / d);
