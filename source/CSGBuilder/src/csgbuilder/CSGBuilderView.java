@@ -20,6 +20,7 @@ import javax.media.opengl.*;
 import javax.swing.JFileChooser;
 import javax.swing.filechooser.*;
 import javax.swing.*;
+import javax.swing.tree.*;
 
 /**
  * The application's main frame.
@@ -27,6 +28,8 @@ import javax.swing.*;
 public class CSGBuilderView extends FrameView {
 
     // HACK
+    public static JTree tree = new JTree();
+    
     private CSGTree lvTree;
     
     public OperandViewer mAOperandViewer;
@@ -41,6 +44,10 @@ public class CSGBuilderView extends FrameView {
     public CSGBuilderView(SingleFrameApplication app) {
         super(app);
 
+	// Create empty tree model
+	DefaultTreeModel model = new DefaultTreeModel(new DefaultMutableTreeNode("EMPTY"));
+	tree.setModel(model);
+	
         initComponents();
         treeFrame.setPreferredSize(new java.awt.Dimension(100, 500));
         editorFrame.setPreferredSize(new java.awt.Dimension(500, 500));
@@ -108,7 +115,17 @@ public class CSGBuilderView extends FrameView {
         int top = mainFrame.getHeight();
         int height = screenHeight - top;
         
-        JScrollPane treePane = new JScrollPane(new JTree(mBOperandViewer.getTree().CSGTree2TreeNode()));
+	ImageIcon leafIcon = new ImageIcon("leaf_icon.png");
+	ImageIcon nodeIcon = new ImageIcon("node_icon.png");
+	if ((leafIcon != null) && (nodeIcon != null)) {
+	    DefaultTreeCellRenderer renderer = new DefaultTreeCellRenderer();
+	    renderer.setLeafIcon(leafIcon);
+	    renderer.setClosedIcon(nodeIcon);
+	    renderer.setOpenIcon(nodeIcon);
+	    tree.setCellRenderer(renderer);
+	}
+
+        JScrollPane treePane = new JScrollPane(tree);
         treeFrame.add(treePane);
         
         treeFrame.pack();
