@@ -144,6 +144,9 @@ public class OperandViewerRenderer implements GLEventListener {
 	}
 
     void reset() {
+        this.mZoom = -6.0;
+        this.mTranslation.x = 0;
+        this.mTranslation.y = 0;
         synchronized(matrixLock) {
             LastRot.setIdentity();   // Reset Rotation
             ThisRot.setIdentity();   // Reset Rotation
