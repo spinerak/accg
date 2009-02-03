@@ -25,6 +25,6 @@ public class OcTree {
         
         double pos[] = new double[3];
         
-        root = new OcCell(s.x - (float)pos[0], s.y - (float)pos[1], s.z - (float)pos[2], dim, tree, 0, null);
+        root = new OcCell(s.x - (float)pos[0], s.y - (float)pos[1], s.z - (float)pos[2], dim, tree, 0, null, true, null);
     }
 }
