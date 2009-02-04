@@ -479,10 +479,10 @@ private void objectPropertyHandler(java.awt.event.ActionEvent evt) {//GEN-FIRST:
         javax.swing.JComboBox source = (javax.swing.JComboBox)evt.getSource();
         
         if (source.getSelectedItem().toString().equals("Cuboid")) {
-            setCSGObject(new CSGTree(new CSGSuperQuadric(new double[] {0,0,0}, new double[] {0.5,0.5,0.5}, new double[] {0,0,0}, new double[] {9.0,9.0,9.0})));
+            setCSGObject(new CSGTree(new CSGCuboid(new double[] {0,0,0}, new double[] {0.5,0.5,0.5}, new double[] {0,0,0})));
         }
         else if (source.getSelectedItem().toString().equals("Ellipsoid")) {
-            setCSGObject(new CSGTree(new CSGSuperQuadric(new double[] {0,0,0}, new double[] {0.5,0.5,0.5}, new double[] {0,0,0}, new double[] {2.0,2.0,2.0})));
+            setCSGObject(new CSGTree(new CSGEllipsoid(new double[] {0,0,0}, new double[] {0.5,0.5,0.5}, new double[] {0,0,0})));
         }
         else if (source.getSelectedItem().toString().equals("Star")) {
             setCSGObject(new CSGTree(new CSGSuperQuadric(new double[] {0,0,0}, new double[] {0.5,0.5,0.5}, new double[] {0,0,0}, new double[] {0.5,0.5,0.5})));
